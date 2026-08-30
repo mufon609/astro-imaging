@@ -1,0 +1,1524 @@
+{
+ "_what": "build_toprow.py \u2014 the U5 arm's curated dir: the 29 S_top-over-bar members lose their\nTOP 800 rows (Siril y-down 0..800 = FITS rows H-800..H) as Siril `crop` of a COPY of the\nmember AS THE CHAIN'S CURATED DIR HAS IT; every other member symlinked to the same target\nthe chain's dir resolves to. Then every copy is verified the way the stage verifies\n(row-adapted) and the curated record is written. Measurement arm scratch \u2014 nothing here\ntouches the chain's curated dir, the canonical, a member or a raw.\n\n    python3 sessions/aug14/work/toprow/build_toprow.py",
+ "rule": "asym>0.20px@r400 top30 +toprow(29)",
+ "rows_removed_top": 800,
+ "crop_convention": "Siril `crop 0 800 W H-800` \u2014 Siril counts y DOWN from the top, so this removes the display's top 800 rows = FITS rows H-800..H (astropy y up); the copy keeps FITS rows 0..H-800 and its CRPIX2 is unchanged (the FITS origin row survives) \u2014 VERIFIED per copy by pixel identity against that slab",
+ "chain_curated": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full",
+ "curated": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/toprow/curated_toprow",
+ "n_symlinks": 47,
+ "n_rowcropped": 29,
+ "plan": [
+  {
+   "name": "sub_001_july31_set-01_sub_01.fit",
+   "tag": "july31/set-01/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01.fit"
+  },
+  {
+   "name": "sub_002_july31_set-01_sub_02.fit",
+   "tag": "july31/set-01/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_02.fit"
+  },
+  {
+   "name": "sub_003_july31_set-01_sub_03.fit",
+   "tag": "july31/set-01/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03.fit"
+  },
+  {
+   "name": "sub_004_july31_set-01_sub_04.fit",
+   "tag": "july31/set-01/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_04.fit"
+  },
+  {
+   "name": "sub_005_july31_set-01_sub_05.fit",
+   "tag": "july31/set-01/sub_05",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_05.fit"
+  },
+  {
+   "name": "sub_006_july31_set-02_sub_01.fit",
+   "tag": "july31/set-02/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_01.fit"
+  },
+  {
+   "name": "sub_007_july31_set-02_sub_02.fit",
+   "tag": "july31/set-02/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_02.fit"
+  },
+  {
+   "name": "sub_008_july31_set-02_sub_03.fit",
+   "tag": "july31/set-02/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_03.fit"
+  },
+  {
+   "name": "sub_009_july31_set-02_sub_04.fit",
+   "tag": "july31/set-02/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_04.fit"
+  },
+  {
+   "name": "sub_010_july31_set-02_sub_05.fit",
+   "tag": "july31/set-02/sub_05",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_05.fit"
+  },
+  {
+   "name": "sub_011_july31_set-03_sub_01.fit",
+   "tag": "july31/set-03/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01.fit"
+  },
+  {
+   "name": "sub_012_july31_set-03_sub_02.fit",
+   "tag": "july31/set-03/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_02.fit"
+  },
+  {
+   "name": "sub_013_july31_set-03_sub_03.fit",
+   "tag": "july31/set-03/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03.fit"
+  },
+  {
+   "name": "sub_014_july31_set-03_sub_04.fit",
+   "tag": "july31/set-03/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_04.fit"
+  },
+  {
+   "name": "sub_015_july31_set-03_sub_05.fit",
+   "tag": "july31/set-03/sub_05",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_05.fit"
+  },
+  {
+   "name": "sub_016_july31_set-04_sub_01.fit",
+   "tag": "july31/set-04/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_01.fit"
+  },
+  {
+   "name": "sub_017_july31_set-04_sub_02.fit",
+   "tag": "july31/set-04/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_02.fit"
+  },
+  {
+   "name": "sub_018_aug06_set-01_sub_01.fit",
+   "tag": "aug06/set-01/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_01.fit"
+  },
+  {
+   "name": "sub_019_aug06_set-01_sub_02.fit",
+   "tag": "aug06/set-01/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_02.fit"
+  },
+  {
+   "name": "sub_020_aug06_set-01_sub_03.fit",
+   "tag": "aug06/set-01/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_03.fit"
+  },
+  {
+   "name": "sub_021_aug06_set-01_sub_04.fit",
+   "tag": "aug06/set-01/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_04.fit"
+  },
+  {
+   "name": "sub_022_aug06_set-01_sub_05.fit",
+   "tag": "aug06/set-01/sub_05",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_05.fit"
+  },
+  {
+   "name": "sub_023_aug06_set-02_sub_01.fit",
+   "tag": "aug06/set-02/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01.fit"
+  },
+  {
+   "name": "sub_024_aug06_set-02_sub_02.fit",
+   "tag": "aug06/set-02/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02.fit"
+  },
+  {
+   "name": "sub_025_aug06_set-02_sub_03.fit",
+   "tag": "aug06/set-02/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_03.fit"
+  },
+  {
+   "name": "sub_026_aug06_set-02_sub_04.fit",
+   "tag": "aug06/set-02/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_04.fit"
+  },
+  {
+   "name": "sub_027_aug06_set-03_sub_01.fit",
+   "tag": "aug06/set-03/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_01.fit"
+  },
+  {
+   "name": "sub_028_aug06_set-03_sub_02.fit",
+   "tag": "aug06/set-03/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_02.fit"
+  },
+  {
+   "name": "sub_029_aug06_set-03_sub_03.fit",
+   "tag": "aug06/set-03/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_03.fit"
+  },
+  {
+   "name": "sub_030_aug06_set-03_sub_04.fit",
+   "tag": "aug06/set-03/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_04.fit"
+  },
+  {
+   "name": "sub_031_aug09_set-01_sub_01.fit",
+   "tag": "aug09/set-01/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_01.fit"
+  },
+  {
+   "name": "sub_032_aug09_set-01_sub_02.fit",
+   "tag": "aug09/set-01/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_02.fit"
+  },
+  {
+   "name": "sub_033_aug09_set-01_sub_03.fit",
+   "tag": "aug09/set-01/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_03.fit"
+  },
+  {
+   "name": "sub_034_aug09_set-01_sub_04.fit",
+   "tag": "aug09/set-01/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_04.fit"
+  },
+  {
+   "name": "sub_035_aug09_set-02_sub_01.fit",
+   "tag": "aug09/set-02/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_01.fit"
+  },
+  {
+   "name": "sub_036_aug09_set-02_sub_02.fit",
+   "tag": "aug09/set-02/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_02.fit"
+  },
+  {
+   "name": "sub_037_aug09_set-02_sub_03.fit",
+   "tag": "aug09/set-02/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_03.fit"
+  },
+  {
+   "name": "sub_038_aug09_set-02_sub_04.fit",
+   "tag": "aug09/set-02/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_04.fit"
+  },
+  {
+   "name": "sub_039_aug09_set-03_sub_01.fit",
+   "tag": "aug09/set-03/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_01.fit"
+  },
+  {
+   "name": "sub_040_aug09_set-03_sub_02.fit",
+   "tag": "aug09/set-03/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_02.fit"
+  },
+  {
+   "name": "sub_041_aug09_set-03_sub_03.fit",
+   "tag": "aug09/set-03/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_03.fit"
+  },
+  {
+   "name": "sub_042_aug09_set-03_sub_04.fit",
+   "tag": "aug09/set-03/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_04.fit"
+  },
+  {
+   "name": "sub_043_aug09_set-03_sub_05.fit",
+   "tag": "aug09/set-03/sub_05",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_05.fit",
+   "src_is_chain_copy": false,
+   "W": 5832,
+   "H": 3947,
+   "kept_rows": 3147,
+   "memcrop_inherited": null,
+   "memcscor_inherited": null
+  },
+  {
+   "name": "sub_044_aug09_set-04_sub_01.fit",
+   "tag": "aug09/set-04/sub_01",
+   "action": "rekey_copy",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_044_aug09_set-04_sub_01.fit"
+  },
+  {
+   "name": "sub_045_aug09_set-04_sub_02.fit",
+   "tag": "aug09/set-04/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_045_aug09_set-04_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 5016,
+   "H": 3952,
+   "kept_rows": 3152,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.5486
+  },
+  {
+   "name": "sub_046_aug09_set-04_sub_03.fit",
+   "tag": "aug09/set-04/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_03.fit",
+   "src_is_chain_copy": false,
+   "W": 5830,
+   "H": 3953,
+   "kept_rows": 3153,
+   "memcrop_inherited": null,
+   "memcscor_inherited": null
+  },
+  {
+   "name": "sub_047_aug09_set-04_sub_04.fit",
+   "tag": "aug09/set-04/sub_04",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_047_aug09_set-04_sub_04.fit",
+   "src_is_chain_copy": true,
+   "W": 5016,
+   "H": 3952,
+   "kept_rows": 3152,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.5548
+  },
+  {
+   "name": "sub_048_aug09_set-04_sub_05.fit",
+   "tag": "aug09/set-04/sub_05",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_048_aug09_set-04_sub_05.fit",
+   "src_is_chain_copy": true,
+   "W": 5015,
+   "H": 3953,
+   "kept_rows": 3153,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.5718
+  },
+  {
+   "name": "sub_049_aug09_set-05_sub_01.fit",
+   "tag": "aug09/set-05/sub_01",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01.fit",
+   "src_is_chain_copy": false,
+   "W": 5772,
+   "H": 3932,
+   "kept_rows": 3132,
+   "memcrop_inherited": null,
+   "memcscor_inherited": null
+  },
+  {
+   "name": "sub_050_aug09_set-05_sub_02.fit",
+   "tag": "aug09/set-05/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_050_aug09_set-05_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 4986,
+   "H": 3933,
+   "kept_rows": 3133,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6124
+  },
+  {
+   "name": "sub_051_aug09_set-05_sub_03.fit",
+   "tag": "aug09/set-05/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_051_aug09_set-05_sub_03.fit",
+   "src_is_chain_copy": true,
+   "W": 4986,
+   "H": 3932,
+   "kept_rows": 3132,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6106
+  },
+  {
+   "name": "sub_052_aug09_set-05_sub_04.fit",
+   "tag": "aug09/set-05/sub_04",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_052_aug09_set-05_sub_04.fit",
+   "src_is_chain_copy": true,
+   "W": 4986,
+   "H": 3933,
+   "kept_rows": 3133,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6202
+  },
+  {
+   "name": "sub_053_aug14_set-01_sub_01.fit",
+   "tag": "aug14/set-01/sub_01",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_01.fit"
+  },
+  {
+   "name": "sub_054_aug14_set-01_sub_02.fit",
+   "tag": "aug14/set-01/sub_02",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_02.fit"
+  },
+  {
+   "name": "sub_055_aug14_set-01_sub_03.fit",
+   "tag": "aug14/set-01/sub_03",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_03.fit"
+  },
+  {
+   "name": "sub_056_aug14_set-01_sub_04.fit",
+   "tag": "aug14/set-01/sub_04",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_04.fit"
+  },
+  {
+   "name": "sub_057_aug14_set-01_sub_05.fit",
+   "tag": "aug14/set-01/sub_05",
+   "action": "symlink",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_05.fit"
+  },
+  {
+   "name": "sub_058_aug14_set-02_sub_01.fit",
+   "tag": "aug14/set-02/sub_01",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_058_aug14_set-02_sub_01.fit",
+   "src_is_chain_copy": true,
+   "W": 4996,
+   "H": 3941,
+   "kept_rows": 3141,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.551
+  },
+  {
+   "name": "sub_059_aug14_set-02_sub_02.fit",
+   "tag": "aug14/set-02/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_059_aug14_set-02_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 4996,
+   "H": 3941,
+   "kept_rows": 3141,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.5706
+  },
+  {
+   "name": "sub_060_aug14_set-02_sub_03.fit",
+   "tag": "aug14/set-02/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_060_aug14_set-02_sub_03.fit",
+   "src_is_chain_copy": true,
+   "W": 4996,
+   "H": 3942,
+   "kept_rows": 3142,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6082
+  },
+  {
+   "name": "sub_061_aug14_set-02_sub_04.fit",
+   "tag": "aug14/set-02/sub_04",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_061_aug14_set-02_sub_04.fit",
+   "src_is_chain_copy": true,
+   "W": 4996,
+   "H": 3942,
+   "kept_rows": 3142,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6084
+  },
+  {
+   "name": "sub_062_aug14_set-02_sub_05.fit",
+   "tag": "aug14/set-02/sub_05",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_062_aug14_set-02_sub_05.fit",
+   "src_is_chain_copy": true,
+   "W": 4996,
+   "H": 3942,
+   "kept_rows": 3142,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6276
+  },
+  {
+   "name": "sub_063_aug14_set-03_sub_01.fit",
+   "tag": "aug14/set-03/sub_01",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_063_aug14_set-03_sub_01.fit",
+   "src_is_chain_copy": true,
+   "W": 5014,
+   "H": 3955,
+   "kept_rows": 3155,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6064
+  },
+  {
+   "name": "sub_064_aug14_set-03_sub_02.fit",
+   "tag": "aug14/set-03/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_064_aug14_set-03_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3956,
+   "kept_rows": 3156,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.6406
+  },
+  {
+   "name": "sub_065_aug14_set-03_sub_03.fit",
+   "tag": "aug14/set-03/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_065_aug14_set-03_sub_03.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3955,
+   "kept_rows": 3155,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.6468
+  },
+  {
+   "name": "sub_066_aug14_set-03_sub_04.fit",
+   "tag": "aug14/set-03/sub_04",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_066_aug14_set-03_sub_04.fit",
+   "src_is_chain_copy": true,
+   "W": 5014,
+   "H": 3955,
+   "kept_rows": 3155,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.655
+  },
+  {
+   "name": "sub_067_aug14_set-03_sub_05.fit",
+   "tag": "aug14/set-03/sub_05",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_067_aug14_set-03_sub_05.fit",
+   "src_is_chain_copy": true,
+   "W": 5014,
+   "H": 3955,
+   "kept_rows": 3155,
+   "memcrop_inherited": 2100,
+   "memcscor_inherited": 2.6664
+  },
+  {
+   "name": "sub_068_aug14_set-03_sub_06.fit",
+   "tag": "aug14/set-03/sub_06",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_068_aug14_set-03_sub_06.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3956,
+   "kept_rows": 3156,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.6742
+  },
+  {
+   "name": "sub_069_aug14_set-04_sub_01.fit",
+   "tag": "aug14/set-04/sub_01",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_sub_01.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3952,
+   "kept_rows": 3152,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.673
+  },
+  {
+   "name": "sub_070_aug14_set-04_sub_02.fit",
+   "tag": "aug14/set-04/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_070_aug14_set-04_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 3814,
+   "H": 3951,
+   "kept_rows": 3151,
+   "memcrop_inherited": 900,
+   "memcscor_inherited": 2.6734
+  },
+  {
+   "name": "sub_071_aug14_set-04_sub_03.fit",
+   "tag": "aug14/set-04/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_071_aug14_set-04_sub_03.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3952,
+   "kept_rows": 3152,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.6868
+  },
+  {
+   "name": "sub_072_aug14_set-04_sub_04.fit",
+   "tag": "aug14/set-04/sub_04",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_072_aug14_set-04_sub_04.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3951,
+   "kept_rows": 3151,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.7
+  },
+  {
+   "name": "sub_073_aug14_set-04_sub_05.fit",
+   "tag": "aug14/set-04/sub_05",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_073_aug14_set-04_sub_05.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3951,
+   "kept_rows": 3151,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.6756
+  },
+  {
+   "name": "sub_074_aug14_set-04_sub_06.fit",
+   "tag": "aug14/set-04/sub_06",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_074_aug14_set-04_sub_06.fit",
+   "src_is_chain_copy": true,
+   "W": 4414,
+   "H": 3951,
+   "kept_rows": 3151,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.703
+  },
+  {
+   "name": "sub_075_aug14_set-05_sub_01.fit",
+   "tag": "aug14/set-05/sub_01",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_075_aug14_set-05_sub_01.fit",
+   "src_is_chain_copy": true,
+   "W": 4392,
+   "H": 3940,
+   "kept_rows": 3140,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.728
+  },
+  {
+   "name": "sub_076_aug14_set-05_sub_02.fit",
+   "tag": "aug14/set-05/sub_02",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_076_aug14_set-05_sub_02.fit",
+   "src_is_chain_copy": true,
+   "W": 4334,
+   "H": 3898,
+   "kept_rows": 3098,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.7568
+  },
+  {
+   "name": "sub_077_aug14_set-05_sub_03.fit",
+   "tag": "aug14/set-05/sub_03",
+   "action": "rowcrop",
+   "src": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_077_aug14_set-05_sub_03.fit",
+   "src_is_chain_copy": true,
+   "W": 4256,
+   "H": 3843,
+   "kept_rows": 3043,
+   "memcrop_inherited": 1500,
+   "memcscor_inherited": 2.7424
+  }
+ ],
+ "curated_listing": {
+  "sub_001_july31_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_002_july31_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_003_july31_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_004_july31_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_005_july31_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_006_july31_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_007_july31_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_008_july31_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_009_july31_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_010_july31_set-02_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_05.fit",
+   "ok": true
+  },
+  "sub_011_july31_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_012_july31_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_013_july31_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_014_july31_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_015_july31_set-03_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_05.fit",
+   "ok": true
+  },
+  "sub_016_july31_set-04_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_01.fit",
+   "ok": true
+  },
+  "sub_017_july31_set-04_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_02.fit",
+   "ok": true
+  },
+  "sub_018_aug06_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_019_aug06_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_020_aug06_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_021_aug06_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_022_aug06_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_023_aug06_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_024_aug06_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_025_aug06_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_026_aug06_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_027_aug06_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_028_aug06_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_029_aug06_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_030_aug06_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_031_aug09_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_032_aug09_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_033_aug09_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_034_aug09_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_035_aug09_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_036_aug09_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_037_aug09_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_038_aug09_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_039_aug09_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_040_aug09_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_041_aug09_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_042_aug09_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_043_aug09_set-03_sub_05.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_05.fit",
+   "src_is_chain_copy": false,
+   "kept_rows": 3147,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 1.8358772680956624e-15,
+   "max_sky_sep_deg": 1.4928908398858525e-13,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_044_aug09_set-04_sub_01.fit": {
+   "rekeyed_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_044_aug09_set-04_sub_01.fit",
+   "why": "the chain's column-cropped copy of a member NOT over the top-row bar carried the chain's MEMCRULE; the composite stamp REFUSES a compose whose cropped members carry two rule identities (measured on the first compose: \"REFUSED: the cropped members carry 2 rule identities\"), so the arm re-keys it \u2014 pixels identical, MEMCROP inherited, only MEMCRULE/MEMCPROV changed",
+   "pixels_identical": true,
+   "header_keys_differing": [
+    "MEMCRULE",
+    "MEMCPROV"
+   ],
+   "memcrop": 2100,
+   "ok": true
+  },
+  "sub_045_aug09_set-04_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_045_aug09_set-04_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3152,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_046_aug09_set-04_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_03.fit",
+   "src_is_chain_copy": false,
+   "kept_rows": 3153,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 1.8122493379649427e-15,
+   "max_sky_sep_deg": 3.284338264480028e-13,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_047_aug09_set-04_sub_04.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_047_aug09_set-04_sub_04.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3152,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_048_aug09_set-04_sub_05.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_048_aug09_set-04_sub_05.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3153,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_049_aug09_set-05_sub_01.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01.fit",
+   "src_is_chain_copy": false,
+   "kept_rows": 3132,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 2.7170688401294063e-15,
+   "max_sky_sep_deg": 3.4182768372277313e-13,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_050_aug09_set-05_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_050_aug09_set-05_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3133,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_051_aug09_set-05_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_051_aug09_set-05_sub_03.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3132,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_052_aug09_set-05_sub_04.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_052_aug09_set-05_sub_04.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3133,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_053_aug14_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_054_aug14_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_055_aug14_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_056_aug14_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_057_aug14_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_058_aug14_set-02_sub_01.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_058_aug14_set-02_sub_01.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3141,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_059_aug14_set-02_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_059_aug14_set-02_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3141,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_060_aug14_set-02_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_060_aug14_set-02_sub_03.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3142,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_061_aug14_set-02_sub_04.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_061_aug14_set-02_sub_04.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3142,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_062_aug14_set-02_sub_05.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_062_aug14_set-02_sub_05.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3142,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_063_aug14_set-03_sub_01.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_063_aug14_set-03_sub_01.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3155,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_064_aug14_set-03_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_064_aug14_set-03_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3156,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_065_aug14_set-03_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_065_aug14_set-03_sub_03.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3155,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_066_aug14_set-03_sub_04.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_066_aug14_set-03_sub_04.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3155,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_067_aug14_set-03_sub_05.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_067_aug14_set-03_sub_05.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3155,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_068_aug14_set-03_sub_06.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_068_aug14_set-03_sub_06.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3156,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_069_aug14_set-04_sub_01.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_sub_01.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3152,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_070_aug14_set-04_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_070_aug14_set-04_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3151,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_071_aug14_set-04_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_071_aug14_set-04_sub_03.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3152,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_072_aug14_set-04_sub_04.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_072_aug14_set-04_sub_04.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3151,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_073_aug14_set-04_sub_05.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_073_aug14_set-04_sub_05.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3151,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_074_aug14_set-04_sub_06.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_074_aug14_set-04_sub_06.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3151,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_075_aug14_set-05_sub_01.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_075_aug14_set-05_sub_01.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3140,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_076_aug14_set-05_sub_02.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_076_aug14_set-05_sub_02.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3098,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  },
+  "sub_077_aug14_set-05_sub_03.fit": {
+   "rowcropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_077_aug14_set-05_sub_03.fit",
+   "src_is_chain_copy": true,
+   "kept_rows": 3043,
+   "ok": true,
+   "checks": {
+    "naxis: W same, H-800, planes same": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "single matrix form": true,
+    "SIP keys/orders identical, values within 1e-12 rel": true,
+    "pixel->world agreement < 1e-9 deg": true,
+    "T0 provenance keys present": true,
+    "MEMCRULE == arm string": true,
+    "MEMCROWS == 800": true,
+    "MEMCPROV present": true,
+    "MEMCROP inherited": true,
+    "kept pixels identical to the source's FITS rows 0..H-800 (Siril rows 800..H)": true
+   },
+   "max_rel_sip": 0.0,
+   "max_sky_sep_deg": 0.0,
+   "kept_slab": "FITS rows 0..H-800"
+  }
+ },
+ "verified": true,
+ "verify_failures": [],
+ "verify_max_rel_sip": 2.7170688401294063e-15,
+ "verify_max_sky_sep_deg": 3.4182768372277313e-13,
+ "siril_log": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/toprow/siril_crop.log",
+ "written_at": "2026-08-30T14:13:16-04:00",
+ "n_rekeyed": 1,
+ "first_compose_stamp_refusal": "the first compose of this dir (14:13, 84 s) composed normally but its stamp printed \"REFUSED: the cropped members carry 2 rule identities (asym>0.20px@r400 top30; asym>0.20px@r400 top30 +toprow(29))\" \u2014 the one chain column-crop not over the top-row bar still carried the chain's rule; fixed by re-keying that copy (above) and recomposing; the two composes are compared pixel-for-pixel below"
+}

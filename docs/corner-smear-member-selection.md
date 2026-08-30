@@ -171,14 +171,20 @@ continuum is a policy, and the policy is the owner's (§5).
   the bottom row crosses the bar ~600 px earlier on 5/5 cropped members, but the
   row-resolved crop (§3, rowmin) was a clean NULL — the columns it removes sit
   under deep four-night coverage (dilution, a hypothesis) — at +1.2 %
-  pixel-frames. What the rows found instead is the open case: the TOP row of the
-  soft nights' members is 0.4–0.5 px softer SYMMETRICALLY (entry ≈ exit), which
-  the asymmetry rule is blind to by design, and it feeds the canonical's
-  bottom-left region through the flip. A corpus-relative ROW-level exclusion is
-  the candidate knob, unrun (the frame-level analogue was a NULL at the centre
-  row, where the night difference is ~0.3 px; at the top row it is ~0.5 px). The
-  +2400 blind spot is bounded (same-aperture Δ median +0.008 px; per-member
-  calls unresolvable at r 200, scatter ±0.12 px).
+  pixel-frames. The TOP row is softer on EVERY night (`toprow_profiles.json`, all
+  77: median top − centre at the centre station july31 +0.265, aug06 +0.240, aug09
+  +0.335, aug14 +0.395 px — a vertical off-axis term of the lens, with the soft
+  nights ~0.1–0.2 px worse and the entry-side asymmetry present there too), the
+  bottom-left corner boxes are fed mostly by the SHARP nights' top strips
+  (`toprow_corner_coverage.json`: 16 coverers at corner_700_4200, three of them
+  over the bar), and the corpus-relative ROW-level exclusion RAN as an arm
+  (`toprow_arm.json`, the 29 over-bar members' top 800 rows removed): a TRADE, not
+  adopted — corner_1300_4900 −0.038 but the target corner_700_4200 +0.020, x05/x10
+  +0.065/+0.053, the bottom-right corner's roundness −0.034 with 17 of 37 coverers
+  gone, the union 204 rows shorter; the corpus-wide part is not removable by any
+  exclusion (`docs/dead-ends/stacking-compose.md`, "THE TOP-ROW SOFTENING IS
+  CORPUS-WIDE"). The +2400 blind spot is bounded (same-aperture Δ median +0.008 px;
+  per-member calls unresolvable at r 200, scatter ±0.12 px).
 
 ## Sources
 
@@ -329,11 +335,10 @@ the owner-approved candidate → the promoted canonical, 0 differing pixels,
 guarded by the corpus baseline slot); the rows and the outer station (§3
 rowmin, §6: the row-resolved crop a clean NULL; the +2400 blind spot bounded at
 +0.008 px median). Open: the constant's placement (§4, a policy in a continuum —
-the owner's); the TOP-ROW symmetric softness of the soft nights (§6 — the
-uniformly-soft case, blind by design; a corpus-relative row-level exclusion is
-the unrun candidate); the depth measure's regime (§6); the per-set finals are not
-run through the stage until measured there. Weighting vs exclusion is MEASURED
-(§6): a NULL.
+the owner's); the depth measure's regime (§6); the per-set finals are not run
+through the stage until measured there. MEASURED and closed: weighting vs
+exclusion (§6, a NULL); the top row (§6 — corpus-wide softening, the row-level
+exclusion a TRADE not adopted); the repeat floor (zero, `repeat_floor.json`).
 
 ## Graduation
 

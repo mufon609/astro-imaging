@@ -137,6 +137,44 @@ and answered by member selection: the decision map with every form's numbers is
   measured is exclusion of the degrading PORTIONS (the portion rule). The compose
   stamps no weight key — the weighting is recoverable only from Siril's HISTORY
   card (BACKLOG:`composite-header-identity`; `siril-behaviors.md`).
+- **THE TOP-ROW SOFTENING IS CORPUS-WIDE, AND A ROW-LEVEL EXCLUSION BUYS NOTHING AT
+  THE CORNER IT IS AIMED AT — the bottom-left boxes are fed by the SHARP nights' top
+  rows, and the strips a night-relative cut removes carry coverage elsewhere.**
+  MEASURED in three records-only steps and one arm
+  (`datasets/corpus/smear_attribution/{toprow_profiles,toprow_corner_coverage,toprow_arm}.json`,
+  `datasets/aug06/experiments.jsonl` 142–149). The top row of ALL 77 members (the
+  stage's profile at y 0..800, the cache re-hashed 77/77 first): every night is softer
+  on top — median top − centre at the centre station july31 +0.265, aug06 +0.240,
+  aug09 +0.335, aug14 +0.395 px — a vertical off-axis term of the lens ~1576 px above
+  the centre row, with the soft nights ~0.1–0.2 px worse (33/34 soft members ≥ +0.30;
+  the controls ≤ +0.20 on only 8/30, so the pilot's two controls at +0.045/+0.185 were
+  the two best cases); the top row ALSO carries the night-dependent entry-side
+  asymmetry (the bar would crop 29 there vs 27 on the centre row); a corpus-relative
+  frame score on the top row (mean over centre + exit stations) puts 29 members over
+  its 25th percentile + 0.20 — every aug14 member but set-01's, aug09/set-04/05 —
+  with the night gap ~0.4–0.5 px against ~0.2–0.25 on the centre row. THE PIN
+  (header-only, all 77 WCS → the canonical's, reproducing rowmin's eight pinned points
+  to the pixel): the canonical's corner_700_4200 is covered by 16 members' top strips
+  (july31 9, aug09 7; the three over-bar coverers are the three SOFTEST there, local
+  3.08/2.79/2.70 against 2.45–2.68), corner_1300_4900 by 17 (one over the bar),
+  corner_7000_4900 by 37 (21 over the bar), corner_7500_4400 by 38 (12); a
+  STACKCNT-weighted local-FWHM estimator FAILED its control (under-reads every corner
+  by 0.11–0.20 px), so no absolute prediction exists — the geometry bound is the
+  prediction. THE ARM (the 29 members' top 800 rows removed from the chain's curated
+  copies, verified 29/29, reference pinned 35, nbstack, MEMCRULE one string — a
+  second identity in the stamp REFUSES the compose, measured; the recompose
+  bit-identical to the first): corner_1300_4900 2.728 → 2.690 (−0.038) but the target
+  corner_700_4200 2.800 → 2.820 (+0.020, fewer stars), x05 +0.065 and x10 +0.053 (the
+  strips carried the rim and band-edge coverage), corner_7000_4900 roundness
+  0.881 → 0.847 with 17 of 37 coverers gone, 49 of 54 other stations within ±0.02 and
+  the 29 new edges clean (steps ≤ 0.23 %), the union 204 rows SHORTER (8522×5464),
+  pixel-frames −6.79 %; both eyes: nothing visibly gained at the bottom-left, a visible
+  coverage cost at the bottom-right rim. A TRADE by the pre-registered routing, NOT
+  adopted: the corpus-wide part is not removable by any exclusion, and the
+  night-dependent part sits where the sharp nights already dominate the mean. The
+  aggregation stamp cannot express a row crop (NCROPPED/MEMCXCS count columns only) —
+  a limit, recorded. The dilution hypothesis of the row-resolved crop is COUNTED: the
+  six members' removed columns were 3.0–5.6 % of the weighted coverage at every probe.
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

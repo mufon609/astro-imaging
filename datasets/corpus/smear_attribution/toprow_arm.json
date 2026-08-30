@@ -1,0 +1,1763 @@
+{
+ "id": "toprow_exclusion_arm",
+ "what": "THE TOP-ROW EXCLUSION ARM (U5): the 29 members over the top-row bar (S_top > p25 + 0.20, toprow_profiles.json P4) lose their TOP 800 rows \u2014 Siril y-down rows 0..800 = FITS rows H-800..H \u2014 as Siril `crop 0 800 W H-800` of a COPY of the member as the chain's curated dir has it; every other member as the chain; reference PINNED 35; --framing=max --weight=nbstack; finish under aug09/set-02. ONE knob. Pre-registered against the pin's measured coverage (toprow_corner_coverage.json) and the measured floor 0.000 (repeat_floor.json).",
+ "ledger": "datasets/aug06/experiments.jsonl id toprow_exclusion_arm (pre-registration line 148 before the crops; the verdict line follows)",
+ "build": {
+  "curated_record": "datasets/corpus/smear_attribution/toprow_curated.json \u2014 29 row-cropped copies (26 of the chain's column-cropped copies, 3 originals: aug09/set-03/sub_05, aug09/set-04/sub_03, aug09/set-05/sub_01), 47 symlinks to the chain's targets, 1 RE-KEYED copy (below); verified 29/29: NAXIS2 = H-800, CRPIX/CRVAL exact, SIP max 2.72e-15 relative, pixel->world max 3.42e-13 deg, T0 keys, MEMCRULE/MEMCROWS/MEMCPROV, kept pixels identical to the source's FITS rows 0..H-800 (= Siril rows 800..H: the crop convention measured, CRPIX2 unchanged)",
+  "crop_convention": "Siril `crop x y w h` counts y DOWN from the display top; `crop 0 800 W H-800` therefore removes the TOP 800 display rows = FITS rows H-800..H (astropy y up) and keeps FITS rows 0..H-800 with the FITS origin \u2014 verified per copy by pixel identity against that slab (the y-convention trap of the pin, stated in both conventions as the GO asked)",
+  "stamp_refusal_and_rekey": "the FIRST compose (14:13, 84 s) composed normally but its stamp printed 'REFUSED: the cropped members carry 2 rule identities (asym>0.20px@r400 top30; asym>0.20px@r400 top30 +toprow(29))': the chain's column-cropped copy of aug09/set-04/sub_01 (x_c 2100, NOT over the top-row bar) still carried the chain's rule \u2014 the stamp refuses two rule identities by design. Fix within the GO's own words ('ONE string on every cropped copy of the arm'): that copy re-keyed (pixels identical, only MEMCRULE/MEMCPROV changed; recorded in the curated record), then RECOMPOSED: the second compose is bit-identical to the first (0 differing pixels of 139,692,624 \u2014 a third repeat-floor replication at n=77), so the product is unchanged and its stamp aggregates: NCROPPED 27, MEMCRULE the arm string",
+  "compose": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_july31+aug06+aug09+aug14_toprow.fit --framing=max --weight=nbstack --ref=sessions/aug09/work/groups_set-02/sub_01.fit sessions/aug14/work/toprow/curated_toprow (81 s; T0 77/77; astrometric + undistortion CONFIRMED; reference PINNED 35)",
+  "finish": "scripts/stack/finish_render.sh <toprow.fit> july31+aug06+aug09+aug14_toprow --session=sessions/aug09 --set=set-02 (19 s): solve RA 310.048 Dec +41.738 17.01 arcsec/px logodds 171 (the canvas changed, so the centre moved); SPCC K 1.000/0.686/0.926 (1921/3900) vs the canonical 1.000/0.687/0.926 (1943/3905); records datasets/aug09/set-02/qa_work/{solve_stack_,spcc_set-02_}july31+aug06+aug09+aug14_toprow.json (the cross-set-record-home wart)",
+  "controls_untouched": "the chain's curated dir listing (79 entries incl. . and ..) identical before/after; the canonical stack/_wcs/_spcc/judge PNG identical by size + mtime"
+ },
+ "headers": {
+  "toprow": {
+   "NAXIS1": 8522,
+   "NAXIS2": 5464,
+   "STACKCNT": 8349,
+   "NMEMBER": 77,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "pinned",
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30 +toprow(29)",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "MEMCPROV": "datasets/corpus/smear_attribution/toprow_curated.json",
+   "STACKNRM": "addscale",
+   "PIPEREV": "5264cc5",
+   "ANCREF": 35,
+   "ANCLOCG": 0.000851178,
+   "DATE-OBS": "2026-08-01T02:51:17"
+  },
+  "canonical": {
+   "NAXIS1": 8520,
+   "NAXIS2": 5668,
+   "STACKCNT": 8349,
+   "NMEMBER": 77,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "derived",
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "PIPEREV": "36d9bab"
+  },
+  "reading": "STACKCNT 8349 and NMEMBER 77 as predicted; canvas 8522x5464 against 8520x5668 \u2014 204 ROWS SHORTER: the 29's top strips were the only cover at the bottom rim (framing=max shrank); NCROPPED 27 (the stamp counts MEMCROP carriers: the 26 row+column copies + the re-keyed column copy; the 3 row-only copies are INVISIBLE to NCROPPED/MEMCXCS \u2014 the aggregation cannot express a row crop, a stated limit; MEMCROWS 800 sits on the 29 copies only)",
+  "pixel_frames": {
+   "chain_total": 1645143065,
+   "removed_by_the_arm": 111655200,
+   "fraction": 0.0679,
+   "note": "6.79 % of the chain's curated pixel-frames removed by the row crops (the chain's own column crops removed 6.44 % of the uncropped total)"
+  }
+ },
+ "instruments": {
+  "shape": "scripts/qa/shape_at_sky.py on the toprow _wcs at the 58 stations (31 boxes + 27 crop-boundary seams; the canonical's values from the wnoise run = the canonical by identity) + the 29 new-edge stations (the canonical measured at the same 29 sky positions in this arm); 800 px / top-30; y-origin top, passes differ by 19.62 deg (tol 2.83)",
+  "edge_step": "Siril stat Green mean on two 200x200 boxes 150 px into the kept side and 150 px into the removed side of each new edge (member coordinates through each product's own WCS), both _spcc; step = (removed - kept)/kept; the arm's minus the canonical's",
+  "rim": "Siril stat Green medians of five 200x200 boxes at the canonical-canvas x 100/300/500/700/900 in the corner_700_4200 row band (sky-addressed on each product)",
+  "depth": "Siril bgnoise + stat at the x50 800-px box on both _spcc",
+  "guard": "baseline_guard.py --baseline=datasets/corpus/baseline.json <toprow_spcc>"
+ },
+ "floor": "0.000 (repeat_floor_corpus_compose; replicated here: two composes of this arm bit-identical)",
+ "predictions_vs_outcomes": {
+  "P1 (corner_700_4200 -> <= 2.75; corner_1300_4900 -> <= 2.70)": "HALF: corner_1300_4900 2.728 -> 2.690 / 0.828 -> 0.845 (-0.038, MET); corner_700_4200 2.800 -> 2.820 / 0.844 -> 0.834 (+0.020 with n 384 -> 368, NOT MET \u2014 the primary corner got WORSE: removing its three softest of 16 coverers also thinned it, and the remaining mean did not fall)",
+  "P2 (corner_7000_4900 within +0.05; corner_7500_4400 within +0.03)": "HELD: +0.017 / 0.881 -> 0.847 (n 911 -> 836 \u2014 the roundness loss shows the 17-of-37 coverage cost) and -0.022 / +0.011 (n 914 -> 803)",
+  "P3 (every other station of the 58 within +-0.02)": "NOT HELD at 2 of 54: x05pct +0.065 (the rim station \u2014 the owner's accepted coverage class, but a DEGRADED row by the rule) and x10pct +0.053 (the band's outer station, DEGRADED); x15 +0.005, x20 +0.015, x25 +0.002, x50 -0.007; the other 49 within +-0.02 (median 0.000); three improved beyond 0.02: x70 -0.038, LADDER_defect_RA294.86 -0.023, corner_700_1400 -0.025; the 27 crop-boundary seams all within +-0.02",
+  "P4 (the 29 new edges: step <= 0.5 %; shape within 0.05)": "STEP HELD 29/29 \u2014 arm-minus-canonical Green step median 0.000 %, range -0.233..+0.229 % (Siril stat's 0.1-ADU quantum at ~43 ADU is 0.23 %; the canonical's own local gradients run -3.6..+0.2 %); SHAPE within 0.05 on 26/29, the three beyond are IMPROVEMENTS (-0.073 min; max +0.017) \u2014 no edge station degraded",
+  "P5 (headers)": "HELD with the stated limit: STACKCNT 8349, NMEMBER 77, REGREF 35 pinned, MEMCRULE the arm string, MEMCXCS 2100x15/1500x11/900x1, NCROPPED 27 (the 3 row-only copies invisible), canvas 8522x5464 (204 rows shorter), pixel-frames removed 6.79 %",
+  "P6 (guard)": "HELD: 'baseline_guard datasets/corpus/baseline.json: different product \u2014 not compared', exit 0; the slot's two qa_work records sha256 identical",
+  "P7 (rim)": "the five-box profile at the corner_700_4200 row band unchanged: [4.0, 41.8, 42.4, 42.7, 42.5] -> [4.1, 41.8, 42.4, 42.7, 42.6] Green median \u2014 the rim change is at the BOTTOM edge instead: the canvas lost 204 rows (the 29's top strips were the only cover there); depth at x50: bgnoise 0.302/0.342/0.279 vs 0.301/0.343/0.278, stat sigma 15.5 vs 15.4 (structure-limited, unchanged)"
+ },
+ "table_58": {
+  "x05pct_-": {
+   "canonical": [
+    2.772,
+    0.892,
+    477
+   ],
+   "toprow": [
+    2.837,
+    0.883,
+    477
+   ],
+   "dFWHM": 0.065,
+   "dround": -0.009,
+   "flag": "DEGRADED"
+  },
+  "x10pct_-": {
+   "canonical": [
+    2.775,
+    0.892,
+    849
+   ],
+   "toprow": [
+    2.828,
+    0.896,
+    838
+   ],
+   "dFWHM": 0.053,
+   "dround": 0.004,
+   "flag": "DEGRADED"
+  },
+  "x15pct_DEFECT": {
+   "canonical": [
+    2.805,
+    0.883,
+    982
+   ],
+   "toprow": [
+    2.81,
+    0.886,
+    984
+   ],
+   "dFWHM": 0.005,
+   "dround": 0.003,
+   "flag": ""
+  },
+  "x20pct_DEFECT": {
+   "canonical": [
+    2.805,
+    0.873,
+    1058
+   ],
+   "toprow": [
+    2.82,
+    0.875,
+    1058
+   ],
+   "dFWHM": 0.015,
+   "dround": 0.002,
+   "flag": ""
+  },
+  "x25pct_DEFECT": {
+   "canonical": [
+    2.795,
+    0.879,
+    1130
+   ],
+   "toprow": [
+    2.797,
+    0.875,
+    1126
+   ],
+   "dFWHM": 0.002,
+   "dround": -0.004,
+   "flag": ""
+  },
+  "x30pct_DEFECT": {
+   "canonical": [
+    2.728,
+    0.904,
+    1133
+   ],
+   "toprow": [
+    2.728,
+    0.911,
+    1152
+   ],
+   "dFWHM": 0.0,
+   "dround": 0.007,
+   "flag": ""
+  },
+  "x35pct_-": {
+   "canonical": [
+    2.658,
+    0.932,
+    1170
+   ],
+   "toprow": [
+    2.658,
+    0.929,
+    1173
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.003,
+   "flag": ""
+  },
+  "x40pct_-": {
+   "canonical": [
+    2.56,
+    0.965,
+    1156
+   ],
+   "toprow": [
+    2.547,
+    0.972,
+    1147
+   ],
+   "dFWHM": -0.013,
+   "dround": 0.007,
+   "flag": ""
+  },
+  "x45pct_clean": {
+   "canonical": [
+    2.527,
+    0.971,
+    1125
+   ],
+   "toprow": [
+    2.518,
+    0.969,
+    1132
+   ],
+   "dFWHM": -0.009,
+   "dround": -0.002,
+   "flag": ""
+  },
+  "x50pct_clean": {
+   "canonical": [
+    2.525,
+    0.967,
+    1177
+   ],
+   "toprow": [
+    2.518,
+    0.965,
+    1194
+   ],
+   "dFWHM": -0.007,
+   "dround": -0.002,
+   "flag": ""
+  },
+  "x55pct_clean": {
+   "canonical": [
+    2.535,
+    0.954,
+    1206
+   ],
+   "toprow": [
+    2.538,
+    0.958,
+    1212
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.004,
+   "flag": ""
+  },
+  "x60pct_clean": {
+   "canonical": [
+    2.6,
+    0.947,
+    1199
+   ],
+   "toprow": [
+    2.61,
+    0.946,
+    1206
+   ],
+   "dFWHM": 0.01,
+   "dround": -0.001,
+   "flag": ""
+  },
+  "x65pct_clean": {
+   "canonical": [
+    2.685,
+    0.939,
+    1211
+   ],
+   "toprow": [
+    2.67,
+    0.926,
+    1215
+   ],
+   "dFWHM": -0.015,
+   "dround": -0.013,
+   "flag": ""
+  },
+  "x70pct_clean": {
+   "canonical": [
+    2.768,
+    0.937,
+    1186
+   ],
+   "toprow": [
+    2.73,
+    0.917,
+    1201
+   ],
+   "dFWHM": -0.038,
+   "dround": -0.02,
+   "flag": "improved"
+  },
+  "x75pct_-": {
+   "canonical": [
+    2.777,
+    0.94,
+    1123
+   ],
+   "toprow": [
+    2.757,
+    0.938,
+    1127
+   ],
+   "dFWHM": -0.02,
+   "dround": -0.002,
+   "flag": ""
+  },
+  "x80pct_-": {
+   "canonical": [
+    2.785,
+    0.954,
+    1118
+   ],
+   "toprow": [
+    2.783,
+    0.96,
+    1104
+   ],
+   "dFWHM": -0.002,
+   "dround": 0.006,
+   "flag": ""
+  },
+  "x85pct_-": {
+   "canonical": [
+    2.757,
+    0.966,
+    1073
+   ],
+   "toprow": [
+    2.772,
+    0.969,
+    1059
+   ],
+   "dFWHM": 0.015,
+   "dround": 0.003,
+   "flag": ""
+  },
+  "x90pct_-": {
+   "canonical": [
+    2.72,
+    0.972,
+    925
+   ],
+   "toprow": [
+    2.72,
+    0.98,
+    929
+   ],
+   "dFWHM": 0.0,
+   "dround": 0.008,
+   "flag": ""
+  },
+  "x95pct_-": {
+   "canonical": [
+    2.7,
+    0.978,
+    492
+   ],
+   "toprow": [
+    2.698,
+    0.969,
+    496
+   ],
+   "dFWHM": -0.002,
+   "dround": -0.009,
+   "flag": ""
+  },
+  "LADDER_defect_RA294.86": {
+   "canonical": [
+    2.728,
+    0.988,
+    1092
+   ],
+   "toprow": [
+    2.705,
+    0.987,
+    1086
+   ],
+   "dFWHM": -0.023,
+   "dround": -0.001,
+   "flag": "improved"
+  },
+  "LADDER_RA301.58": {
+   "canonical": [
+    2.613,
+    0.948,
+    1204
+   ],
+   "toprow": [
+    2.63,
+    0.95,
+    1210
+   ],
+   "dFWHM": 0.017,
+   "dround": 0.002,
+   "flag": ""
+  },
+  "LADDER_RA308.20": {
+   "canonical": [
+    2.533,
+    0.971,
+    1191
+   ],
+   "toprow": [
+    2.518,
+    0.965,
+    1181
+   ],
+   "dFWHM": -0.015,
+   "dround": -0.006,
+   "flag": ""
+  },
+  "LADDER_control_RA314.72": {
+   "canonical": [
+    2.56,
+    0.976,
+    1159
+   ],
+   "toprow": [
+    2.55,
+    0.977,
+    1161
+   ],
+   "dFWHM": -0.01,
+   "dround": 0.001,
+   "flag": ""
+  },
+  "corner_700_1400": {
+   "canonical": [
+    2.808,
+    0.936,
+    691
+   ],
+   "toprow": [
+    2.783,
+    0.921,
+    684
+   ],
+   "dFWHM": -0.025,
+   "dround": -0.015,
+   "flag": "improved"
+  },
+  "corner_1150_850": {
+   "canonical": [
+    2.86,
+    0.894,
+    888
+   ],
+   "toprow": [
+    2.85,
+    0.898,
+    891
+   ],
+   "dFWHM": -0.01,
+   "dround": 0.004,
+   "flag": ""
+  },
+  "corner_7300_600": {
+   "canonical": [
+    2.67,
+    0.987,
+    790
+   ],
+   "toprow": [
+    2.675,
+    0.981,
+    782
+   ],
+   "dFWHM": 0.005,
+   "dround": -0.006,
+   "flag": ""
+  },
+  "corner_7750_1100": {
+   "canonical": [
+    2.69,
+    0.976,
+    718
+   ],
+   "toprow": [
+    2.683,
+    0.989,
+    721
+   ],
+   "dFWHM": -0.007,
+   "dround": 0.013,
+   "flag": ""
+  },
+  "corner_700_4200": {
+   "canonical": [
+    2.8,
+    0.844,
+    384
+   ],
+   "toprow": [
+    2.82,
+    0.834,
+    368
+   ],
+   "dFWHM": 0.02,
+   "dround": -0.01,
+   "flag": "P1 NOT MET"
+  },
+  "corner_1300_4900": {
+   "canonical": [
+    2.728,
+    0.828,
+    459
+   ],
+   "toprow": [
+    2.69,
+    0.845,
+    462
+   ],
+   "dFWHM": -0.038,
+   "dround": 0.017,
+   "flag": "P1 MET"
+  },
+  "corner_7000_4900": {
+   "canonical": [
+    2.723,
+    0.881,
+    911
+   ],
+   "toprow": [
+    2.74,
+    0.847,
+    836
+   ],
+   "dFWHM": 0.017,
+   "dround": -0.034,
+   "flag": "P2 HELD"
+  },
+  "corner_7500_4400": {
+   "canonical": [
+    2.75,
+    0.881,
+    914
+   ],
+   "toprow": [
+    2.728,
+    0.892,
+    803
+   ],
+   "dFWHM": -0.022,
+   "dround": 0.011,
+   "flag": "P2 HELD"
+  },
+  "seam_aug09_set-04_sub_01": {
+   "canonical": [
+    2.658,
+    0.918,
+    1152
+   ],
+   "toprow": [
+    2.66,
+    0.927,
+    1158
+   ],
+   "dFWHM": 0.002,
+   "dround": 0.009,
+   "flag": ""
+  },
+  "seam_aug09_set-04_sub_02": {
+   "canonical": [
+    2.677,
+    0.913,
+    1134
+   ],
+   "toprow": [
+    2.685,
+    0.922,
+    1151
+   ],
+   "dFWHM": 0.008,
+   "dround": 0.009,
+   "flag": ""
+  },
+  "seam_aug09_set-04_sub_04": {
+   "canonical": [
+    2.75,
+    0.881,
+    1144
+   ],
+   "toprow": [
+    2.765,
+    0.885,
+    1146
+   ],
+   "dFWHM": 0.015,
+   "dround": 0.004,
+   "flag": ""
+  },
+  "seam_aug09_set-04_sub_05": {
+   "canonical": [
+    2.778,
+    0.88,
+    1108
+   ],
+   "toprow": [
+    2.79,
+    0.879,
+    1110
+   ],
+   "dFWHM": 0.012,
+   "dround": -0.001,
+   "flag": ""
+  },
+  "seam_aug09_set-05_sub_02": {
+   "canonical": [
+    2.8,
+    0.875,
+    1082
+   ],
+   "toprow": [
+    2.797,
+    0.875,
+    1078
+   ],
+   "dFWHM": -0.003,
+   "dround": 0.0,
+   "flag": ""
+  },
+  "seam_aug09_set-05_sub_03": {
+   "canonical": [
+    2.795,
+    0.879,
+    1050
+   ],
+   "toprow": [
+    2.783,
+    0.878,
+    1033
+   ],
+   "dFWHM": -0.012,
+   "dround": -0.001,
+   "flag": ""
+  },
+  "seam_aug09_set-05_sub_04": {
+   "canonical": [
+    2.788,
+    0.882,
+    979
+   ],
+   "toprow": [
+    2.785,
+    0.889,
+    974
+   ],
+   "dFWHM": -0.003,
+   "dround": 0.007,
+   "flag": ""
+  },
+  "seam_aug14_set-02_sub_01": {
+   "canonical": [
+    2.663,
+    0.935,
+    1176
+   ],
+   "toprow": [
+    2.672,
+    0.931,
+    1172
+   ],
+   "dFWHM": 0.009,
+   "dround": -0.004,
+   "flag": ""
+  },
+  "seam_aug14_set-02_sub_02": {
+   "canonical": [
+    2.708,
+    0.91,
+    1147
+   ],
+   "toprow": [
+    2.715,
+    0.919,
+    1133
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.009,
+   "flag": ""
+  },
+  "seam_aug14_set-02_sub_03": {
+   "canonical": [
+    2.717,
+    0.906,
+    1147
+   ],
+   "toprow": [
+    2.728,
+    0.912,
+    1172
+   ],
+   "dFWHM": 0.011,
+   "dround": 0.006,
+   "flag": ""
+  },
+  "seam_aug14_set-02_sub_04": {
+   "canonical": [
+    2.765,
+    0.888,
+    1147
+   ],
+   "toprow": [
+    2.76,
+    0.885,
+    1152
+   ],
+   "dFWHM": -0.005,
+   "dround": -0.003,
+   "flag": ""
+  },
+  "seam_aug14_set-02_sub_05": {
+   "canonical": [
+    2.8,
+    0.879,
+    1122
+   ],
+   "toprow": [
+    2.792,
+    0.875,
+    1124
+   ],
+   "dFWHM": -0.008,
+   "dround": -0.004,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_01": {
+   "canonical": [
+    2.695,
+    0.913,
+    1145
+   ],
+   "toprow": [
+    2.7,
+    0.922,
+    1157
+   ],
+   "dFWHM": 0.005,
+   "dround": 0.009,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_02": {
+   "canonical": [
+    2.587,
+    0.957,
+    1155
+   ],
+   "toprow": [
+    2.58,
+    0.963,
+    1141
+   ],
+   "dFWHM": -0.007,
+   "dround": 0.006,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_03": {
+   "canonical": [
+    2.663,
+    0.932,
+    1168
+   ],
+   "toprow": [
+    2.667,
+    0.929,
+    1176
+   ],
+   "dFWHM": 0.004,
+   "dround": -0.003,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_04": {
+   "canonical": [
+    2.78,
+    0.879,
+    1161
+   ],
+   "toprow": [
+    2.78,
+    0.878,
+    1169
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.001,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_05": {
+   "canonical": [
+    2.8,
+    0.879,
+    1108
+   ],
+   "toprow": [
+    2.808,
+    0.875,
+    1110
+   ],
+   "dFWHM": 0.008,
+   "dround": -0.004,
+   "flag": ""
+  },
+  "seam_aug14_set-03_sub_06": {
+   "canonical": [
+    2.752,
+    0.898,
+    1135
+   ],
+   "toprow": [
+    2.757,
+    0.887,
+    1149
+   ],
+   "dFWHM": 0.005,
+   "dround": -0.011,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_01": {
+   "canonical": [
+    2.675,
+    0.925,
+    1174
+   ],
+   "toprow": [
+    2.688,
+    0.926,
+    1166
+   ],
+   "dFWHM": 0.013,
+   "dround": 0.001,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_02": {
+   "canonical": [
+    2.585,
+    0.952,
+    1143
+   ],
+   "toprow": [
+    2.575,
+    0.949,
+    1144
+   ],
+   "dFWHM": -0.01,
+   "dround": -0.003,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_03": {
+   "canonical": [
+    2.728,
+    0.906,
+    1131
+   ],
+   "toprow": [
+    2.732,
+    0.908,
+    1147
+   ],
+   "dFWHM": 0.004,
+   "dround": 0.002,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_04": {
+   "canonical": [
+    2.775,
+    0.893,
+    1164
+   ],
+   "toprow": [
+    2.76,
+    0.885,
+    1167
+   ],
+   "dFWHM": -0.015,
+   "dround": -0.008,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_05": {
+   "canonical": [
+    2.8,
+    0.875,
+    1132
+   ],
+   "toprow": [
+    2.792,
+    0.875,
+    1133
+   ],
+   "dFWHM": -0.008,
+   "dround": 0.0,
+   "flag": ""
+  },
+  "seam_aug14_set-04_sub_06": {
+   "canonical": [
+    2.8,
+    0.876,
+    1101
+   ],
+   "toprow": [
+    2.802,
+    0.874,
+    1095
+   ],
+   "dFWHM": 0.002,
+   "dround": -0.002,
+   "flag": ""
+  },
+  "seam_aug14_set-05_sub_01": {
+   "canonical": [
+    2.625,
+    0.939,
+    1161
+   ],
+   "toprow": [
+    2.623,
+    0.941,
+    1176
+   ],
+   "dFWHM": -0.002,
+   "dround": 0.002,
+   "flag": ""
+  },
+  "seam_aug14_set-05_sub_02": {
+   "canonical": [
+    2.712,
+    0.909,
+    1131
+   ],
+   "toprow": [
+    2.725,
+    0.916,
+    1139
+   ],
+   "dFWHM": 0.013,
+   "dround": 0.007,
+   "flag": ""
+  },
+  "seam_aug14_set-05_sub_03": {
+   "canonical": [
+    2.768,
+    0.894,
+    1158
+   ],
+   "toprow": [
+    2.757,
+    0.885,
+    1167
+   ],
+   "dFWHM": -0.011,
+   "dround": -0.009,
+   "flag": ""
+  }
+ },
+ "edges_29": {
+  "edge_aug09_set-03_sub_05": {
+   "shape_canonical": [
+    2.73,
+    0.991,
+    1207
+   ],
+   "shape_toprow": [
+    2.723,
+    0.989,
+    1202
+   ],
+   "dFWHM": -0.007,
+   "dround": -0.002,
+   "step_pct_green_toprow": -1.134,
+   "step_pct_green_canonical": -0.907,
+   "step_arm_minus_canonical_pct": -0.227,
+   "kept_removed_means_toprow": [
+    44.1,
+    43.6
+   ],
+   "kept_removed_means_canonical": [
+    44.1,
+    43.7
+   ]
+  },
+  "edge_aug09_set-04_sub_02": {
+   "shape_canonical": [
+    2.782,
+    0.933,
+    1166
+   ],
+   "shape_toprow": [
+    2.76,
+    0.93,
+    1161
+   ],
+   "dFWHM": -0.022,
+   "dround": -0.003,
+   "step_pct_green_toprow": -3.628,
+   "step_pct_green_canonical": -3.628,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.1,
+    42.5
+   ],
+   "kept_removed_means_canonical": [
+    44.1,
+    42.5
+   ]
+  },
+  "edge_aug09_set-04_sub_03": {
+   "shape_canonical": [
+    2.67,
+    0.964,
+    1201
+   ],
+   "shape_toprow": [
+    2.67,
+    0.962,
+    1213
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.002,
+   "step_pct_green_toprow": 0.0,
+   "step_pct_green_canonical": 0.233,
+   "step_arm_minus_canonical_pct": -0.233,
+   "kept_removed_means_toprow": [
+    42.9,
+    42.9
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.0
+   ]
+  },
+  "edge_aug09_set-04_sub_04": {
+   "shape_canonical": [
+    2.7,
+    0.952,
+    1225
+   ],
+   "shape_toprow": [
+    2.692,
+    0.96,
+    1226
+   ],
+   "dFWHM": -0.008,
+   "dround": 0.008,
+   "step_pct_green_toprow": -0.232,
+   "step_pct_green_canonical": -0.232,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.1,
+    43.0
+   ],
+   "kept_removed_means_canonical": [
+    43.1,
+    43.0
+   ]
+  },
+  "edge_aug09_set-04_sub_05": {
+   "shape_canonical": [
+    2.688,
+    0.964,
+    1214
+   ],
+   "shape_toprow": [
+    2.685,
+    0.966,
+    1221
+   ],
+   "dFWHM": -0.003,
+   "dround": 0.002,
+   "step_pct_green_toprow": 4.215,
+   "step_pct_green_canonical": 4.215,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.7,
+    44.5
+   ],
+   "kept_removed_means_canonical": [
+    42.7,
+    44.5
+   ]
+  },
+  "edge_aug09_set-05_sub_01": {
+   "shape_canonical": [
+    2.725,
+    0.989,
+    1213
+   ],
+   "shape_toprow": [
+    2.717,
+    0.989,
+    1211
+   ],
+   "dFWHM": -0.008,
+   "dround": 0.0,
+   "step_pct_green_toprow": -1.978,
+   "step_pct_green_canonical": -1.978,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    45.5,
+    44.6
+   ],
+   "kept_removed_means_canonical": [
+    45.5,
+    44.6
+   ]
+  },
+  "edge_aug09_set-05_sub_02": {
+   "shape_canonical": [
+    2.73,
+    0.991,
+    1211
+   ],
+   "shape_toprow": [
+    2.712,
+    0.991,
+    1204
+   ],
+   "dFWHM": -0.018,
+   "dround": 0.0,
+   "step_pct_green_toprow": 0.679,
+   "step_pct_green_canonical": 0.679,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.2,
+    44.5
+   ],
+   "kept_removed_means_canonical": [
+    44.2,
+    44.5
+   ]
+  },
+  "edge_aug09_set-05_sub_03": {
+   "shape_canonical": [
+    2.745,
+    0.993,
+    1207
+   ],
+   "shape_toprow": [
+    2.717,
+    0.989,
+    1196
+   ],
+   "dFWHM": -0.028,
+   "dround": -0.004,
+   "step_pct_green_toprow": -0.456,
+   "step_pct_green_canonical": -0.456,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.9,
+    43.7
+   ],
+   "kept_removed_means_canonical": [
+    43.9,
+    43.7
+   ]
+  },
+  "edge_aug09_set-05_sub_04": {
+   "shape_canonical": [
+    2.805,
+    0.983,
+    1189
+   ],
+   "shape_toprow": [
+    2.75,
+    0.974,
+    1194
+   ],
+   "dFWHM": -0.055,
+   "dround": -0.009,
+   "step_pct_green_toprow": 0.233,
+   "step_pct_green_canonical": 0.233,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    43.0
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.0
+   ]
+  },
+  "edge_aug14_set-02_sub_01": {
+   "shape_canonical": [
+    2.863,
+    0.927,
+    1138
+   ],
+   "shape_toprow": [
+    2.87,
+    0.931,
+    1132
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.004,
+   "step_pct_green_toprow": -1.573,
+   "step_pct_green_canonical": -1.573,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.5,
+    43.8
+   ],
+   "kept_removed_means_canonical": [
+    44.5,
+    43.8
+   ]
+  },
+  "edge_aug14_set-02_sub_02": {
+   "shape_canonical": [
+    2.842,
+    0.927,
+    1147
+   ],
+   "shape_toprow": [
+    2.845,
+    0.931,
+    1155
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.004,
+   "step_pct_green_toprow": 1.852,
+   "step_pct_green_canonical": 1.852,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.2,
+    44.0
+   ],
+   "kept_removed_means_canonical": [
+    43.2,
+    44.0
+   ]
+  },
+  "edge_aug14_set-02_sub_03": {
+   "shape_canonical": [
+    2.805,
+    0.935,
+    1117
+   ],
+   "shape_toprow": [
+    2.808,
+    0.935,
+    1110
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.0,
+   "step_pct_green_toprow": 0.233,
+   "step_pct_green_canonical": 0.233,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    43.0
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.0
+   ]
+  },
+  "edge_aug14_set-02_sub_04": {
+   "shape_canonical": [
+    2.743,
+    0.963,
+    1176
+   ],
+   "shape_toprow": [
+    2.76,
+    0.959,
+    1169
+   ],
+   "dFWHM": 0.017,
+   "dround": -0.004,
+   "step_pct_green_toprow": -1.373,
+   "step_pct_green_canonical": -1.373,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.7,
+    43.1
+   ],
+   "kept_removed_means_canonical": [
+    43.7,
+    43.1
+   ]
+  },
+  "edge_aug14_set-02_sub_05": {
+   "shape_canonical": [
+    2.718,
+    0.981,
+    1188
+   ],
+   "shape_toprow": [
+    2.717,
+    0.969,
+    1179
+   ],
+   "dFWHM": -0.001,
+   "dround": -0.012,
+   "step_pct_green_toprow": 1.874,
+   "step_pct_green_canonical": 1.874,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.7,
+    43.5
+   ],
+   "kept_removed_means_canonical": [
+    42.7,
+    43.5
+   ]
+  },
+  "edge_aug14_set-03_sub_01": {
+   "shape_canonical": [
+    2.865,
+    0.928,
+    1131
+   ],
+   "shape_toprow": [
+    2.873,
+    0.935,
+    1120
+   ],
+   "dFWHM": 0.008,
+   "dround": 0.007,
+   "step_pct_green_toprow": 0.699,
+   "step_pct_green_canonical": 0.699,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    43.2
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.2
+   ]
+  },
+  "edge_aug14_set-03_sub_02": {
+   "shape_canonical": [
+    2.887,
+    0.928,
+    1148
+   ],
+   "shape_toprow": [
+    2.875,
+    0.936,
+    1144
+   ],
+   "dFWHM": -0.012,
+   "dround": 0.008,
+   "step_pct_green_toprow": -0.227,
+   "step_pct_green_canonical": -0.455,
+   "step_arm_minus_canonical_pct": 0.227,
+   "kept_removed_means_toprow": [
+    44.0,
+    43.9
+   ],
+   "kept_removed_means_canonical": [
+    44.0,
+    43.8
+   ]
+  },
+  "edge_aug14_set-03_sub_03": {
+   "shape_canonical": [
+    2.85,
+    0.935,
+    1121
+   ],
+   "shape_toprow": [
+    2.857,
+    0.938,
+    1131
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.003,
+   "step_pct_green_toprow": -1.831,
+   "step_pct_green_canonical": -2.059,
+   "step_arm_minus_canonical_pct": 0.229,
+   "kept_removed_means_toprow": [
+    43.7,
+    42.9
+   ],
+   "kept_removed_means_canonical": [
+    43.7,
+    42.8
+   ]
+  },
+  "edge_aug14_set-03_sub_04": {
+   "shape_canonical": [
+    2.765,
+    0.973,
+    1187
+   ],
+   "shape_toprow": [
+    2.77,
+    0.969,
+    1179
+   ],
+   "dFWHM": 0.005,
+   "dround": -0.004,
+   "step_pct_green_toprow": -2.489,
+   "step_pct_green_canonical": -2.489,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.2,
+    43.1
+   ],
+   "kept_removed_means_canonical": [
+    44.2,
+    43.1
+   ]
+  },
+  "edge_aug14_set-03_sub_05": {
+   "shape_canonical": [
+    2.732,
+    0.982,
+    1183
+   ],
+   "shape_toprow": [
+    2.728,
+    0.979,
+    1168
+   ],
+   "dFWHM": -0.004,
+   "dround": -0.003,
+   "step_pct_green_toprow": -1.157,
+   "step_pct_green_canonical": -1.157,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.2,
+    42.7
+   ],
+   "kept_removed_means_canonical": [
+    43.2,
+    42.7
+   ]
+  },
+  "edge_aug14_set-03_sub_06": {
+   "shape_canonical": [
+    2.74,
+    0.983,
+    1179
+   ],
+   "shape_toprow": [
+    2.743,
+    0.975,
+    1160
+   ],
+   "dFWHM": 0.003,
+   "dround": -0.008,
+   "step_pct_green_toprow": -3.82,
+   "step_pct_green_canonical": -3.82,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.5,
+    42.8
+   ],
+   "kept_removed_means_canonical": [
+    44.5,
+    42.8
+   ]
+  },
+  "edge_aug14_set-04_sub_01": {
+   "shape_canonical": [
+    2.938,
+    0.94,
+    1124
+   ],
+   "shape_toprow": [
+    2.877,
+    0.97,
+    1136
+   ],
+   "dFWHM": -0.061,
+   "dround": 0.03,
+   "step_pct_green_toprow": -0.698,
+   "step_pct_green_canonical": -0.698,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.0,
+    42.7
+   ],
+   "kept_removed_means_canonical": [
+    43.0,
+    42.7
+   ]
+  },
+  "edge_aug14_set-04_sub_02": {
+   "shape_canonical": [
+    2.938,
+    0.937,
+    1123
+   ],
+   "shape_toprow": [
+    2.905,
+    0.972,
+    1129
+   ],
+   "dFWHM": -0.033,
+   "dround": 0.035,
+   "step_pct_green_toprow": 0.466,
+   "step_pct_green_canonical": 0.466,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    43.1
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.1
+   ]
+  },
+  "edge_aug14_set-04_sub_03": {
+   "shape_canonical": [
+    2.81,
+    0.989,
+    1151
+   ],
+   "shape_toprow": [
+    2.788,
+    0.981,
+    1127
+   ],
+   "dFWHM": -0.022,
+   "dround": -0.008,
+   "step_pct_green_toprow": 0.464,
+   "step_pct_green_canonical": 0.464,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.1,
+    43.3
+   ],
+   "kept_removed_means_canonical": [
+    43.1,
+    43.3
+   ]
+  },
+  "edge_aug14_set-04_sub_04": {
+   "shape_canonical": [
+    2.873,
+    0.968,
+    1168
+   ],
+   "shape_toprow": [
+    2.8,
+    0.985,
+    1141
+   ],
+   "dFWHM": -0.073,
+   "dround": 0.017,
+   "step_pct_green_toprow": -0.466,
+   "step_pct_green_canonical": -0.466,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    42.7
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    42.7
+   ]
+  },
+  "edge_aug14_set-04_sub_05": {
+   "shape_canonical": [
+    2.792,
+    0.989,
+    1148
+   ],
+   "shape_toprow": [
+    2.772,
+    0.993,
+    1151
+   ],
+   "dFWHM": -0.02,
+   "dround": 0.004,
+   "step_pct_green_toprow": 0.231,
+   "step_pct_green_canonical": 0.231,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.3,
+    43.4
+   ],
+   "kept_removed_means_canonical": [
+    43.3,
+    43.4
+   ]
+  },
+  "edge_aug14_set-04_sub_06": {
+   "shape_canonical": [
+    2.822,
+    0.99,
+    1141
+   ],
+   "shape_toprow": [
+    2.783,
+    0.987,
+    1138
+   ],
+   "dFWHM": -0.039,
+   "dround": -0.003,
+   "step_pct_green_toprow": -2.237,
+   "step_pct_green_canonical": -2.237,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.7,
+    43.7
+   ],
+   "kept_removed_means_canonical": [
+    44.7,
+    43.7
+   ]
+  },
+  "edge_aug14_set-05_sub_01": {
+   "shape_canonical": [
+    2.93,
+    0.935,
+    1143
+   ],
+   "shape_toprow": [
+    2.887,
+    0.938,
+    1142
+   ],
+   "dFWHM": -0.043,
+   "dround": 0.003,
+   "step_pct_green_toprow": 0.922,
+   "step_pct_green_canonical": 0.922,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    43.4,
+    43.8
+   ],
+   "kept_removed_means_canonical": [
+    43.4,
+    43.8
+   ]
+  },
+  "edge_aug14_set-05_sub_02": {
+   "shape_canonical": [
+    2.84,
+    0.956,
+    1128
+   ],
+   "shape_toprow": [
+    2.812,
+    0.94,
+    1136
+   ],
+   "dFWHM": -0.028,
+   "dround": -0.016,
+   "step_pct_green_toprow": 1.166,
+   "step_pct_green_canonical": 1.166,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    42.9,
+    43.4
+   ],
+   "kept_removed_means_canonical": [
+    42.9,
+    43.4
+   ]
+  },
+  "edge_aug14_set-05_sub_03": {
+   "shape_canonical": [
+    2.732,
+    0.989,
+    1176
+   ],
+   "shape_toprow": [
+    2.735,
+    0.975,
+    1160
+   ],
+   "dFWHM": 0.003,
+   "dround": -0.014,
+   "step_pct_green_toprow": -3.596,
+   "step_pct_green_canonical": -3.596,
+   "step_arm_minus_canonical_pct": 0.0,
+   "kept_removed_means_toprow": [
+    44.5,
+    42.9
+   ],
+   "kept_removed_means_canonical": [
+    44.5,
+    42.9
+   ]
+  }
+ },
+ "rim_profile": {
+  "100": [
+   4.0,
+   4.1
+  ],
+  "300": [
+   41.8,
+   41.8
+  ],
+  "500": [
+   42.4,
+   42.4
+  ],
+  "700": [
+   42.7,
+   42.7
+  ],
+  "900": [
+   42.5,
+   42.6
+  ]
+ },
+ "DEGRADED_rows": [
+  {
+   "station": "corner_700_4200",
+   "dFWHM": 0.02,
+   "dround": -0.01,
+   "n": "384 -> 368",
+   "note": "the primary target (P1) \u2014 worse, not better"
+  },
+  {
+   "station": "x05pct_-",
+   "dFWHM": 0.065,
+   "dround": -0.009,
+   "note": "the rim station (coverage class the owner accepted as a reported cost)"
+  },
+  {
+   "station": "x10pct_-",
+   "dFWHM": 0.053,
+   "dround": 0.004,
+   "note": "the band's outer station"
+  },
+  {
+   "station": "corner_7000_4900 (roundness)",
+   "dFWHM": 0.017,
+   "dround": -0.034,
+   "n": "911 -> 836",
+   "note": "within P2's FWHM bound; the roundness loss is the 17-of-37 coverage cost"
+  }
+ ],
+ "improved_rows": [
+  {
+   "station": "corner_1300_4900",
+   "dFWHM": -0.038,
+   "dround": 0.017
+  },
+  {
+   "station": "x70pct_clean",
+   "dFWHM": -0.038,
+   "dround": -0.02
+  },
+  {
+   "station": "corner_700_1400",
+   "dFWHM": -0.025,
+   "dround": -0.015
+  },
+  {
+   "station": "LADDER_defect_RA294.86",
+   "dFWHM": -0.023,
+   "dround": -0.001
+  }
+ ],
+ "inspection_worker": "tiles from both 16-bit judge PNGs (display-stretched 8-bit views for inspection only; the judgment surface is the PNG): bottom-left corner_700_4200 1:1 \u2014 the two tiles are indistinguishable (star shapes, noise texture, the coverage staircase at the left identical); corner_1300_4900 1:1 \u2014 same; the edge tile at aug14/set-04/sub_01's strip boundary \u2014 a uniform dense field, no visible horizontal seam or level step at the boundary; the bottom-left rim 1:1 \u2014 the canonical shows the thin single-member staircase at the very bottom-left; the arm's canvas is 204 rows shorter, so that thinnest fringe is GONE and the staircase begins higher (the coverage cost, visible as a shorter union, not as an artefact); whole frame \u2014 identical appearance and colour, the union outline shorter at the bottom; centre \u2014 identical",
+ "verdict": "TRADE, NOT A WIN, NOT A CLEAN NULL \u2014 by the pre-registered routing the owner's call, with the worker's reading that the knob is NOT worth adopting: the primary target corner_700_4200 got WORSE (+0.020, 16 fewer stars) while the neighbouring corner_1300_4900 gained -0.038; the band's outer stations x05/x10 degraded +0.065/+0.053; the bottom-right corner kept its FWHM but lost roundness (-0.034) with 17 of 37 coverers; the canvas lost 204 rows at the bottom rim and 6.79 % more pixel-frames were removed for no seam (29/29 edges clean). The pin's geometry bound held: at this depth the mean of the remaining coverers does not fall when the softest few leave, and the strips carried real coverage at the rim and the band edge. The uniform corpus-wide part of the top-row softening (U3) remains untouched by any exclusion.",
+ "premises_not_tested": [
+  "the pin's 100-px coverage counts predicted the compose's coverers per box \u2014 consistent with the star-count drops (n 384 -> 368, 911 -> 836) but not verified member-by-member on the composite",
+  "the new-edge step instrument's 0.23 % floor is Siril stat's 0.1-ADU print quantum at this level \u2014 a finer readout would need sirilpy's typed stats",
+  "one arm at one threshold (p25 + 0.20 on S_top); a smaller strip (e.g. 400 rows) or a higher bar was not run",
+  "the x05/x10 degradation is read as a coverage change at the band's outer edge (the 29's top strips were among the coverers there) \u2014 not attributed member-by-member"
+ ],
+ "products_kept": "web/results/aug14/stack_july31+aug06+aug09+aug14_toprow{.fit,_wcs.fit,_spcc.fit}, web/results/aug09/judge/july31+aug06+aug09+aug14_toprow_spcc-linked.png, the compose_gate/solve records beside them, sessions/aug14/work/toprow/ (curated_toprow 29 copies ~6.4 GB, build script, .ssf, logs, measure/, inspect/ tiles) \u2014 until the director has inspected; disposal the director's call",
+ "written_at": "2026-08-30T14:22:17-04:00",
+ "eye_inspection_director": {
+  "surface": "own tiles (session scratchpad inspect_toprow.py): 800-px 1:1 crops of BOTH judge PNGs at the same sky through each product's own _wcs (the four bottom corner boxes from the pin's ra/dec), side by side canonical | toprow, plus both whole frames at 1/8; the PNGs read as 8-bit RGB through PIL \u2014 a diagnostic surface, not the owner's 16-bit judgment surface",
+  "reading": {
+   "corner_700_4200": "indistinguishable star shapes and noise; only the rim staircase at the tile's bottom differs (the union is 204 rows shorter) \u2014 no seam, no step",
+   "corner_1300_4900": "indistinguishable; the staircase differs at the bottom edge only",
+   "corner_7000_4900": "the toprow tile reads slightly grainier toward its lower right \u2014 the 37 \u2192 20 coverage loss showing as noise; no seam",
+   "corner_7500_4400": "the toprow tile carries a black notch at its lower right \u2014 the canvas edge now intrudes into the box (a coverage change at the rim); the canonical tile has none",
+   "whole_frame": "identical at 1/8 except the bottom edge is trimmed on the arm (the shorter union)",
+   "colour": "identical by eye at all four tiles"
+  },
+  "disagreement_with_worker": "none \u2014 the worker's tiles and mine agree: nothing visibly gained at the bottom-left, a visible coverage cost at the bottom-right rim",
+  "verdict_carried": "TRADE by the pre-registered routing, NOT adopted on the director's reading: the primary target corner_700_4200 rose +0.020 px with fewer stars, the neighbour fell \u22120.038, the rim/band-edge stations x05/x10 rose +0.065/+0.053, corner_7000_4900 lost 0.034 roundness with 17 of 37 coverers, and the union lost 204 rows \u2014 a small, real gain at one box bought with depth and coverage elsewhere; the corpus-wide top-row softening (U3) is untouched by any exclusion. The owner's call whether to look; the judge PNG is kept until then.",
+  "written_at": "2026-08-30T14:24:53-04:00"
+ }
+}
