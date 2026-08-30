@@ -21,16 +21,23 @@ shot, split by provenance and kept honest:
           (that is an unstable instrument). Only when the instruments disagree,
           or nothing measured, does resolve() stop and ask — the one mount case
           a human is actually needed for.
-  site    WHERE it was shot, in the industry-standard keys — SITELAT / SITELONG
-          / SITEELEV (Siril's own, so a value round-trips through the tool that
-          reads it) plus the DERIVED FITS-standard OBSGEO-X/Y/Z triple. Resolved
-          from the tracked `scripts/setup/site.json`, overridable per session by
-          `datasets/<session>/site.json`, and NEVER defaulted: a session with
-          neither gets a null block that says so. Carries its own provenance,
-          including whether the coordinates have been independently verified —
-          an owner-supplied coordinate transcribed by hand has no check in its
+  site    WHERE it was shot — as PROVENANCE ONLY. The coordinates (SITELAT /
+          SITELONG / SITEELEV, Siril's own keys, plus the derived FITS-standard
+          OBSGEO-X/Y/Z triple) live in a GITIGNORED config — rig-local
+          `scripts/setup/site.local.json`, overridable by a session-local
+          `sessions/<session>/site.local.json` — read through load_site_config()
+          and handed to runtime consumers by site_coordinates(). The block this
+          record carries names the config it resolved (resolved_from), its
+          sha256 (a rebuild proves the same site without revealing it), status,
+          verified and whether an elevation was recorded — and NO coordinate in
+          any form: the site is a home address and this tree is meant to be
+          published (BACKLOG:`site-privacy-vs-public-repo`;
+          scripts/qa/check_site_privacy.py is the guard). NEVER defaulted: a
+          session with no config gets a null block that says so. An
+          owner-supplied coordinate transcribed by hand has no check in its
           chain, and a typo in it is silent and propagates into every altitude,
-          hour angle and parallactic angle derived from it.
+          hour angle and parallactic angle derived from it — the config's own
+          provenance says whether it has been independently verified.
 
 WHY THIS EXISTS: cross-frame reasoning — e.g. the anomaly audit chaining one
 satellite across consecutive frames — assumes a FIXED, untracked camera, where
@@ -58,9 +65,10 @@ MOUNTS = ("fixed", "tracked")
 _NOTE = ("`mount` is the one acquisition fact EXIF cannot record: declared by "
          "a human or derived from the measured drift signature — `mount_source` "
          "says which; `exif` is auto-derived by scripts/lib/acquisition.py — "
-         "do not hand-edit it. `site` is resolved from scripts/setup/site.json "
-         "(or a per-session datasets/<session>/site.json override) and carries "
-         "its own provenance — hand-edit the SOURCE file, never this copy.")
+         "do not hand-edit it. `site` is PROVENANCE ONLY — resolved from the "
+         "gitignored scripts/setup/site.local.json (or a session-local "
+         "sessions/<session>/site.local.json), carrying that config's sha256 "
+         "and status and NO coordinate; the numbers live in the config alone.")
 
 
 class AcquisitionUndeclared(Exception):
@@ -356,60 +364,118 @@ def _obsgeo(lat_deg, lon_deg, elev_m):
             (n * (1 - e2) + h) * math.sin(lat)]
 
 
-def site_facts(session_dir):
-    """The observing site for a session, in the standard keys, with provenance.
+SITE_LOCAL_BASENAME = "site.local.json"   # gitignored wherever it sits (**/site.local.json)
 
-    Resolution order, and there is no silent default at the end of it: a
-    per-session `datasets/<session>/site.json` overrides the rig's own
-    `scripts/setup/site.json`, and a session with neither gets a null block that
-    SAYS it is null. Nothing downstream may assume a location — the same
-    discipline `mount` carries, for the same reason: a buried default that is
-    wrong is worse than an absent value that stops you.
 
-    Emits SITELAT/SITELONG/SITEELEV (Siril's own keys, so the value round-trips
-    through the tool that consumes it) and the DERIVED OBSGEO-X/Y/Z triple (the
-    FITS standard form). Carries the source file's provenance verbatim, including
-    whether the coordinates have been independently verified — an owner-supplied
-    coordinate transcribed by hand has no check in its chain, and a typo in it is
-    silent and propagates into every hour angle downstream.
-    """
+def site_config_candidates(session_dir=None):
+    """The places a site config may live, in resolution order — every one of
+    them GITIGNORED: the session tree first (`sessions/<session>/site.local.json`,
+    a session shot somewhere else), then the rig (`scripts/setup/site.local.json`).
+    No tracked path is a candidate: the former `scripts/setup/site.json` and the
+    documented `datasets/<session>/site.json` override were tracked, which is how
+    a home address reached 23 tracked files (BACKLOG:`site-privacy-vs-public-repo`,
+    owner-directed to a gitignored config)."""
     here = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        (os.path.join(session_dir, "site.json"), "session override"),
-        (os.path.normpath(os.path.join(here, "..", "setup", "site.json")),
-         "rig default (scripts/setup/site.json)"),
-    ]
-    for path, which in candidates:
+    out = []
+    if session_dir:
+        out.append((os.path.join(session_dir, SITE_LOCAL_BASENAME),
+                    "session-local (sessions/<session>/site.local.json)"))
+    out.append((os.path.normpath(os.path.join(here, "..", "setup", SITE_LOCAL_BASENAME)),
+                "rig-local (scripts/setup/site.local.json)"))
+    return out
+
+
+def load_site_config(session_dir=None):
+    """The ONE reader of the local site config — every consumer goes through it
+    (site_facts() for the record block, site_coordinates() for the numbers, and
+    through that observer_frame_diversity.py and verify_site.py). Returns
+    (cfg, path, resolved_from, sha256) for the first candidate that parses and
+    carries numeric sitelat_deg / sitelong_deg, else (None, None, None, None)."""
+    import hashlib
+    for path, which in site_config_candidates(session_dir):
         try:
-            cfg = json.load(open(path))
+            raw = open(path, "rb").read()
+            cfg = json.loads(raw.decode("utf-8"))
         except (OSError, ValueError):
             continue
-        lat, lon, elev = (cfg.get(k) for k in SITE_KEYS)
-        if not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)):
+        lat, lon = cfg.get("sitelat_deg"), cfg.get("sitelong_deg")
+        if any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in (lat, lon)):
             continue
-        prov = cfg.get("provenance") or {}
-        block = {
-            "SITELAT": float(lat), "SITELONG": float(lon),
-            "SITEELEV": None if elev is None else float(elev),
-            "OBSGEO_XYZ_m": _obsgeo(lat, lon, elev),
-            "siteelev_assumed_zero_for_obsgeo": elev is None,
-            "sitelong_sign": "positive EAST (FITS/Siril convention)",
-            "resolved_from": which,
-            "source": prov.get("source"),
-            "status": prov.get("status"),
-            "verified": bool(prov.get("verified")),
-        }
-        if not block["verified"]:
-            block["_unverified"] = (
-                prov.get("why_that_matters")
-                or "coordinates not independently checked; treat as provisional")
-            block["_check_that_closes_it"] = prov.get("the_check_that_closes_it")
-        return block
-    return {"SITELAT": None, "SITELONG": None, "SITEELEV": None,
-            "resolved_from": None,
-            "_absent": "no scripts/setup/site.json and no per-session "
-                       "site.json — the observing site is UNKNOWN for this "
-                       "session. Nothing downstream may assume one."}
+        return cfg, path, which, hashlib.sha256(raw).hexdigest()
+    return None, None, None, None
+
+
+def site_coordinates(session_dir=None):
+    """RUNTIME access to the numbers, for a consumer that needs them in memory
+    (an alt/az transform, the falsification test): lat / lon / elev, the derived
+    OBSGEO triple, and the config's path, sha256 and provenance. None when no
+    config is present. NEVER write any of this into a tracked file — the record
+    form is site_facts()'s block, which carries no coordinate; a consumer that
+    writes a horizon-frame quantity rounds it so the site cannot be inverted from
+    it (scripts/qa/check_site_privacy.py is the guard on the tree)."""
+    cfg, path, which, sha = load_site_config(session_dir)
+    if cfg is None:
+        return None
+    lat, lon, elev = (cfg.get(k) for k in SITE_KEYS)
+    return {"lat_deg": float(lat), "lon_deg": float(lon),
+            "elev_m": None if elev is None else float(elev),
+            "obsgeo_xyz_m": _obsgeo(lat, lon, elev),
+            "path": path, "resolved_from": which, "config_sha256": sha,
+            "provenance": cfg.get("provenance") or {}}
+
+
+def site_facts(session_dir):
+    """The observing site's RECORD block for a session — provenance WITHOUT the
+    coordinates.
+
+    Resolution order, and there is no silent default at the end of it: a
+    session-local `sessions/<session>/site.local.json` overrides the rig's own
+    `scripts/setup/site.local.json` (both gitignored), and a session with neither
+    gets a null block that SAYS it is null. Nothing downstream may assume a
+    location — the same discipline `mount` carries, for the same reason: a
+    buried default that is wrong is worse than an absent value that stops you.
+
+    What the block carries: which config resolved, its sha256 (two records with
+    the same sha were built from the same site — a rebuild proves the site
+    without revealing it), the config's status / verified flags and whether an
+    elevation was recorded. What it deliberately does NOT carry: SITELAT /
+    SITELONG / SITEELEV, the OBSGEO triple, or any other form of the value —
+    this record is tracked, the site is a home address, and the tree is meant to
+    be published (owner-directed; BACKLOG:`site-privacy-vs-public-repo`). The
+    numbers stay in the config; runtime consumers take them from
+    site_coordinates(). The config's own provenance says whether it has been
+    independently verified — an owner-supplied coordinate transcribed by hand
+    has no check in its chain, and a typo in it is silent and propagates into
+    every hour angle downstream.
+    """
+    cfg, path, which, sha = load_site_config(session_dir)
+    if cfg is None:
+        return {"SITELAT": None, "SITELONG": None, "SITEELEV": None,
+                "resolved_from": None,
+                "_absent": "no scripts/setup/site.local.json and no session-local "
+                           "sessions/<session>/site.local.json — the observing site "
+                           "is UNKNOWN for this session. Nothing downstream may "
+                           "assume one (copy scripts/setup/site.example.json to "
+                           "scripts/setup/site.local.json and fill it in)."}
+    prov = cfg.get("provenance") or {}
+    block = {
+        "resolved_from": which,
+        "config_sha256": sha,
+        "status": prov.get("status"),
+        "verified": bool(prov.get("verified")),
+        "siteelev_recorded": cfg.get("siteelev_m") is not None,
+        "sitelong_sign": "positive EAST (FITS/Siril convention) in the config",
+        "_numbers": "the coordinates live ONLY in the gitignored config named by "
+                    "resolved_from (scripts/lib/acquisition.py site_coordinates() "
+                    "reads them at runtime); this record carries none in any form "
+                    "— scripts/qa/check_site_privacy.py guards the tree.",
+    }
+    if not block["verified"]:
+        block["_unverified"] = (
+            prov.get("why_that_matters")
+            or "coordinates not independently checked; treat as provisional")
+        block["_check_that_closes_it"] = prov.get("the_check_that_closes_it")
+    return block
 
 
 def record_path(session_dir, set_name):

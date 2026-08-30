@@ -1,0 +1,21 @@
+{
+ "_what": "TEMPLATE for the observing-site config \u2014 copy to scripts/setup/site.local.json (GITIGNORED: the real file never enters the tree) and fill in the numbers; a session shot elsewhere gets its own sessions/<session>/site.local.json (the gitignored session tree; it takes precedence). The chain reads the local file through scripts/lib/acquisition.py (load_site_config / site_coordinates) and writes NO coordinate into any tracked record: acquisition.json's `site` block carries the config's sha256, status and provenance only; scripts/qa/check_site_privacy.py goes RED on any form of the value in the tree or the index. No config = a null site block that says so, and nothing downstream assumes a location. Verify a filled-in config with scripts/setup/verify_site.py (a DEGREE-level bound, its own words). Owner-directed: BACKLOG:`site-privacy-vs-public-repo`.",
+ "_standard": "SITELAT / SITELONG / SITEELEV are SIRIL's own header keys, verified present in the installed 1.4.4 binary, so a value written here round-trips through the tool that consumes it. OBSGEO-X/Y/Z is the FITS-standard geocentric form (WCS Paper III; FITS 4.0 sec 8.4) and is DERIVED from the three above, never entered by hand. Both are emitted: the Siril keys because the toolchain reads them, the OBSGEO triple because it is the standard other software expects.",
+ "sitelat_deg": null,
+ "sitelong_deg": null,
+ "siteelev_m": null,
+ "sitelat_sexagesimal": null,
+ "sitelong_sexagesimal": null,
+ "sign_convention": "SITELONG is POSITIVE EAST of Greenwich \u2014 the FITS and Siril convention and the OPPOSITE of what some planetarium software shows \u2014 so a site WEST of Greenwich (the Americas) has a NEGATIVE longitude. A sign error is silent and inverts every hour angle derived from it; verify_site.py refutes a flipped sign (it puts photographed targets below the horizon).",
+ "TRAP_if_you_ever_derive_this_from_a_map_url": "In a Google Maps URL the `@lat,lon` segment is the map VIEWPORT CENTRE, not the place, and it is the segment that LOOKS like the coordinates so it is the one people reach for. MEASURED on this rig: the viewport pair and the place pair differed by 219 m in longitude. The authoritative pair is `!3d<lat>!4d<lon>`.",
+ "provenance": {
+  "source": null,
+  "chain": null,
+  "status": "TRANSCRIBED, UNVERIFIED",
+  "verified": false,
+  "why_that_matters": "the chain still ends in a human typing a number, and no step in it has an independent check. A coordinate typo is silent and load-bearing \u2014 it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the derivation below runs.",
+  "the_check_that_closes_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 it needs PER-FRAME plate solves, which do not exist yet, so it is a real build rather than a fold-in. Until it runs, `verified` stays false."
+ },
+ "siteelev_note": "Optional. Elevation enters refraction and airmass, both weakly; leave null rather than guess \u2014 a quietly assumed value is the machine-local-value problem in a different costume. With null, the derived OBSGEO triple is computed at h = 0 m and the record says so (siteelev_recorded false).",
+ "_what_is_deliberately_not_here": "a street address, and any value of a real site in any form \u2014 decimal, sexagesimal or geocentric: this tracked template carries the schema and the traps only."
+}

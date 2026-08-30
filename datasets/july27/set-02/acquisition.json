@@ -18,22 +18,15 @@
   "time_span_s": 1697.7
  },
  "site": {
-  "SITELAT": REDACTED_SITELAT,
-  "SITELONG": REDACTED_SITELONG,
-  "SITEELEV": null,
-  "OBSGEO_XYZ_m": [
-   REDACTED_OBSGEO_X,
-   REDACTED_OBSGEO_Y,
-   REDACTED_OBSGEO_Z
-  ],
-  "siteelev_assumed_zero_for_obsgeo": true,
-  "sitelong_sign": "positive EAST (FITS/Siril convention)",
-  "resolved_from": "rig default (scripts/setup/site.json)",
-  "source": "owner-supplied ground truth, from two of their own sources that agree to 4 m",
+  "resolved_from": "rig-local (scripts/setup/site.local.json)",
+  "config_sha256": "49925a10553bf02e73eb15e88621b64878534618b719b8540b62d06d24cf62a0",
   "status": "TRANSCRIBED, UNVERIFIED",
   "verified": false,
+  "siteelev_recorded": false,
+  "sitelong_sign": "positive EAST (FITS/Siril convention) in the config",
+  "_numbers": "the coordinates live ONLY in the gitignored config named by resolved_from (scripts/lib/acquisition.py site_coordinates() reads them at runtime); this record carries none in any form \u2014 scripts/qa/check_site_privacy.py guards the tree.",
   "_unverified": "the chain still ends in a human typing a number, and no step in it has an independent check. A coordinate typo is silent and load-bearing \u2014 it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the derivation below runs.",
   "_check_that_closes_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 it needs PER-FRAME plate solves, which do not exist yet, so it is a real build rather than a fold-in. Until it runs, `verified` stays false."
  },
- "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it. `site` is resolved from scripts/setup/site.json (or a per-session datasets/<session>/site.json override) and carries its own provenance \u2014 hand-edit the SOURCE file, never this copy."
+ "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it. `site` is PROVENANCE ONLY \u2014 resolved from the gitignored scripts/setup/site.local.json (or a session-local sessions/<session>/site.local.json), carrying that config's sha256 and status and NO coordinate; the numbers live in the config alone."
 }

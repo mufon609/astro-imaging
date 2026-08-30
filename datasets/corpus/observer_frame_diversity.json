@@ -1,112 +1,144 @@
 {
  "_what": "CAMERA POINTING IN THE OBSERVER (alt/az) FRAME, per set, across every group-built set on this rig. Measures how much the observer-frame pointing CHANGES across the corpus \u2014 the quantity that decides whether a term fixed in the observer frame (a horizon-fixed sky gradient) would average down across a multi-pointing combine, or imprint.",
  "_this_creates_a_corpus_level_under_datasets/": "datasets/<session>/<set>/ is the wrong shape by construction for a measurement spanning sessions, and web/results/ is gitignored so it cannot hold a tracked record. This PARTIALLY answers BACKLOG:cross-set-record-home \u2014 the NAMING half only. That item also covers PRODUCTS and a record SCHEMA and is NOT closed by this file.",
- "_measured_at_commit": "0786fb3",
- "_reads": "FITS headers and the tracked site record only. No pixel is opened. Nothing is gated.",
+ "_measured_at_commit": "0515e77",
+ "_reads": "FITS headers and the gitignored site config (through scripts/lib/acquisition.py) only. No pixel is opened. Nothing is gated.",
  "method": {
-  "site": "scripts/setup/site.json, sitelat REDACTED_SITELAT / sitelong REDACTED_SITELONG, height 0 (siteelev_m is null there and deliberately not defaulted). That file's own provenance block marks the coordinates TRANSCRIBED, UNVERIFIED and bounded only at the DEGREE level \u2014 every altitude here inherits that.",
+  "site": "the gitignored site config resolved by scripts/lib/acquisition.py (rig-local (scripts/setup/site.local.json)), sha256 49925a10553bf02e73eb15e88621b64878534618b719b8540b62d06d24cf62a0; height 0 (siteelev unrecorded, deliberately not defaulted) m. The coordinates are NOT written here \u2014 the site is a home address in a published tree \u2014 and every horizon-frame quantity below is rounded to whole degrees (the within-set control to 0.01 deg) so the record cannot be inverted to them; the config's own provenance marks the coordinates TRANSCRIBED, UNVERIFIED and bounded only at the DEGREE level \u2014 every altitude here inherits that.",
   "pointing": "each group sub-stack's own WCS evaluated AT ITS CENTRE PIXEL. Never CRVAL (the tangent point; BACKLOG:pointing-record-names-the-wrong-frame) and never fingerprint.field_center (the FIRST frame's solve).",
   "epoch": "DERIVED per group, not read. See the defect below: DATE-OBS on a sub-stack names the SET's first frame while each group's centre has drifted up to 4.9 deg of RA, so pairing them manufactures a spurious alt/az drift. Each group's epoch is recovered as t0 + dRA/15.041 hr.",
   "statistic": "ANGULAR SEPARATION in the horizon frame, not azimuth spread. Azimuth is DEGENERATE near the zenith and one set here sits 1.60 deg from it; raw azimuth spread reads 155.6 deg corpus-wide and 141 deg within aug09, almost entirely as that artifact."
  },
  "control": {
   "what": "a FIXED mount must give constant alt/az through a set, so within-set spread is the falsification.",
-  "with_DATE-OBS_as_read_deg": 3.933,
-  "with_derived_epochs_deg": 0.0882,
+  "with_DATE-OBS_as_read_deg": 3.93,
+  "with_derived_epochs_deg": 0.01,
   "verdict": "PASSES only with derived epochs \u2014 a 45x improvement. The first form was wrong and the control is what said so.",
   "per_set": [
    {
     "session": "aug06",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.0043
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "aug06",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.0069
+    "within_set_alt_spread_deg": 0.0
    },
    {
     "session": "aug06",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.0279
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "aug09",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.0337
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "aug09",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.0882
+    "within_set_alt_spread_deg": 0.0
    },
    {
     "session": "aug09",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.0137
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "aug09",
     "set": "set-04",
-    "within_set_alt_spread_deg": 0.008
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "aug09",
     "set": "set-05",
-    "within_set_alt_spread_deg": 0.0053
+    "within_set_alt_spread_deg": 0.01
+   },
+   {
+    "session": "aug14",
+    "set": "set-01",
+    "within_set_alt_spread_deg": 0.01
+   },
+   {
+    "session": "aug14",
+    "set": "set-02",
+    "within_set_alt_spread_deg": 0.01
+   },
+   {
+    "session": "aug14",
+    "set": "set-03",
+    "within_set_alt_spread_deg": 0.0
+   },
+   {
+    "session": "aug14",
+    "set": "set-04",
+    "within_set_alt_spread_deg": 0.01
+   },
+   {
+    "session": "aug14",
+    "set": "set-05",
+    "within_set_alt_spread_deg": 0.0
    },
    {
     "session": "july31",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.0194
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "july31",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.0059
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "july31",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.0063
+    "within_set_alt_spread_deg": 0.01
    },
    {
     "session": "july31",
     "set": "set-04",
-    "within_set_alt_spread_deg": 0.0036
+    "within_set_alt_spread_deg": 0.0
    }
   ]
  },
  "result": {
-  "n_sets": 12,
-  "n_nights": 3,
-  "max_pairwise_separation_deg": 37.174,
-  "median_pairwise_separation_deg": 12.578,
+  "n_sets": 17,
+  "n_nights": 4,
+  "max_pairwise_separation_deg": 37,
+  "median_pairwise_separation_deg": 12,
   "altitude_range_deg": [
-   65.158,
-   88.401
+   65,
+   89
   ],
   "by_night": {
    "aug06": {
     "n_sets": 3,
-    "max_pairwise_separation_deg": 9.633,
-    "median_pairwise_separation_deg": 6.996,
-    "altitude_min_deg": 73.987,
-    "altitude_max_deg": 83.442
+    "max_pairwise_separation_deg": 10,
+    "median_pairwise_separation_deg": 7,
+    "altitude_min_deg": 74,
+    "altitude_max_deg": 83
    },
    "aug09": {
     "n_sets": 5,
-    "max_pairwise_separation_deg": 17.459,
-    "median_pairwise_separation_deg": 11.186,
-    "altitude_min_deg": 76.87,
-    "altitude_max_deg": 88.401
+    "max_pairwise_separation_deg": 18,
+    "median_pairwise_separation_deg": 11,
+    "altitude_min_deg": 77,
+    "altitude_max_deg": 89
+   },
+   "aug14": {
+    "n_sets": 5,
+    "max_pairwise_separation_deg": 23,
+    "median_pairwise_separation_deg": 11,
+    "altitude_min_deg": 78,
+    "altitude_max_deg": 89
    },
    "july31": {
     "n_sets": 4,
-    "max_pairwise_separation_deg": 16.629,
-    "median_pairwise_separation_deg": 9.455,
-    "altitude_min_deg": 65.158,
-    "altitude_max_deg": 81.567
+    "max_pairwise_separation_deg": 17,
+    "median_pairwise_separation_deg": 9,
+    "altitude_min_deg": 65,
+    "altitude_max_deg": 81
    }
   },
   "_the_spread_is_cross-night": "within a single night the max is 9.63-17.46 deg; the corpus figure is dominated by cross-night pairs."
@@ -125,8 +157,8 @@
  "registry_claim_checked": {
   "claim": "altitude 63.4-87.7 deg",
   "measured_here_deg": [
-   65.158,
-   88.401
+   65,
+   89
   ],
   "verdict": "NOT a contradiction \u2014 different denominators. The registry figure is over 23 solved products via site_verification.json; this is over the 12 group-built sets. Neither should be quoted bare."
  },
@@ -141,133 +173,188 @@
    "session": "aug06",
    "set": "set-01",
    "n_groups": 5,
-   "field_centre_ra_deg": 303.6626,
-   "field_centre_dec_deg": 42.5114,
+   "field_centre_ra_deg": 303.6846,
+   "field_centre_dec_deg": 42.5061,
    "epoch_utc": "2026-08-07T02:46:42",
-   "altitude_deg": 73.987,
-   "azimuth_deg": 74.067,
-   "zenith_distance_deg": 16.013
+   "altitude_deg": 74,
+   "azimuth_deg": 74,
+   "zenith_distance_deg": 16
   },
   {
    "session": "aug06",
    "set": "set-02",
    "n_groups": 4,
-   "field_centre_ra_deg": 306.8689,
-   "field_centre_dec_deg": 42.6789,
+   "field_centre_ra_deg": 306.9392,
+   "field_centre_dec_deg": 42.6685,
    "epoch_utc": "2026-08-07T03:13:47",
-   "altitude_deg": 76.601,
-   "azimuth_deg": 72.703,
-   "zenith_distance_deg": 13.399
+   "altitude_deg": 77,
+   "azimuth_deg": 73,
+   "zenith_distance_deg": 13
   },
   {
    "session": "aug06",
    "set": "set-03",
    "n_groups": 4,
-   "field_centre_ra_deg": 304.1053,
-   "field_centre_dec_deg": 42.6323,
+   "field_centre_ra_deg": 304.2921,
+   "field_centre_dec_deg": 42.5627,
    "epoch_utc": "2026-08-07T03:40:46",
-   "altitude_deg": 83.442,
-   "azimuth_deg": 63.688,
-   "zenith_distance_deg": 6.558
+   "altitude_deg": 83,
+   "azimuth_deg": 65,
+   "zenith_distance_deg": 7
   },
   {
    "session": "aug09",
    "set": "set-01",
    "n_groups": 4,
-   "field_centre_ra_deg": 307.3855,
-   "field_centre_dec_deg": 42.3185,
+   "field_centre_ra_deg": 307.6677,
+   "field_centre_dec_deg": 42.2268,
    "epoch_utc": "2026-08-10T03:49:33",
-   "altitude_deg": 84.832,
-   "azimuth_deg": 61.204,
-   "zenith_distance_deg": 5.168
+   "altitude_deg": 85,
+   "azimuth_deg": 63,
+   "zenith_distance_deg": 5
   },
   {
    "session": "aug09",
    "set": "set-02",
    "n_groups": 4,
-   "field_centre_ra_deg": 307.9773,
-   "field_centre_dec_deg": 41.5855,
+   "field_centre_ra_deg": 308.2144,
+   "field_centre_dec_deg": 41.478,
    "epoch_utc": "2026-08-10T04:16:40",
-   "altitude_deg": 88.401,
-   "azimuth_deg": 358.249,
-   "zenith_distance_deg": 1.599
+   "altitude_deg": 89,
+   "azimuth_deg": 5,
+   "zenith_distance_deg": 1
   },
   {
    "session": "aug09",
    "set": "set-03",
    "n_groups": 5,
-   "field_centre_ra_deg": 305.7032,
-   "field_centre_dec_deg": 40.8338,
+   "field_centre_ra_deg": 305.9514,
+   "field_centre_dec_deg": 40.704,
    "epoch_utc": "2026-08-10T04:42:08",
-   "altitude_deg": 83.316,
-   "azimuth_deg": 280.059,
-   "zenith_distance_deg": 6.684
+   "altitude_deg": 84,
+   "azimuth_deg": 279,
+   "zenith_distance_deg": 6
   },
   {
    "session": "aug09",
    "set": "set-04",
    "n_groups": 5,
-   "field_centre_ra_deg": 305.4417,
-   "field_centre_dec_deg": 42.0742,
+   "field_centre_ra_deg": 305.4997,
+   "field_centre_dec_deg": 42.0694,
    "epoch_utc": "2026-08-10T05:09:27",
-   "altitude_deg": 77.907,
-   "azimuth_deg": 285.064,
-   "zenith_distance_deg": 12.093
+   "altitude_deg": 78,
+   "azimuth_deg": 285,
+   "zenith_distance_deg": 12
   },
   {
    "session": "aug09",
    "set": "set-05",
    "n_groups": 4,
-   "field_centre_ra_deg": 310.6172,
-   "field_centre_dec_deg": 40.9694,
+   "field_centre_ra_deg": 310.6953,
+   "field_centre_dec_deg": 40.9254,
    "epoch_utc": "2026-08-10T05:35:50",
-   "altitude_deg": 76.87,
-   "azimuth_deg": 279.914,
-   "zenith_distance_deg": 13.13
+   "altitude_deg": 77,
+   "azimuth_deg": 280,
+   "zenith_distance_deg": 13
+  },
+  {
+   "session": "aug14",
+   "set": "set-01",
+   "n_groups": 5,
+   "field_centre_ra_deg": 305.5534,
+   "field_centre_dec_deg": 41.1219,
+   "epoch_utc": "2026-08-15T02:47:47",
+   "altitude_deg": 79,
+   "azimuth_deg": 79,
+   "zenith_distance_deg": 11
+  },
+  {
+   "session": "aug14",
+   "set": "set-02",
+   "n_groups": 5,
+   "field_centre_ra_deg": 304.6519,
+   "field_centre_dec_deg": 41.0511,
+   "epoch_utc": "2026-08-15T03:19:41",
+   "altitude_deg": 85,
+   "azimuth_deg": 75,
+   "zenith_distance_deg": 5
+  },
+  {
+   "session": "aug14",
+   "set": "set-03",
+   "n_groups": 6,
+   "field_centre_ra_deg": 305.841,
+   "field_centre_dec_deg": 40.6153,
+   "epoch_utc": "2026-08-15T03:49:01",
+   "altitude_deg": 89,
+   "azimuth_deg": 346,
+   "zenith_distance_deg": 1
+  },
+  {
+   "session": "aug14",
+   "set": "set-04",
+   "n_groups": 6,
+   "field_centre_ra_deg": 308.9617,
+   "field_centre_dec_deg": 39.8883,
+   "epoch_utc": "2026-08-15T04:24:35",
+   "altitude_deg": 85,
+   "azimuth_deg": 271,
+   "zenith_distance_deg": 5
+  },
+  {
+   "session": "aug14",
+   "set": "set-05",
+   "n_groups": 3,
+   "field_centre_ra_deg": 307.692,
+   "field_centre_dec_deg": 40.5227,
+   "epoch_utc": "2026-08-15T05:00:46",
+   "altitude_deg": 78,
+   "azimuth_deg": 278,
+   "zenith_distance_deg": 12
   },
   {
    "session": "july31",
    "set": "set-01",
    "n_groups": 5,
-   "field_centre_ra_deg": 310.746,
-   "field_centre_dec_deg": 41.5435,
+   "field_centre_ra_deg": 310.7637,
+   "field_centre_dec_deg": 41.5495,
    "epoch_utc": "2026-08-01T02:51:17",
-   "altitude_deg": 65.158,
-   "azimuth_deg": 75.556,
-   "zenith_distance_deg": 24.842
+   "altitude_deg": 65,
+   "azimuth_deg": 76,
+   "zenith_distance_deg": 25
   },
   {
    "session": "july31",
    "set": "set-02",
    "n_groups": 5,
-   "field_centre_ra_deg": 308.7092,
-   "field_centre_dec_deg": 42.7663,
+   "field_centre_ra_deg": 308.866,
+   "field_centre_dec_deg": 42.8105,
    "epoch_utc": "2026-08-01T03:17:05",
-   "altitude_deg": 71.521,
-   "azimuth_deg": 73.335,
-   "zenith_distance_deg": 18.479
+   "altitude_deg": 71,
+   "azimuth_deg": 73,
+   "zenith_distance_deg": 19
   },
   {
    "session": "july31",
    "set": "set-03",
    "n_groups": 5,
-   "field_centre_ra_deg": 311.782,
-   "field_centre_dec_deg": 42.9828,
+   "field_centre_ra_deg": 311.8255,
+   "field_centre_dec_deg": 42.9729,
    "epoch_utc": "2026-08-01T03:45:54",
-   "altitude_deg": 74.544,
-   "azimuth_deg": 72.158,
-   "zenith_distance_deg": 15.456
+   "altitude_deg": 75,
+   "azimuth_deg": 72,
+   "zenith_distance_deg": 15
   },
   {
    "session": "july31",
    "set": "set-04",
    "n_groups": 2,
-   "field_centre_ra_deg": 310.6211,
-   "field_centre_dec_deg": 43.1205,
+   "field_centre_ra_deg": 310.7651,
+   "field_centre_dec_deg": 43.1005,
    "epoch_utc": "2026-08-01T04:20:30",
-   "altitude_deg": 81.567,
-   "azimuth_deg": 64.743,
-   "zenith_distance_deg": 8.433
+   "altitude_deg": 81,
+   "azimuth_deg": 65,
+   "zenith_distance_deg": 9
   }
  ],
  "_regenerated_by": "scripts/qa/observer_frame_diversity.py"

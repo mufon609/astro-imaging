@@ -211,8 +211,10 @@ and answered by member selection: the decision map with every form's numbers is
   refraction (horizon-fixed, progressive, non-homographic — the open question
   shared with BACKLOG:`one-sided-band`) vs mechanical SAG of the extended
   zoom barrel: refraction reverses sense between a rising and a setting
-  field, sag does not. The site is tracked (`scripts/setup/site.json`,
-  resolved into every acquisition record, no silent default) and the corpus
+  field, sag does not. The site is a gitignored local config (the tracked
+  template is `scripts/setup/site.example.json`; `scripts/lib/acquisition.py`
+  reads it, every acquisition record carries its sha256 only, no silent
+  default — a home address in a tree meant for publication) and the corpus
   carries both senses (20 pre-meridian / 3 post-meridian over 23 solved
   products), so the sense test is runnable — with limits: the coordinates
   are owner-transcribed and bounded at the DEGREE level only

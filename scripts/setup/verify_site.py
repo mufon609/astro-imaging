@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
-"""Falsify the tracked observing-site coordinates against the corpus's own solves.
+"""Falsify the LOCAL observing-site config's coordinates against the corpus's own solves.
 
-WHY THIS EXISTS. `scripts/setup/site.json` carries owner-supplied coordinates
-whose provenance chain is owner -> chat -> transcription -> tracked file. No step
-in that chain has an independent check, and a coordinate typo would be SILENT and
-load-bearing: it propagates into every altitude, hour angle and parallactic angle
-derived downstream, and one of those closed a refraction branch.
+WHY THIS EXISTS. The GITIGNORED `site.local.json` (rig-local under scripts/setup/,
+the tracked template is `site.example.json`; read through scripts/lib/acquisition.py,
+the one loader) carries owner-supplied coordinates whose provenance chain is owner
+-> chat -> transcription -> local file. No step in that chain has an independent
+check, and a coordinate typo would be SILENT and load-bearing: it propagates into
+every altitude, hour angle and parallactic angle derived downstream, and one of
+those closed a refraction branch.
+
+PRIVACY. The site is a home address and this tree is meant to be published, so the
+record this writes (`site_verification.json`, tracked) names the config by its
+sha256 — never the coordinates, never the perturbed coordinates — and carries its
+results at the degree level only (altitudes and shifts as WHOLE degrees, hour
+angles to 0.1 h), which is all the test establishes anyway: an altitude extreme
+at fine precision beside the products' known pointings and epochs would invert to
+the site. scripts/qa/check_site_privacy.py guards it.
 
 WHAT THIS DOES, AND WHAT IT CANNOT DO — read the second half before quoting it.
 It is a FALSIFICATION test, not a derivation. For every solved product carrying a
@@ -18,9 +28,10 @@ photographed target below the horizon is refuted outright.
   IT CATCHES:      sign errors, whole-coordinate transposition, decimal-place
                    errors — the failure modes that move the answer by tens of
                    degrees.
-  IT DOES NOT CATCH: sub-degree digit errors. MEASURED: transposing a digit in the
-                   latitude (REDACTED_SITELAT -> REDACTED_SITELAT_PLUS, a 0.63 deg error) moves every
-                   altitude by only 0.53 deg, and the same in the longitude by
+  IT DOES NOT CATCH: sub-degree digit errors. MEASURED: transposing two digits of
+                   this site's latitude (a +0.63 deg error — the shape of the
+                   error is e.g. 41.2345 -> 42.1345) moves every altitude by
+                   only 0.53 deg, and a +0.09 deg longitude transposition by
                    0.07 deg. Nothing here would notice.
 
 So a PASS bounds the transcription at roughly the degree level and no better. The
@@ -28,7 +39,7 @@ check that closes it properly is a DERIVATION: field rotation between per-frame
 solves constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are
 recoverable from the corpus alone and can be compared against the supplied value.
 That needs per-frame plate solves, which do not exist yet — it is a real build,
-not a fold-in, and `verified` in site.json stays false until it runs.
+not a fold-in, and `verified` in site.local.json stays false until it runs.
 
 This reads FITS HEADERS only (DATE-OBS, CRVAL1/2 written by the plate solve) and
 never a deliverable's pixels.
@@ -41,7 +52,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
-SITE = os.path.join(HERE, "site.json")
+sys.path.insert(0, os.path.join(REPO, "scripts", "lib"))
+import acquisition   # noqa: E402  — the ONE reader of the gitignored site config
 
 # the transcription errors worth testing, as (label, lat, lon) builders
 PERTURBATIONS = [
@@ -137,8 +149,13 @@ def horizon(prods, lat, lon):
 
 
 def main():
-    site = json.load(open(SITE))
-    lat, lon = site["sitelat_deg"], site["sitelong_deg"]
+    cfg = acquisition.site_coordinates()
+    if cfg is None:
+        print("no site config — copy scripts/setup/site.example.json to "
+              "scripts/setup/site.local.json (gitignored) and fill it in; nothing "
+              "here assumes a location")
+        return 1
+    lat, lon = cfg["lat_deg"], cfg["lon_deg"]
     prods = solved_products()
     if not prods:
         print("no solved products with DATE-OBS + CRVAL found — nothing to "
@@ -148,20 +165,28 @@ def main():
     base = horizon(prods, lat, lon)
     alts = [r["altitude_deg"] for r in base]
     has = [abs(r["hour_angle_h"]) for r in base]
-    print("SUPPLIED SITE  lat %+.6f  lon %+.6f   (%d solved products)"
-          % (lat, lon, len(prods)))
+    print("SITE CONFIG  %s  sha256 %s   (%d solved products; the coordinates are "
+          "not echoed — read the config)"
+          % (cfg["resolved_from"], cfg["config_sha256"][:16], len(prods)))
     for r in base:
-        print("  %-56s altitude %6.2f deg   HA %+6.2f h"
+        print("  %-56s altitude %4.0f deg   HA %+5.1f h"
               % (os.path.basename(r["product"]), r["altitude_deg"],
                  r["hour_angle_h"]))
-    print("  altitude range %.2f..%.2f deg, max |HA| %.2f h"
+    print("  altitude range %.0f..%.0f deg, max |HA| %.1f h"
           % (min(alts), max(alts), max(has)))
 
     result = {
-        "supplied": {"sitelat_deg": lat, "sitelong_deg": lon},
+        "_privacy": ("the config is named by its sha256, never by its values; the "
+                     "perturbed coordinates are not recorded (they are one arithmetic "
+                     "step from the real ones); every altitude and shift is a WHOLE "
+                     "degree and every hour angle 0.1 h — the bound has no sub-degree "
+                     "power by its own words, and a fine altitude beside the products' "
+                     "known pointings and epochs would invert to the site"),
+        "config_resolved_from": cfg["resolved_from"],
+        "config_sha256": cfg["config_sha256"],
         "n_solved_products": len(prods),
-        "altitude_range_deg": [min(alts), max(alts)],
-        "max_abs_hour_angle_h": max(has),
+        "altitude_range_deg": [int(round(min(alts))), int(round(max(alts)))],
+        "max_abs_hour_angle_h": round(max(has), 1),
         "all_above_horizon": bool(min(alts) > 0),
         "perturbations": [],
     }
@@ -176,11 +201,11 @@ def main():
                     for a, b in zip(rows, base))
         refuted = min(pal) < 0
         result["perturbations"].append({
-            "label": label, "lat": pa, "lon": po,
-            "altitude_range_deg": [min(pal), max(pal)],
-            "max_altitude_shift_deg": shift,
+            "label": label,
+            "altitude_range_deg": [int(round(min(pal))), int(round(max(pal)))],
+            "max_altitude_shift_deg": int(round(shift)),
             "refuted_target_below_horizon": bool(refuted)})
-        print("  %-30s altitudes %7.2f..%7.2f   max shift %6.2f deg%s"
+        print("  %-30s altitudes %5.0f..%5.0f   max shift %4.0f deg%s"
               % (label, min(pal), max(pal), shift,
                  "   REFUTED (below horizon)" if refuted else ""))
 
@@ -189,8 +214,8 @@ def main():
     missed = [p for p in result["perturbations"]
               if p["max_altitude_shift_deg"] < 1.0]
     result["verdict"] = (
-        "The supplied coordinates put every photographed target %.1f-%.1f deg "
-        "above the horizon within %.2f h of the meridian, which is consistent "
+        "The supplied coordinates put every photographed target %.0f-%.0f deg "
+        "above the horizon within %.1f h of the meridian, which is consistent "
         "with a deliberate observing plan. %d of %d plausible transcription "
         "errors are REFUTED outright (target below the horizon). %d are NOT "
         "detectable here, shifting every altitude by under 1 deg — so this "
@@ -198,7 +223,7 @@ def main():
         "It is not a derivation and does not set verified=true."
         % (min(alts), max(alts), max(has), len(caught),
            len(result["perturbations"]), len(missed)))
-    result["what_would_close_it"] = site.get("provenance", {}).get(
+    result["what_would_close_it"] = cfg["provenance"].get(
         "the_check_that_closes_it")
     result["which_pointing_this_consumed_and_why_it_matters"] = (
         "the WCS evaluated at the central pixel — the pointing by construction, "

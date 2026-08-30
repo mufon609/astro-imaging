@@ -28,7 +28,17 @@ docs.github.com, "Setting guidelines for repository contributors".)
    downloads the Gaia photometric chunks a field needs. SPCC has THREE
    machine-local prerequisites, and a missing sensor DATABASE makes Siril
    SIGSEGV silently (exit 139) — the long form is `CLAUDE.md` "Environment".
-5. Prove the tree: `scripts/qa/run_guards.sh` (every guard + every data-free
+5. The observing site — a home address, so it is LOCAL ONLY: copy
+   `scripts/setup/site.example.json` to `site.local.json` in the same directory
+   (gitignored) and fill `sitelat_deg` / `sitelong_deg` (longitude positive
+   EAST; the map-URL trap is in the template), `siteelev_m` optional; a session
+   shot elsewhere gets its own `sessions/<session>/site.local.json`. Verify with
+   `scripts/setup/verify_site.py` (a DEGREE-level bound, its own words). The
+   chain never writes a coordinate into a tracked file — `acquisition.json`'s
+   `site` block carries the config's sha256 + provenance — and
+   `scripts/qa/check_site_privacy.py` guards it; no config = a null `site`
+   block, and nothing downstream assumes a location.
+6. Prove the tree: `scripts/qa/run_guards.sh` (every guard + every data-free
    selftest; `--list` prints the roster). GREEN verifies WIRING, not output.
 
 ## The rules (one line each; the named section is the authority)

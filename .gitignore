@@ -62,6 +62,18 @@
 # comment here when one is staged.
 /sessions/
 
+# --- the OBSERVING SITE (a home address) — LOCAL ONLY, never tracked ---
+# The real coordinates live in site.local.json: rig-local under scripts/setup/,
+# session-local under sessions/<session>/ (which /sessions/ above already
+# covers). The chain reads them through scripts/lib/acquisition.py and writes NO
+# coordinate into any tracked record — acquisition.json's `site` block carries
+# the config's sha256 + provenance only. The tracked template is
+# scripts/setup/site.example.json (null values). scripts/qa/check_site_privacy.py
+# goes RED on any form of the value (decimal, sexagesimal, geocentric, a numeric
+# `site` block) in the tree or the index. Owner-directed: the site had reached 23
+# tracked files (BACKLOG:`site-privacy-vs-public-repo`).
+**/site.local.json
+
 # --- durable outputs (web-servable, image data — never tracked) ---
 # web/ itself is TRACKED (the front-end code + assets); its results/ data
 # tree is not. The `**/results/` pattern above already ignores web/results/;

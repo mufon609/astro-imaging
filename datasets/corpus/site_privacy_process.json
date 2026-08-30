@@ -1,0 +1,324 @@
+{
+ "_what": "The SITE-PRIVACY PROCESS \u2014 owner-directed (2026-08-30): the observing site (a home address at 11 cm precision) moves out of every tracked file into a GITIGNORED config the chain reads as a reference, and a guard keeps it out. This record carries the census before and after, the scrub's per-file assertions, the guard's selftest, the regenerated records' field diffs and the premises not tested. The process: scripts/setup/site.example.json (tracked template, null values) -> scripts/setup/site.local.json (gitignored, rig-local; sessions/<session>/site.local.json session-local, precedence) -> scripts/lib/acquisition.py load_site_config() / site_coordinates() (the ONE loader; every consumer goes through it) -> acquisition.json `site` = PROVENANCE ONLY (resolved_from, config_sha256, status, verified, siteelev_recorded \u2014 no coordinate in any form) -> scripts/qa/check_site_privacy.py (guard + selftest in run_guards and the pre-push hook) RED on any form of the value in the tree or the index.",
+ "owner_directive_verbatim": "add a solid process where the user can add the information to a config file that is gitignored and used as a reference instead of hardcoding the values",
+ "supersedes": "the 2026-08-16 'untrack the site' denial \u2014 BACKLOG:`site-privacy-vs-public-repo` (the director records the ruling there); a history rewrite and the push stay the owner's decisions",
+ "census_before": {
+  "method": "git grep -lF over every tracked file for each form derived from the then-tracked scripts/setup/site.json, then the guard's own first run (worktree + index)",
+  "exact_decimal_lat_and_lon": "23 tracked files: 20 datasets/*/set-*/acquisition.json (aug06 x4 incl. set-00, aug09 x5, aug14 x5, july27 x2, july31 x4), datasets/corpus/observer_frame_diversity.json, scripts/setup/site.json, scripts/setup/site_verification.json",
+  "obsgeo_components_full_repr": "20 files (the acquisition records' OBSGEO_XYZ_m)",
+  "obsgeo_2_decimal": "BACKLOG.md (the director's file: its worktree copy was scrubbed by the director during this unit; the index blob still carries the triple until staged)",
+  "sexagesimal_strings": "0 files by plain `git grep -F` \u2014 a BLIND SPOT, not an absence: inside a JSON string the quote is escaped (\\\"), so the plain form can never match a JSON record; site.json carried both strings. The guard searches the JSON-escaped twin of every form (a selftest arm plants one).",
+  "near_literal_5_decimal_prefix": "scripts/setup/verify_site.py:22 (a comment one digit off the latitude) plus the 23 above; and ONE chance collision in a Siril star list, datasets/aug06/corner_work/ca_work/p_00003.lst (a pixel coordinate sharing the 7-digit prefix) \u2014 measured, so the guard applies prefix forms to no *.lst / *.seq and says so",
+  "guard_first_run_hits": "467 over 25 files: each of the 20 acquisition.json 24 (12 forms x worktree+index), site_verification.json 58, site.json 43, observer_frame_diversity.json 12, BACKLOG.md 5, verify_site.py 2; structural 66 (20 numeric `site` blocks x3 keys, site.json x4 keys, site_verification.json `supplied` x2)",
+  "raws": "no raw carries a GPS fix \u2014 5/5 sessions GPSVersionID only (the director's measurement; not re-measured in this unit)"
+ },
+ "config": {
+  "rig_local": "scripts/setup/site.local.json \u2014 GITIGNORED (.gitignore **/site.local.json, verified by git check-ignore); created from scripts/setup/site.json with every numeric and provenance field identical (asserted) and the two path-naming prose fields (_what, _override) updated",
+  "config_sha256": "49925a10553bf02e73eb15e88621b64878534618b719b8540b62d06d24cf62a0",
+  "template_tracked": "scripts/setup/site.example.json (null values; the schema, the sign convention and the map-URL trap without digits; asserted free of any multi-decimal number)",
+  "session_local": "sessions/<session>/site.local.json \u2014 precedence over the rig-local; none exists today; /sessions/ is ignored whole",
+  "former_tracked_file": "scripts/setup/site.json \u2014 removed from the WORKTREE by the worker (plain rm after the local copy was verified); its deletion is UNSTAGED by the engagement's rule \u2014 the director stages it"
+ },
+ "scrub": {
+  "script": "datasets/corpus/site_privacy_scrub.py (kept beside this record; idempotent; --dry previews)",
+  "rewritten": 20,
+  "untouched": [
+   {
+    "file": "datasets/july26/set-01/acquisition.json",
+    "why": "site block carries no coordinate",
+    "resolved_from": null
+   },
+   {
+    "file": "datasets/july26/set-02/acquisition.json",
+    "why": "site block carries no coordinate",
+    "resolved_from": null
+   }
+  ],
+  "per_file_assertions": "for each of the 20: json.dumps(indent=1) reproduces the file's bytes (serializer identity, so value equality IS byte identity), then `mount`, `mount_source`, `exif` asserted equal old vs new; `site` replaced by the new site_facts() block (asserted to carry no SITELAT/SITELONG/OBSGEO and to carry config_sha256); `_note` refreshed to the current constant (the old note pointed at the retired site.json) \u2014 that refresh is the ONE deviation from 'every non-site key byte-identical', reported",
+  "old_site_keys_removed": [
+   "OBSGEO_XYZ_m",
+   "SITEELEV",
+   "SITELAT",
+   "SITELONG",
+   "siteelev_assumed_zero_for_obsgeo",
+   "source"
+  ],
+  "new_site_keys": [
+   "resolved_from",
+   "config_sha256",
+   "status",
+   "verified",
+   "siteelev_recorded",
+   "sitelong_sign",
+   "_numbers",
+   "_unverified",
+   "_check_that_closes_it"
+  ],
+  "note_refresh": {
+   "old": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it. `site` is resolved from scripts/setup/site.json (or a per-session datasets/<session>/site.json override) and carries its own provenance \u2014 hand-edit the SOURCE file, never this copy.",
+   "new": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it. `site` is PROVENANCE ONLY \u2014 resolved from the gitignored scripts/setup/site.local.json (or a session-local sessions/<session>/site.local.json), carrying that config's sha256 and status and NO coordinate; the numbers live in the config alone."
+  },
+  "files": [
+   {
+    "file": "datasets/aug06/set-00/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "3eb7fefb67bd22ee",
+    "sha256_after": "33c598af02faecfc"
+   },
+   {
+    "file": "datasets/aug06/set-01/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug06/set-02/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug06/set-03/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug09/set-01/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug09/set-02/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "11f91c7e4e30b7b2",
+    "sha256_after": "95fe4f35950b401f"
+   },
+   {
+    "file": "datasets/aug09/set-03/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug09/set-04/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug09/set-05/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/aug14/set-01/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "fccbc20f5dbff377",
+    "sha256_after": "eb65a6f6aca8a757"
+   },
+   {
+    "file": "datasets/aug14/set-02/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "fccbc20f5dbff377",
+    "sha256_after": "eb65a6f6aca8a757"
+   },
+   {
+    "file": "datasets/aug14/set-03/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "fccbc20f5dbff377",
+    "sha256_after": "eb65a6f6aca8a757"
+   },
+   {
+    "file": "datasets/aug14/set-04/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "fccbc20f5dbff377",
+    "sha256_after": "eb65a6f6aca8a757"
+   },
+   {
+    "file": "datasets/aug14/set-05/acquisition.json",
+    "bytes_before": 2677,
+    "bytes_after": 2829,
+    "sha256_before": "32721d94f9d97ffd",
+    "sha256_after": "562945035c77d591"
+   },
+   {
+    "file": "datasets/july27/set-01/acquisition.json",
+    "bytes_before": 2150,
+    "bytes_after": 2302,
+    "sha256_before": "332ce340da8ef14d",
+    "sha256_after": "11a5b756140fbde3"
+   },
+   {
+    "file": "datasets/july27/set-02/acquisition.json",
+    "bytes_before": 2150,
+    "bytes_after": 2302,
+    "sha256_before": "98f78a8c549b9c3b",
+    "sha256_after": "6de89d1dda4625d2"
+   },
+   {
+    "file": "datasets/july31/set-01/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "54a9f4cb143ee047",
+    "sha256_after": "5c5963838f89d0d0"
+   },
+   {
+    "file": "datasets/july31/set-02/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/july31/set-03/acquisition.json",
+    "bytes_before": 2149,
+    "bytes_after": 2301,
+    "sha256_before": "6e1b78d16956b77b",
+    "sha256_after": "58230fbab8ec6deb"
+   },
+   {
+    "file": "datasets/july31/set-04/acquisition.json",
+    "bytes_before": 2148,
+    "bytes_after": 2300,
+    "sha256_before": "9faa5a6881840dd7",
+    "sha256_after": "cc050ca52d5668a9"
+   }
+  ]
+ },
+ "regenerated_records": {
+  "datasets/corpus/observer_frame_diversity.json": {
+   "regenerated_by": "scripts/qa/observer_frame_diversity.py (the script itself, through the loader)",
+   "changed": [
+    "_measured_at_commit",
+    "_reads",
+    "method/site (the literal -> the config's sha256 + the rounding statement)",
+    "per_set (12 -> 17 sets: the corpus grew since the record was last regenerated; every altitude/azimuth/zenith distance now WHOLE degrees)",
+    "control (within-set spreads to 0.01 deg: the derived-epoch spread 0.09 -> 0.01 (rounded here); the frozen-clock reading held at 0.01 deg)",
+    "result (n_sets 12 -> 17, n_nights 3 -> 5; max/median pairwise separation and the altitude range now WHOLE degrees \u2014 old values quoted rounded: 37 / 13 / [65, 88]; new 37 / 12 / [65, 89]; by_night rebuilt per night at whole degrees \u2014 it had been left stale at 3 nights and 0.001 deg by the first regeneration, caught by the director)",
+    "registry_claim_checked/measured_here_deg (whole degrees)"
+   ],
+   "unchanged": [
+    "_what",
+    "_this_creates_a_corpus_level_under_datasets/",
+    "ratio_to_field",
+    "registry_claim_checked",
+    "open_constraints_NOT_resolved_by_this_measurement",
+    "_what_this_record_is_not",
+    "_regenerated_by"
+   ],
+   "privacy_reading": "no horizon-frame quantity finer than a whole degree is written (per_set, result, by_night, the registry check); the within-set controls (differences) at 0.01 deg; the finding stands (max pairwise separation 37 deg, median 12)"
+  },
+  "scripts/setup/site_verification.json": {
+   "regenerated_by": "scripts/setup/verify_site.py (through the loader)",
+   "removed": [
+    "supplied (the coordinates)",
+    "perturbations[].lat / .lon (the perturbed coordinates \u2014 one arithmetic step from the real ones)"
+   ],
+   "added": [
+    "_privacy",
+    "config_resolved_from",
+    "config_sha256"
+   ],
+   "changed": [
+    "n_solved_products 23 -> 21 (the products on disk today)",
+    "altitude_range_deg: old [63, 88] (rounded) -> [63, 88] as whole degrees",
+    "max_abs_hour_angle_h: old 2.3 (rounded) -> 2.4 at 0.1 h",
+    "perturbations (altitude ranges and shifts as whole degrees; refuted flags identical: [True, True, False, False, False])",
+    "verdict (the same sentence at whole degrees / 0.1 h)"
+   ]
+  }
+ },
+ "guard": {
+  "path": "scripts/qa/check_site_privacy.py (guard + --selftest rows in scripts/qa/run_guards.sh CHECKS; the pre-push hook runs run_guards)",
+  "forms_derived_from_the_config": 59,
+  "selftest": [
+   "  PASS  clean tree passes (null site block, look-alike numbers)  [] [] []",
+   "  PASS  planted decimal latitude in a .md -> RED, named  forms hit: ['lat_decimal', 'lat_decimal_prefix4', 'lat_decimal_prefix5']",
+   "  PASS  planted sexagesimal INSIDE a JSON string (escaped quote) -> RED, named  forms hit: ['lat_sexagesimal_config_jsonescaped', 'lat_sexagesimal_derived_jsonescaped']",
+   "  PASS  planted degree-sign sexagesimal, JSON-escaped (\\u00b0) -> RED, named  forms hit: ['lat_sexagesimal_derived_jsonescaped']",
+   "  PASS  planted 6-decimal longitude, unsigned -> RED, named  forms hit: ['lon_decimal', 'lon_decimal_prefix4', 'lon_decimal_prefix5']",
+   "  PASS  planted sexagesimal string in a .txt (plain) -> RED, named  forms hit: ['lat_sexagesimal_config', 'lat_sexagesimal_derived']",
+   "  PASS  planted derived sexagesimal (colon form) -> RED, named  forms hit: ['lat_sexagesimal_derived']",
+   "  PASS  planted OBSGEO component to the metre -> RED, named  forms hit: ['obsgeo_X']",
+   "  PASS  planted OBSGEO component, full repr, negative -> RED, named  forms hit: ['obsgeo_Y']",
+   "  PASS  planted NEAR-literal (5-decimal prefix, last digit off) -> RED, named  forms hit: ['lat_decimal_prefix4', 'lat_decimal_prefix5']",
+   "  PASS  5-decimal prefix in a *.lst is NOT flagged (stated exclusion)  []",
+   "  PASS  the EXACT decimal inside a *.lst IS flagged  [('stars2.lst', 1, 'index', 'lat_decimal'), ('stars2.lst', 1, 'worktree', 'lat_decimal')]",
+   "  PASS  a leak that is STAGED but deleted from the worktree is caught (index scan)  [('staged_only.md', 1, 'index', 'lat_decimal'), ('staged_only.md', 1, 'index', 'lat_decimal_prefix4'), ('staged_only.md', 1, 'index', 'lat_decimal_prefix5')]",
+   "  PASS  numeric `site` block -> structural RED (no config needed)  [('datasets/y/acquisition.json', '/site/OBSGEO_XYZ_m', 'list of numbers (index)'), ('datasets/y/acquisition.json', '/site/OBSGEO_XYZ_m', 'list of numbers (worktree)'), ('datasets/y/acquisition.json', '/site/SITELAT', 'number (index)'), ('datasets/y/acquisition.json', '/site/SITELAT', 'number (worktree)'), ('datasets/y/acquisition.json', '/site/SITELONG', 'number (index)'), ('datasets/y/acquisition.json', '/site/SITELONG', 'number (worktree)')]",
+   "  PASS  literal scan without a config returns SKIPPED, not a pass",
+   "  PASS  numeric sitelat_deg / non-null sexagesimal key -> structural RED  [('cfg_leak.json', '/sitelat_deg', 'number (index)'), ('cfg_leak.json', '/sitelat_deg', 'number (worktree)'), ('cfg_leak.json', '/sitelong_sexagesimal', 'non-null string (index)'), ('cfg_leak.json', '/sitelong_sexagesimal', 'non-null string (worktree)')]",
+   "  PASS  a TRACKED site.local.json and the former scripts/setup/site.json -> RED by name  [('scripts/setup/site.json', 'the former tracked site file is still in the index \u2014 `git rm --cached scripts/setup/site.json` (the config is site.local.json)'), ('scripts/setup/site.local.json', 'a site.local.json is TRACKED \u2014 it must be gitignored')]",
+   "  PASS  clean tree passes after every arm",
+   "SELFTEST PASSED (0 failure(s))"
+  ],
+  "selftest_found_two_real_defects_in_the_guard_before_it_passed": [
+   "a planted decimal matched INSIDE a longer unrelated number (RA 312.345678 vs lat 12.345678) \u2014 fixed with a non-digit/non-dot lookbehind on every form",
+   "a sexagesimal string inside a JSON file hid behind the escaped quote \u2014 fixed by searching the JSON-escaped twin of every form"
+  ],
+  "real_tree_after_scrub": {
+   "worktree_hits": 0,
+   "index_hits": 241,
+   "structural_hits": 66,
+   "reading": "every hit is an INDEX blob of a file this unit changed in the worktree (the 20 acquisition records, site.json, site_verification.json, observer_frame_diversity.json, verify_site.py, BACKLOG.md) \u2014 the pre-scrub content the index still holds until the director stages; the guard prints that reading itself. The worktree is clean of every form.",
+   "name_check": "scripts/setup/site.json is still in the index (its deletion is unstaged) \u2014 RED by name until `git rm --cached` / `git add -u`"
+  }
+ },
+ "census_after": {
+  "method": "git grep -lF (worktree) and git grep --cached -lF (index) over the primary exact forms: decimal lat/lon, the JSON-escaped sexagesimal pair, the OBSGEO components to 2 decimals, the 5-decimal latitude prefix, the verify_site near-literal",
+  "worktree": "0 tracked files carry any exact form; the 5-decimal prefix hits ONLY the known star-list collision (datasets/aug06/corner_work/ca_work/p_00003.lst) \u2014 a pixel coordinate, not the site",
+  "index": "26 files (the 23 pre-scrub blobs + BACKLOG.md's old blob + verify_site.py's old blob + the p_00003.lst collision) \u2014 the index is untouched by the worker; staging clears every one but the .lst collision"
+ },
+ "docs_updated": [
+  "README.md (the verify_site.py row; the site.json row -> site.example.json / site.local.json)",
+  "CONTRIBUTING.md (step 5: the site config; 'Prove the tree' -> step 6)",
+  "datasets/README.md (the acquisition.json row: what `site` carries now)",
+  "docs/dead-ends/stacking-compose.md (one pointer: the site is a gitignored local config)",
+  "NOT CLAUDE.md, NOT BACKLOG.md (the director's / the owner's)"
+ ],
+ "premises_not_tested": [
+  "the rounding is sufficient: whole-degree alt/az on 17 sets (and 0.1-deg altitude ranges in site_verification.json) cannot be inverted to the site beyond the degree level \u2014 argued from the number of unknowns (2) against the resolution, not measured by an inversion attempt",
+  "no form of the site exists in a tracked file that the derived forms do not cover (a UTM/MGRS grid, a what3words string, a different rounding of the arcseconds) \u2014 the guard scans what it derives; the .lst exclusion hides a near-literal inside a star list by design",
+  "the 5 sessions' raws carry no GPS fix \u2014 the director's measurement, not re-run here",
+  "history: the 429 unpushed commits carry every old form \u2014 untouched, the owner's decision; the guard does not scan history",
+  "the session-local override path is exercised by no session today (no sessions/<session>/site.local.json exists) \u2014 the resolver's precedence is covered by code reading, not a run",
+  "check_doc_pointers on BACKLOG.md: its backticked `scripts/setup/site.json` (lines ~1595/1627 at HEAD) resolves to a deleted file \u2014 the director's edit; not re-run against the director's in-progress BACKLOG.md"
+ ],
+ "not_in_this_unit": [
+  "the history rewrite (owner's decision)",
+  "the push (HELD)",
+  "the from-frames DERIVATION \u2014 the VERIFY step this process still lacks: field rotation between per-frame plate solves constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are recoverable from the corpus alone and compared against the config (degree-level, its own words); needs per-frame solves that do not exist \u2014 verify_site.py names it as what would set `verified` true"
+ ],
+ "audited_by": "datasets/aug06/experiments.jsonl id `session_audit_backlog_cleanup`; director astro-imaging-4f GO #2; worker measurements in this record",
+ "written_at": "2026-08-30T11:10:33-04:00",
+ "run_guards": {
+  "command": "./scripts/qa/run_guards.sh (33 checks after this unit's two rows)",
+  "last_two_lines": [
+   "=== 31 passed, 2 failed, 176s wall ===",
+   "run_guards: RED. Nothing was rewritten; fix the cause and re-run."
+  ],
+  "the_two_reds_and_why": {
+   "check_doc_pointers": "DEAD BACKLOG.md:1588 path scripts/setup/site.json (no such path) \u2014 BACKLOG.md is the director's file (its in-progress edit still cites the retired tracked file); every pointer in the worker's files resolves (608 repo paths + 73 exempt, 89 slugs, 74 links)",
+   "check_site_privacy": "0 worktree hits; 241 index hits + 66 structural index hits + the by-name hit on scripts/setup/site.json \u2014 ALL the pre-scrub index blobs of files this unit changed in the worktree, by design of the guard (it scans what a commit of the index would contain); they clear when the director stages (`git add -u`, which also stages site.json's deletion)"
+  },
+  "selftest_row": "PASS selftest check_site_privacy 1s (19 arms)",
+  "guard_cost": "125 s on this tree (1145 tracked paths x 2 sources, 59 forms)"
+ },
+ "_precision_rule": "every horizon-frame quantity in this record and in the two records it describes is quoted at WHOLE degrees (hour angles 0.1 h; within-set difference controls 0.01 deg) \u2014 an altitude extreme or hour angle at fine precision, beside the products' known pointings and epochs, inverts to the site. The only numbers here with 3+ decimals are the guard selftest's FICTITIOUS planted site (12.345678 / -98.765432) and the look-alike control 312.345678 \u2014 not a real coordinate."
+}

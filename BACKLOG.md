@@ -183,6 +183,7 @@ names.**
 | `swarp_compose.sh` + `swarp_weight_maps.py` (SWarp per-member MAP_WEIGHT compose: split → seqstat-derived addscale re-creation via BACK_DEFAULT/FLXSCALE → CD-only TPV `.head` per member → weight maps → 3 coadds → rgbcomp → stamp) | Siril's compose accepts per-member weight maps (a per-pixel weight per sequence member in `stack`/`seqapplyreg`), at which point the SWarp engine and every re-creation of addscale in it retire | 2026-08-29 | **not fired — and the route is STOPPED, not adopted: scaffolding only.** Written for the tapered-weight arm of the corner-smear work and stopped by the owner before any arm was built (the tapered form's purpose — keeping the rim's coverage — is out of scope by the owner's word; ledger lines 115–116, `datasets/corpus/smear_attribution/swtaper_probes.json`). What stands are ENGINE FACTS measured on this rig's SWarp 2.41.5 (P1–P7): SWarp reads only the first plane of a cube; reads CD and ignores PC/CDELT when CD is present; applies TPV terms; pins the output grid from a `.head` exactly; SUBTRACTS the BACK_DEFAULT list; with RESCALE_WEIGHTS N a MAP_WEIGHT 3:1 planted mean reproduces to 0.004 % and with Y it fails (the positive control); DIVIDES a map's weight by FLXSCALE² (a quality-weighted arm must pre-multiply by f²); sip_tpv is exact on CD-only heads (≤ 4.8e-11 px) and a head carrying CD AND PC/CDELT makes astropy misread the TPV sky. The in-house parts are the weight-map writer (a formula over tool-sourced numbers: x_c from Siril findstar via the crop rule, STACKCNT and W from the header — no deliverable pixel read) and the addscale re-creation; every resampling and combine is SWarp's. NOT on any build path; no product built from it; `swarp_weight_maps.py --selftest` (6 cases) is the only thing that runs. Resume condition, separate from removal: a quality-WEIGHTED form (continuous per-pixel weight by measured quality, both sides of a member) is wanted after the exclusion rules settle — then the arm-scale paths (3 coadds, rgbcomp, stamp) and P3's Siril comparison are the unbuilt half. **RESUME TRIGGER FIRED 2026-08-29 — the exclusion rules have settled**: the portion rule is the chain (this table's `run_member_crop.sh` row; ledger 123–128) and the frame rule is a measured NULL on top of it (ledger 117–119). The scalar branch RAN — the `--weight=noise` corpus arm (`datasets/corpus/smear_attribution/weight_noise_arm.json`, ledger 134–136): a NULL, nothing degraded — Siril's own weights moved ~10 % between nights (july31 0.900 … aug14 1.094) and no station of 58 moved beyond +0.016 px — so nothing resumes; this per-pixel scaffolding stays STOPPED under the owner's ruling (the rim is out of scope) with its unbuilt half unchanged. Removal condition unchanged. |
 | `run_member_crop.sh` + `member_profile.py` (the corpus combine's MEMBER-SELECTION stage: per-member station profile → the portion rule → curated dir of symlinks + Siril-cropped copies; `run_corpus_combine.sh --portion-rule`) | Siril's compose accepts per-member weight maps or a per-member region mask (a mask is the crop without the coverage cost) — the same condition the SWarp scaffolding row carries, and they retire together | 2026-08-29 | **not fired — IN THE CHAIN (`run_corpus_combine.sh --portion-rule`): the corpus canonical is built under it (0 differing pixels from the owner-approved candidate, ledger 128); the corpus baseline is seeded (`datasets/corpus/baseline.json`).** The rule (asymmetry FWHM(+dx) − FWHM(−dx) > bar, onset − half-width, intrinsic, rankless) is the owner-approved cropT arm's, verbatim; every constant lives in `datasets/corpus/recipe.json` (bar 0.20 px, stations ±600..±2400, r 400, top-30, half-width 300), never a script default. Every pixel op and measurement is a tool's (Siril findstar via `star_stations.py`; Siril `crop` of COPIES — originals never written); in-house is the rule arithmetic over the tool's numbers, the curated-dir bookkeeping, and the per-member profile CACHE (sha256 + geometry keyed, tracked). The frame-level score S_i rides along as an ADVISORY only (the GO #16 NULL). SCOPE: the corpus combine only; the per-set finals are not run through it until measured there — the ONE untested extension. Its test is a framing=max compose of ONE set's curated vs uncurated members (aug14/set-04: 6/6 cropped, x_c 900 ×1 / 1500 ×5, the stage record), shape measured on shared sky boxes, measurement only; the per-set final itself is `-framing=min` (`run_set_chain.sh:92`), and an intersection framing DROPS a cropped member's removed columns from the canvas (1416 of a 5832-wide member at x_c 1500) instead of replacing them with a better member's — so whether a per-set DELIVERABLE runs through the stage is the owner's ruling, not a measurement. `--selftest` (in `run_guards`) falsifies on synthetic members: a planted profile crossing the bar MUST crop at onset − half-width with the four MEMC* keys and kept-pixel identity; a flat profile MUST come out a symlink with none; a SYMMETRIC both-sides rise MUST NOT crop (the refuted intrinsic form); the pinned-reference refusal; the cache path (second run 0 profiled, verdicts identical, cache byte-identical). Composite provenance: `stamp_headers.sh` aggregates NCROPPED/MEMCRULE/MEMCXCS/MEMCPROV, never crashes on the legacy prose MEMCROP of the GO #12/#13 arm copies (LEGACY(n)), and a mixed-rule compose is REFUSED in the stamp (the hard stop is the caller's — stated, an UNCHECKED shared premise of both workers). The combine surfaces a derived reference that the rule cropped (a cropped anchor is UNTESTED — loud warning + reference_cropped in the stage record, never a refusal). ROW-RESOLVED x_c MEASURED NULL (`datasets/corpus/smear_attribution/rowmin_arm.json`, ledger 131–132): x_c = min over rows on the six row-profiled members moved the removed columns' own sky positions −0.004..−0.033 px (pre-registered ≥ 0.10), corners ≤ 0.02, at +1.2 % pixel-frames — the centre-row geometry stands; the outer station bounded (`row_profiles.json`: same-aperture Δ median +0.008 px, the r-200 reading scatters ±0.12). Decision map + the stage as built: `docs/corner-smear-member-selection.md`. |
 | `datasets/corpus/smear_attribution/row_profiles.py` (the row-resolved member profile: Siril `findstar` at `star_stations.py`'s geometry on the TOP and BOTTOM rows beside the cached centre row, plus the outer station at dx +2700 r 200 and its same-aperture control) | a tool reports a headless row-resolved star-shape profile of a member (a per-region `findstar`/`seqtilt` surface by row), at which point this driver and its record are re-derived from that tool | 2026-08-29 | **not fired — a DIAGNOSTIC beside its record (the `rho_march.py` precedent), on no build path.** Every pixel op and measurement is Siril's (`findstar` through `star_stations.measure`); in-house is the row placement, the asymmetry arithmetic (`member_profile.apply_rule`, imported not copied) and the bookkeeping. What it measured (`datasets/corpus/smear_attribution/row_profiles.json`, ledger 129–130): the bottom row's degradation starts ~600 px EARLIER than the centre row's (onset 1200 on 5/5 cropped members vs 1800/2400) with the same far-station asymmetry; the top row is 0.4–0.5 px softer SYMMETRICALLY on the aug14 / aug09-set-05 members (the uniformly-soft case the asymmetry rule is blind to by design); the outer station is a bounded NULL (same-aperture Δ median +0.008 px) whose r-200 instrument scatters ±0.12 px — half the bar — so per-member calls in the last 86–116 px are unresolvable. Its consumer, the row-resolved crop arm, RAN and is a clean NULL (`rowmin_arm.json`, ledger 131–132) — the stage's centre-row geometry stands; what still consumes this record is the top-row symmetric-softness question (`docs/corner-smear-member-selection.md` §6), unscheduled. |
+| `scripts/qa/check_site_privacy.py` — the observing-site guard: derives every form the machine-local `site.local.json` implies (decimal at 4+ places, sexagesimal, the geocentric OBSGEO components, a 5-decimal near-literal) and scans the tracked tree + the index for them, plus a STRUCTURAL check that no tracked JSON carries a numeric site key; positive controls for each form | an off-the-shelf secret/PII scanner (gitleaks / trufflehog class) with a rule for this site runs in the pre-push hook AND the resolver can write no coordinate by construction (the `site` block schema has no numeric key), at which point the in-house scan retires and only the structural check's job is left to the scanner's rule | 2026-08-30 | **built in the site-privacy unit (owner-directed 2026-08-30, BACKLOG:`site-privacy-vs-public-repo`)** — a records guard, never a gate on any product; it reads no pixel. Stated limits: with no local config the literal scan is SKIPPED aloud and only the structural check runs; it scans the tree and the index, never history (the history question is the owner's, in the item); a form the config does not imply (a street address, a place name) is outside its scan by design — the config template says what not to write |
 
 ---
 
@@ -1574,67 +1575,90 @@ PAUSED pending real flats (`per-group-flat-at-the-combine` carries the pause).
 Recorded so the question survives, not to schedule work. **Closes when** the
 flat-residual line unpauses — this item rides that pause.
 
-## `site-privacy-vs-public-repo` — the observing site is a home address, and this repo is meant to be published
+## `site-privacy-vs-public-repo` — the observing site is a home address; the fix is a machine-local config, and the HISTORY question is the owner's
 
 **THE REPO IS INTENDED TO BE PUBLIC, so this blocks publication rather than being a
-reason not to publish.** `github.com/mufon609/astro-imaging`; measured PUBLIC by one
-instrument (unauthenticated GitHub API GET, HTTP 200 — single-source, not
-independently confirmed). **The observing site is a home address at 11 cm precision
-and it sits in 23 tracked files by the exact literal (2026-08-29; 20 at the first count).**
+reason not to publish.** `github.com/mufon609/astro-imaging`, measured **PUBLIC** on
+2026-08-30 by the host's own API (`gh repo view --json isPrivate,visibility` →
+`isPrivate false, visibility PUBLIC`; the 2026-08-16 reading was an unauthenticated
+GET, HTTP 200). **The observing site is a home address at 11 cm precision.** Before this
+unit it sat in **23 tracked files** by the exact literal (2026-08-29; 20 at the first
+count): 20 `acquisition.json` records (the `site` block `acquisition.site_facts()`
+rewrote on every chain run), `datasets/corpus/observer_frame_diversity.json`,
+`scripts/setup/site_verification.json` and the tracked site file itself (now deleted;
+`git show 0515e77:scripts/setup/site.json`), plus the
+derived geocentric triple in the same 20 records and in this item's own text, and a
+near-literal (one digit off, 0.11 m) in a `verify_site.py` comment.
 
-**The exposure is LOCAL ONLY and this is the cheapest it will ever be.** `git grep -lF`
-on the latitude returns **23 at HEAD and 0 on `origin/main`** (2026-08-29; 19 at the first count) — and HEAD is **429 commits ahead of `origin/main`** (e1fd422, 2026-08-30, `git rev-list --count origin/main..HEAD`; +1 per commit; 422 at the 2026-08-29 count), all unpushed, the push HELD — origin measured **PUBLIC** on 2026-08-30 by the host's own API (`gh repo view --json isPrivate,visibility` → `isPrivate false, visibility PUBLIC`), so the hold's premise stands; the coordinates entered
-at `f49b7cc` and `ebf8209` against a last-pushed `048e69d`, i.e. after it. A history
-rewrite today touches local objects only; after a push, forks and API caches make it
-permanent.
+**OWNER RULING 2026-08-30 (verbatim): "add a solid process where the user can add the
+information to a config file that is gitignored and used as a reference instead of
+hardcoding the values … the user can be instructed in the README.md file to setup a
+config file with coordinates."** This SUPERSEDES the 2026-08-16 denial of "untrack the
+site" (below, kept as the record of what was denied and why). The contract's
+rebuildability rule is met the way the SPCC database and the Gaia catalogues meet it: a
+documented, verified, machine-local prerequisite with a loud null when absent — never a
+silent default.
 
-**WHY IT IS NOT A ONE-FILE PROBLEM — five constraints, each closing a naive fix:**
+**HOW THE COORDINATES ARE DERIVED — they are not (measured 2026-08-30).** The pair is
+owner-supplied and hand-transcribed (`status: TRANSCRIBED, UNVERIFIED`); none of the
+five sessions' raws carries a GPS fix (one raw per session: `GPSVersionID` 2.3.0.0 and
+nothing else), so EXIF cannot source it. A derivation FROM the frames exists on paper
+(trail position angle + solved pointing + `DATE-OBS` → latitude and LST; every input a
+tool's, the in-house part the spherical-trig inversion — the `fingerprint.py` class) but
+is unbuilt, needs per-frame solves, and by its physics lands at the DEGREE level — a
+VERIFY step for a typed value, not a source. Nothing on the build path consumes the
+site; two diagnostics do (`verify_site.py`, `observer_frame_diversity.py`).
 
-1. **Tracking it is REQUIRED by the contract.** `CLAUDE.md` Environment: a
-   machine-local value nobody can rebuild has already cost this repo a shipped optical
-   model. `scripts/setup/site.json` exists *because* of that rule, so the file is not
-   the defect.
-2. **It is load-bearing science, not metadata.** The site resolves into hour angle,
-   altitude, azimuth and parallactic angle; the refraction-vs-mechanical-sag
-   discriminator (`docs/dead-ends.md`, optical-state boundary) is unrunnable without
-   it, and that entry records this record as what removed the blocker.
-3. **IT REGENERATES.** `acquisition.resolve()` writes the `site` block into every
-   `acquisition.json` on every chain run, so a one-time scrub is undone by the next
-   run. 16 of the 20 files are those records.
-4. **THE GEOCENTRIC FORM INVERTS.** The block carries `OBSGEO_XYZ_m`
-   `[REDACTED_OBSGEO_X, REDACTED_OBSGEO_Y, REDACTED_OBSGEO_Z]` beside the degrees, and Cartesian
-   geocentric returns lat/long to the metre — so removing `SITELAT`/`SITELONG` alone
-   leaves the position fully recoverable.
-5. **THE SITE CANNOT BE LOCATED BY STRING SEARCH IN THIS TREE, and a grep-driven
-   scrub is therefore unsafe in BOTH directions.** The exact six-decimal literal
-   returns 19 files and **MISSES a real site**: `scripts/setup/verify_site.py:22`
-   carries `REDACTED_SITELAT` in a prose comment — full precision, differing in the last
-   digit only, **0.11 m from the true value**. Widening to a 3-decimal prefix returns
-   **31 files, of which 11 are collisions** (`40.078924`, `1240.078926`, `240.078202`
-   in Siril star lists). True surface: **20 files** at the first count; by the exact literal alone **23 tracked files** on 2026-08-29 (`git grep -lF`), the structural sweep not re-run. Any sweep must be structural —
-   JSON keys plus a read of the code — and must ship a positive control proving it
-   finds `verify_site.py`.
+**THE PROCESS (this unit):** `scripts/setup/site.local.json` (gitignored) holds the
+coordinates; `scripts/setup/site.example.json` (tracked) is the template with the
+schema and the transcription traps; the per-session override is
+`sessions/<session>/site.local.json` (the gitignored session tree). `site_facts()`
+writes NO coordinate and NO geocentric triple into a tracked record — only
+`resolved_from`, the config's sha256 (a rebuild proves the same site without revealing
+it), `status`, `verified`; consumers read the local file at runtime. Tracked records
+carry horizon-frame quantities (altitude/azimuth) at WHOLE degrees only — at 0.001°
+beside a pointing and a timestamp they invert to the site. `scripts/qa/check_site_privacy.py`
+(register row) scans the tracked tree and the index for every form the local config
+implies (decimal, sexagesimal, the geocentric components, a 5-decimal near-literal) and
+for any numeric site key in a tracked JSON, with positive controls, in `run_guards` —
+which the pre-push hook runs, so a push carrying the site is refused mechanically.
+Setup is a CONTRIBUTING step; a missing config is a null site block that says so.
 
-**THREE APPROACHES ARE DENIED (owner ruling 2026-08-16). Do not re-propose them:**
-- **Make the repo private** — denied on the project's own terms: a workspace that can
-  never be published defeats the point of building it in the open.
-- **Round the coordinate** — 3 decimals is ~111 m and the science is unaffected
-  (0.001° moves a derived altitude by 0.001°, against effects measured in whole
-  degrees). Denied anyway.
-- **Untrack the site** — it is the contract's own named failure mode, constraint 1.
+**WHY THE OLD FORM WAS NOT A ONE-FILE PROBLEM — the constraints the process answers:**
 
-**A fact the solver will want, stated because the record already carries it and not
-as an argument for any approach:** `site.json` records `"status": "TRANSCRIBED,
-UNVERIFIED"`, `verify_site.py` bounds the value only at the DEGREE level by its own
-admission, and the same file names an unrun derivation that would recover latitude
-from field rotation across solved frames. The tree therefore publishes 11 cm of
-precision that nothing has verified past ~1°.
+1. Tracking was REQUIRED by the contract's reading at the time (a machine-local value
+   nobody can rebuild had cost a shipped optical model) — answered by the documented
+   prerequisite + the sha in every record.
+2. It is load-bearing science, not metadata — hour angle, altitude, azimuth and
+   parallactic angle derive from it; the refraction-vs-mechanical-sag discriminator
+   (`docs/dead-ends.md`, optical-state boundary) needs it — answered by runtime reads.
+3. IT REGENERATED — every chain run rewrote the block — answered at the writer.
+4. THE GEOCENTRIC FORM INVERTS — Cartesian geocentric returns lat/long to the metre,
+   so removing the degrees alone left the position recoverable — answered: no form is
+   written, and the guard derives and scans all of them.
+5. A STRING SEARCH IS UNSAFE IN BOTH DIRECTIONS — the exact literal missed the
+   near-literal comment, and a 3-decimal prefix collided with Siril star-list values —
+   answered by the guard's structural key check plus its derived-forms scan with a
+   positive control for the near-literal.
 
-**Closes when** the repo can be published with the site out of it, without breaking
-the rebuildable-from-tracked-files rule and without disabling the hour-angle
-derivations. Until then the push is HELD — not because of the commit volume, which
-is fine, but because of this.
+**DENIED (owner ruling 2026-08-16), still standing except the third:** make the repo
+private (a workspace that can never be published defeats the point); round the
+coordinate (3 decimals is ~111 m and the science is unaffected — denied anyway);
+~~untrack the site~~ — superseded 2026-08-30 by the ruling above.
 
+**THE HISTORY — the owner's decision, open.** The literal entered at `f49b7cc` and
+`ebf8209`, after the last push `048e69d`: **414 unpushed commits** carry it in their
+trees. Fixing the working tree does not fix them. A local rewrite (`git filter-repo
+--replace-text`, not installed on the rig) removes every form before any push but
+re-hashes those 414 commits: **134 commit hashes are cited in tracked text, 73 of them
+after the last push**, and every `PIPEREV` stamp on a local product names an old hash —
+a tracked old→new commit map keeps them resolvable. The alternative is the address in
+the public history permanently (forks and API caches). Recommendation: the rewrite, as
+its own verified unit (zero hits for every form over `git rev-list --all`) immediately
+before the push. Until the owner rules, the push is HELD on this and nothing else.
+
+**Closes when** the guard is green on a tree with the site out of it, the setup step
+is documented, AND the owner has ruled on the history — then the push.
 ## `composite-header-identity` — the tuple shipped; the rgbcomp/standard-route half and the next-compose read-back remain
 
 **LANDED (`ebbce14`):** the composite stamp now writes `PIPEREV` =

@@ -28,8 +28,13 @@ Azimuth is NOT the statistic: it is degenerate near the zenith and one set here
 sits 1.60 deg from it, which reads as 141 deg of spurious spread. The statistic is
 ANGULAR SEPARATION in the horizon frame.
 
-Reads FITS headers and the tracked site record only. Opens no pixel. Gates nothing,
-always exits 0.
+Reads FITS headers and the GITIGNORED site config only (through
+scripts/lib/acquisition.py — the one loader). Opens no pixel. Gates nothing, always
+exits 0. PRIVACY: the site is a home address and this record is tracked, so every
+horizon-frame quantity written here is rounded to WHOLE degrees (altitude, azimuth,
+zenith distance, the separations and ranges; the within-set control to 0.01 deg),
+so the record cannot be inverted to the site, and the config is named by its
+sha256 rather than its values (scripts/qa/check_site_privacy.py is the guard).
 
 REMOVAL CONDITION: the sub-stack builder stamps each group's OWN epoch (rather than
 the set's first `DATE-OBS`), so no derivation is needed and this reduces to an
@@ -48,10 +53,20 @@ REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 SIDEREAL_DEG_PER_HR = 15.041
 
 
+sys.path.insert(0, os.path.join(REPO, "scripts", "lib"))
+import acquisition   # noqa: E402  — the ONE reader of the gitignored site config
+
+
 def site_location(repo=REPO):
-    s = json.load(open(os.path.join(repo, "scripts", "setup", "site.json")))
-    return EarthLocation(lat=s["sitelat_deg"] * u.deg, lon=s["sitelong_deg"] * u.deg,
-                         height=0 * u.m), s
+    """The rig-local site through acquisition.site_coordinates() — no second file
+    read, no assumed location: without a config this refuses loudly."""
+    c = acquisition.site_coordinates()
+    if c is None:
+        sys.exit("observer_frame_diversity: no site config — copy "
+                 "scripts/setup/site.example.json to scripts/setup/site.local.json "
+                 "(gitignored) and fill it in; nothing here assumes a location")
+    return EarthLocation(lat=c["lat_deg"] * u.deg, lon=c["lon_deg"] * u.deg,
+                         height=(c["elev_m"] or 0.0) * u.m), c
 
 
 def centre_and_stamp(path):
@@ -102,14 +117,17 @@ def scan(repo=REPO):
         ra0, dec0, _ = centre_and_stamp(subs[0])
         alt, az = vals[0]
         parts = d.split(os.sep)
+        # WHOLE degrees on every horizon-frame quantity (privacy: see the docstring);
+        # the separations below are computed from the unrounded values.
         sets.append({"session": parts[-3], "set": parts[-1].replace("groups_", ""),
                      "n_groups": len(subs),
                      "field_centre_ra_deg": round(ra0, 4), "field_centre_dec_deg": round(dec0, 4),
-                     "epoch_utc": t0s, "altitude_deg": round(alt, 3), "azimuth_deg": round(az, 3),
-                     "zenith_distance_deg": round(90 - alt, 3)})
+                     "epoch_utc": t0s, "altitude_deg": int(round(alt)), "azimuth_deg": int(round(az)),
+                     "zenith_distance_deg": int(round(90 - alt)),
+                     "_alt_az_unrounded": (alt, az)})
         control.append({"session": parts[-3], "set": parts[-1].replace("groups_", ""),
                         "within_set_alt_spread_deg":
-                            round(max(v[0] for v in vals) - min(v[0] for v in vals), 4)})
+                            round(max(v[0] for v in vals) - min(v[0] for v in vals), 2)})
     return sets, control
 
 
@@ -158,31 +176,64 @@ def main(write):
     sets, control = scan()
     if not sets:
         print("no group-built sets found — nothing to measure"); return 0
-    pair = [angsep(a["altitude_deg"], a["azimuth_deg"], b["altitude_deg"], b["azimuth_deg"])
-            for i, a in enumerate(sets) for b in sets[i + 1:]]
-    alts = [s["altitude_deg"] for s in sets]
-    print(f"{'night':<8}{'set':<8}{'ALT':>8}{'AZ':>9}{'ZD':>7}")
+    raw = [s.pop("_alt_az_unrounded") for s in sets]     # never written
+    pair = [angsep(a[0], a[1], b[0], b[1]) for i, a in enumerate(raw) for b in raw[i + 1:]]
+    alts = [a[0] for a in raw]
+    print(f"{'night':<8}{'set':<8}{'ALT':>6}{'AZ':>6}{'ZD':>6}   (whole degrees — privacy)")
     for s in sets:
-        print(f"{s['session']:<8}{s['set']:<8}{s['altitude_deg']:8.2f}"
-              f"{s['azimuth_deg']:9.2f}{s['zenith_distance_deg']:7.2f}")
-    print(f"\n  n_sets {len(sets)}   max pairwise separation {max(pair):.2f} deg"
-          f"   median {sorted(pair)[len(pair)//2]:.2f}   altitude {min(alts):.1f}-{max(alts):.1f}")
-    print(f"  worst within-set alt spread (the control) {max(c['within_set_alt_spread_deg'] for c in control):.4f} deg")
+        print(f"{s['session']:<8}{s['set']:<8}{s['altitude_deg']:6d}"
+              f"{s['azimuth_deg']:6d}{s['zenith_distance_deg']:6d}")
+    print(f"\n  n_sets {len(sets)}   max pairwise separation {max(pair):.0f} deg"
+          f"   median {sorted(pair)[len(pair)//2]:.0f}   altitude {min(alts):.0f}-{max(alts):.0f}")
+    print(f"  worst within-set alt spread (the control) {max(c['within_set_alt_spread_deg'] for c in control):.2f} deg")
     if not write:
         return 0
+    _, cfg = site_location()
     rec_path = os.path.join(REPO, "datasets", "corpus", "observer_frame_diversity.json")
     rec = json.load(open(rec_path))
     rec["_measured_at_commit"] = subprocess.run(
         ["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
         capture_output=True, text=True).stdout.strip()
     rec["_regenerated_by"] = "scripts/qa/observer_frame_diversity.py"
+    rec["_reads"] = ("FITS headers and the gitignored site config (through "
+                     "scripts/lib/acquisition.py) only. No pixel is opened. Nothing is gated.")
+    rec["method"]["site"] = (
+        "the gitignored site config resolved by scripts/lib/acquisition.py "
+        f"({cfg['resolved_from']}), sha256 {cfg['config_sha256']}; height "
+        f"{cfg['elev_m'] if cfg['elev_m'] is not None else '0 (siteelev unrecorded, deliberately not defaulted)'} m. "
+        "The coordinates are NOT written here — the site is a home address in a "
+        "published tree — and every horizon-frame quantity below is rounded to whole "
+        "degrees (the within-set control to 0.01 deg) so the record cannot be inverted "
+        "to them; the config's own provenance marks the coordinates TRANSCRIBED, "
+        "UNVERIFIED and bounded only at the DEGREE level — every altitude here inherits that.")
     rec["per_set"] = sets
     rec["control"]["per_set"] = control
     rec["control"]["with_derived_epochs_deg"] = max(c["within_set_alt_spread_deg"] for c in control)
-    rec["result"].update({"n_sets": len(sets),
-                          "max_pairwise_separation_deg": round(max(pair), 3),
-                          "median_pairwise_separation_deg": round(sorted(pair)[len(pair) // 2], 3),
-                          "altitude_range_deg": [min(alts), max(alts)]})
+    # the control's frozen-clock reading is a within-set DIFFERENCE (0.01 deg is the
+    # control's resolution); it is measured by --selftest, not here — held to 0.01
+    if isinstance(rec["control"].get("with_DATE-OBS_as_read_deg"), float):
+        rec["control"]["with_DATE-OBS_as_read_deg"] = round(rec["control"]["with_DATE-OBS_as_read_deg"], 2)
+    # by_night: the same statistics per night, WHOLE degrees throughout — an altitude
+    # extreme at 0.001 deg beside the per-set epochs and field centres would invert
+    # the latitude to ~0.001 deg
+    by_night = {}
+    for night in sorted({s["session"] for s in sets}):
+        idx = [i for i, s in enumerate(sets) if s["session"] == night]
+        nalts = [raw[i][0] for i in idx]
+        npair = [angsep(raw[i][0], raw[i][1], raw[j][0], raw[j][1])
+                 for a, i in enumerate(idx) for j in idx[a + 1:]]
+        by_night[night] = {"n_sets": len(idx),
+                           "max_pairwise_separation_deg": int(round(max(npair))) if npair else 0,
+                           "median_pairwise_separation_deg": int(round(sorted(npair)[len(npair) // 2])) if npair else 0,
+                           "altitude_min_deg": int(round(min(nalts))),
+                           "altitude_max_deg": int(round(max(nalts)))}
+    rec["result"].update({"n_sets": len(sets), "n_nights": len(by_night),
+                          "max_pairwise_separation_deg": int(round(max(pair))),
+                          "median_pairwise_separation_deg": int(round(sorted(pair)[len(pair) // 2])),
+                          "altitude_range_deg": [int(round(min(alts))), int(round(max(alts)))],
+                          "by_night": by_night})
+    if isinstance(rec.get("registry_claim_checked"), dict):
+        rec["registry_claim_checked"]["measured_here_deg"] = [int(round(min(alts))), int(round(max(alts)))]
     json.dump(rec, open(rec_path, "w"), indent=1)
     print(f"  rewrote {os.path.relpath(rec_path, REPO)}")
     return 0
