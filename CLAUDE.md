@@ -504,6 +504,12 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
     Simple FACT corrections to it — a stale count, path, version or pointer, verified
     from the tree — are applied without waiting for the owner (owner-ratified
     2026-08-29); rules, sections and doctrine still go to the owner as a proposed diff.
+  - **ASSIGN THE FIRST UNIT, THEN RELEASE.** The observation that "self-picked
+    targets outperformed assigned ones" is logged UNCHECKED, not discharged: no
+    counterfactual was ever measured and it flatters both parties. The competing
+    explanation is SEQUENCING — a session given one concrete unit first, and
+    latitude after, is not the same experiment as one that chose from the start.
+    Assigning the opener costs nothing and removes the confound.
   - **AGREEMENT BETWEEN SESSIONS IS NOT EVIDENCE — it is the region where this
     practice is blind, and it is the larger region.** The mechanism is not that
     a second session has different information: of the corrections this practice

@@ -31,7 +31,7 @@ longer staged under `sessions/`; every session that still has staged raws is fix
 
 Work, when tracked raws are staged: the same shape as the undistort tiers — drop the flag, assert
 Siril's own "Output normalization ...... disabled" line, stamp `STACKNRM`/`ANC*`/`REGREF` (the
-standard route stamps none of the three — measured 0 occurrences against 10 in
+standard route stamps none of the three — measured 0 lines against 12 in
 `run_undistort_compose.sh`; `docs/combine-contract.md`:179,
 BACKLOG:`composite-header-identity`'s open (e)), guard advisory under the STACKNRM change; one
 product, pre-registered as the undistort tiers were. Removal condition: the same as the undistort
@@ -54,16 +54,37 @@ GROUPS.** Interleaving moves the station coverage and the dwell-floor / rejectio
 together, so it is not a free win, and nothing has measured it on this corpus. **Closes when** an
 A/B at the combine reports the trade, or the consecutive form is recorded as the deliberate choice.
 
+ALSO OPEN, and deferred rather than dead: **a state-CHANGE detector with a RELATIVE trigger.**
+`docs/combine-contract.md` §5 measures model compatibility at every combine and reports it, but the
+quantity it reports is ABSOLUTE, and §5's own stated ground for refusing thresholds is that the
+number is a SUM OF TWO TERMS whose compose-created half scales with sequence size — two healthy sets
+read 1.12 and 0.95 px among themselves and 3.02 / 3.38 px inside a 41° 28-member sequence, 2.5–4.7×
+from sequence size alone, so *"no band separates that from a real optical disagreement"*. A RELATIVE
+trigger compares a configuration against its OWN prior state, holding that term constant so it
+cancels — which is the one shape §5's objection does not reach. The two answer different questions:
+§5 asks "is this compatible now?", this asks "has it changed?" — the same split the repo draws
+between a quality gate and `baseline_guard.py`'s no-regression record. Its precondition (the
+member-separation quantity attributed) is §5's own and has NOT fired.
+
 WITHDRAWN, each with its reason, so that none is re-proposed:
-- **The SCAMP/SWarp TPV reprojection as a coadd** — no defect motivates it (the smear is member-borne,
-  not a reprojection artifact), and the scaffolding is retired.
+- **The SCAMP/SWarp TPV reprojection as a coadd** — no defect motivates it (the smear is
+  member-borne, not a reprojection artifact), and it would COST: Siril composes the SIP
+  undistortion with the linear projection in ONE operation *"so as to avoid interpolating pixel
+  values twice"* (`docs/untracked-widefield-standards.md` §A.3), so a reprojection coadd adds a
+  second interpolation — and it cannot help at ρ 1.80, where the limit is the MODEL's missing
+  corner constraint rather than the engine. The scaffolding is retired.
 - **A corner-true shared model** — no fit constrains past ρ 1.47–1.51 against a corner at 1.80
   (`docs/dead-ends/registration-distortion.md`, "CORNER CONTROL POINTS CANNOT BE RECOVERED BY
   REORDERING OR RELAXING").
-- **A fresh single-model refit against the pinned july14 fit** — the pinned coefficients ARE the
-  durable artifact (`scripts/darktable/lens_models.json`), and the candidate's fitter is retired.
-- **A state-CHANGE detector with a relative trigger** — `docs/combine-contract.md` §5 already
-  measures model compatibility at every combine in three tiers and reports it.
+- **A fresh single-model refit against the pinned july14 fit** — withdrawn because nothing
+  motivates spending a fit, NOT because doctrine forbids one. `scripts/darktable/lens_models.json`
+  carries TWO distinct rules and they must not be conflated: `_why_this_file_exists` governs
+  REPRODUCTION ("re-fitting is how you MAKE one; it is not how you reproduce one"), while
+  `_how_to_add_one` explicitly PRESCRIBES selection — *"a fresh fit is a CANDIDATE; it becomes the
+  shipped model only by being pinned here, and swapping a shipped model is a declared delta judged
+  on star_stations + seqtilt (never on the fit's own residual)"*. That path is live:
+  `fit_lens_model.sh` and `star_stations.py` both exist and `seqtilt` is a Siril command; only the
+  free-centre JOINT fitter is retired.
 
 ## `intake-culling` — one measured intake pass, one visible formula
 
@@ -71,8 +92,10 @@ USER-DIRECTED. More photons are always obtainable; a bad frame stacked is perman
 signature measurable per frame at intake: measure ONCE, score by a formula whose constants are visible and
 adjustable, report per frame with its reason. **The decision FORM is a THRESHOLD, not a rank or a percentile**
 (owner-ratified — BACKLOG:`final-best-percent-pass`: a rank rule cuts N% from an equal-quality corpus
-for nothing). The shipped auto-cull already conforms — `cull_report.py` flags on robust z vs the pooled
-median/MAD, defect side only — so this is the form to extend, not to choose.
+for nothing). The shipped auto-cull already conforms — the rule is stated and implemented in `cull_report.py`
+(robust z vs the pooled median/MAD, defect side only) and re-implemented citing it by
+`run_frame_qa.sh:249`, which is what the chain actually reads via `frame_metrics.json`'s
+`flagged_defect_side_z`; `cull_report.txt` itself is a printed suggestion nothing consumes — so this is the form to extend, not to choose.
 
 Standards-first: a SEARCHED NEGATIVE — no vendor publishes a default combining expression for per-frame quality
 signatures (the community 15/15/20 weighting has underivable constants; the PixInsight source returned 403, so that
