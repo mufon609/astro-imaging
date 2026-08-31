@@ -195,7 +195,7 @@ continuum is a policy, and the policy is the owner's (§5).
   `datasets/corpus/recipe.json` (the constants); `datasets/corpus/baseline.json`
   (the corpus's no-regression slot).
 - Instruments: `scripts/qa/shape_at_sky.py`, `scripts/qa/star_stations.py`,
-  `scripts/qa/star_shape.py` (seqtilt), `scripts/qa/regional_stat.py`, Siril
+  `git show d374450:scripts/qa/star_shape.py` (seqtilt), `scripts/qa/regional_stat.py`, Siril
   `stat`/`bgnoise`.
 - Siril `crop`, `findstar`, `stack -norm=addscale -weight=nbstack`:
   https://siril.readthedocs.io/en/stable/Commands.html

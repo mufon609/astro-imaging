@@ -422,7 +422,10 @@ and answered by member selection: the decision map with every form's numbers is
   observer-frame alt/az measurement read 3.933° of within-set spread on a
   FIXED tripod (true answer zero); recovering each group's epoch from the
   drift itself (`t0 + ΔRA / 15.041°/hr`) dropped it to 0.088° — **45×**
-  (implemented: `observer_frame_diversity.py` derives per-group epochs).
+  (derived per group by `git show d374450:scripts/qa/observer_frame_diversity.py`,
+  whose result is the tracked `datasets/corpus/observer_frame_diversity.json`; the
+  builder still stamps the set's first `DATE-OBS`, so the derivation is after the
+  fact, not a fix at the source).
   **The tell is that the error is PLAUSIBLE** — 3.9° looks like a real
   re-aim, so only a control that knows the true answer catches it.
   `LIVETIME` is per-group exposure, not wall-clock cadence — not the

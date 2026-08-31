@@ -82,7 +82,7 @@ door to one (`tilt`/`inspector` refuse in scripts): **Off-axis
 aberration[FWHM]** = centre vs corners (the RADIAL term — this defect);
 **Sensor tilt[FWHM]** = best vs worst corner (the ASYMMETRIC term);
 **Truncated mean[FWHM]**; **Stars**. Driven + recorded by
-`scripts/qa/star_shape.py` (`qa_work/star_shape_*.json`).
+`git show d374450:scripts/qa/star_shape.py` (`qa_work/star_shape_*.json`).
 
 | production A/B + full depth | stars | truncated mean FWHM | **off-axis aberration** | sensor tilt |
 |---|---|---|---|---|

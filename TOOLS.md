@@ -41,7 +41,7 @@ Constraint shorthand used below — **Cost** (FREE / PAID / FREEMIUM) ·
 come from the tools' own analysis, driven headless and captured to the dataset's record
 — Siril `register` regdata / `stat` / `seqstat` / `findstar` / **`seqtilt`**, the solver
 and SPCC logs. The in-house layer around them only orchestrates (`inspect_stage`,
-`star_shape.py`, `spcc_run`), records, and — in the one sanctioned case where no tool
+`spcc_run`), records, and — in the one sanctioned case where no tool
 provides the mechanism — detects (`anomaly_audit`: culls nothing,
 removal-conditioned; its RECORD is load-bearing — the groups builder derives its
 dwell floor from it).
@@ -319,7 +319,7 @@ own spatial star-shape analysis and the only headless door to one:
 | `tilt` | ❌ *"Can be used in a script: NO"* | same, single image |
 | `inspector` | ❌ *"Can be used in a script: NO"* | a nine-panel corner/centre mosaic — visual only, no numbers |
 
-Driven + recorded by `scripts/qa/star_shape.py`. `seqtilt` needs a SEQUENCE and Siril
+Driven + recorded by `git show d374450:scripts/qa/star_shape.py`. `seqtilt` needs a SEQUENCE and Siril
 cannot build one from a single frame, so a lone stack is presented as a two-frame
 sequence of itself. Both terms are FWHM DIFFERENCES in px (bigger = worse) — not a
 roundness ratio, and not `findstar`'s per-star "roundness" (FWHMy/FWHMx); do not mix

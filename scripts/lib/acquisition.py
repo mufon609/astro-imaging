@@ -388,7 +388,7 @@ def site_config_candidates(session_dir=None):
 def load_site_config(session_dir=None):
     """The ONE reader of the local site config — every consumer goes through it
     (site_facts() for the record block, site_coordinates() for the numbers, and
-    through that observer_frame_diversity.py and verify_site.py). Returns
+    through that verify_site.py). Returns
     (cfg, path, resolved_from, sha256) for the first candidate that parses and
     carries numeric sitelat_deg / sitelong_deg, else (None, None, None, None)."""
     import hashlib

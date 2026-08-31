@@ -97,10 +97,6 @@
 #   asserts CRVAL is distinguishable from the centre pixel — that last arm guards
 #   the instrument's design decision rather than its code, since a future edit
 #   swapping the comparand back to CRVAL would pass every other arm.
-# - `scripts/qa/observer_frame_diversity.py --selftest` — plants the frozen-clock
-#   defect on REAL group sub-stacks and asserts it reproduces, so unlike
-#   check_solve_records' selftest it is NOT data-free and cannot run on a fresh
-#   clone. Excluded whole rather than partly.
 set -uo pipefail          # NOT -e: every check must run even after one fails
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 cd "$REPO"
