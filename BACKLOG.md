@@ -561,35 +561,48 @@ closer to truth, so what the data cannot settle goes to the owner under the evid
 **Closes when** a combine-level A/B, one knob (the flat window), members from both arms, is judged at
 the combine — the level where the disagreement either averages away or compounds.
 
-## `lunar-ladder` — WATCHLIST (needs the next lunar capture + a PSS venv): x86 ladder remains
+## `lunar-ladder` — WATCHLIST (needs the next lunar capture + a PSS venv): set-02 STILL AWAITS A VERDICT
 
 **STATE: the first corpus is processed end to end and the chain is codified as
-`scripts/stack/run_lunar_pipeline.sh`** (PROVISIONAL as-written — its first
-fresh run is the next lunar corpus). Both sets' finals are user-ratified:
-sb deconvolution + per-set disc-neutral WB (satu closed-fail; wiener arm
-PAUSED on user order — equal on-disc, frame-edge artifact noted). Session raws, stacks and judge
-surfaces are freed and re-stageable; every mechanism is in `docs/lunar-lucky-imaging.md`.
+`scripts/stack/run_lunar_pipeline.sh`** (PROVISIONAL as-written — its first fresh run is the next
+lunar corpus, and it must be, because the session tree is freed: `sessions/july26` and
+`web/results/july26` are both absent). Mechanisms: `docs/lunar-lucky-imaging.md`.
+
+**RATIFICATION IS HALF DONE, and the item previously claimed it was whole.** set-01 IS ratified —
+its ledger carries three closed verdicts: sb deconvolution selected as the primary arm (both sb and
+wiener passed on the user's eyes, sb cleaner, wiener carrying a top-edge artifact band), per-set
+disc-neutral WB PASS (kR=1.1936, kB=2.1116), and mineral `satu` CLOSED-FAIL on both arms with the
+natural disc-neutral WB control winning. **set-02 is NOT ratified**: its ledger's last entry is
+`approved_chain_replication` at `status: "awaiting user verdict"` with no verdict key, and no
+ratification for set-02 exists anywhere under `datasets/july26/`. That is a LIVE OPEN VERDICT and
+the previous wording hid it.
 
 **Remains open:**
-- **The x86 quality ladder** (best 10/15/20/25% vs the shipped q100 controls,
-  PSS `--stack_percent` or AS!4 — pre-registered in both sets' ledgers).
-  Needs: PSS venv on the x86 rig + re-staged data (NEFs from archive, replay
-  `run_lunar_pipeline.sh` stages, or transfer nothing and re-shoot better).
-- **Next lunar capture at the corrected card** (acquisition checklist lunar
-  block: disc histogram 50–70% — f/4 · 1/320 s · ISO 800 at 70 mm class) —
-  more photons beat every processing knob measured this corpus.
-- **Siril 1.5 MPP adoption test** (unchanged — retires the GUI step when
-  stable lands and it measures quality).
-- Long-focal escalation ladder (unchanged, dormant until such a corpus):
-  AS!4-under-Wine vs PSS vs 1.5-MPP head-to-head; waveSharp 3.0 (native
-  Linux GUI, frozen) / ImPPG 2.1.0 as judgment-quality finishers; Hugin for
-  mosaics; RGB-align only where dispersion is measured (≥ ~800 mm).
+- **The x86 quality ladder** vs the shipped q100 controls (PSS `--stack_percent` or AS!4 —
+  pre-registered in both sets' ledgers). Needs a PSS venv on the x86 rig + re-staged data (NEFs from
+  archive, replay the pipeline stages, or re-shoot better).
+  **THE BRACKET AS WRITTEN IS TOO NARROW and should be widened before it runs.** It reads
+  10/15/20/25%, every arm at the aggressive end. The field's own comparison set is 10/25/50/75%, and
+  the general rule for frames of similar quality is nearer 50% — a ladder topping out at 25% cannot
+  find an optimum at 40%. The METHOD is right and is exactly what the field does (the optimum is
+  seeing-dependent and not knowable in advance, which is why it is bracketed per dataset rather than
+  fixed), so this is a parameter list to widen, not machinery to design.
+- **Next lunar capture at the corrected card** (acquisition checklist lunar block: disc histogram
+  50–70% — f/4 · 1/320 s · ISO 800 at 70 mm class) — more photons beat every processing knob
+  measured this corpus.
+- **Siril 1.5 MPP adoption test** — retires the GUI step when stable lands and it measures quality.
+- Long-focal escalation ladder (dormant until such a corpus): AS!4-under-Wine vs PSS vs 1.5-MPP.
+  **AS!4-under-Wine is a documented path, not wishful** — a dedicated Linux/Wine install guide
+  exists and the stated requirement is Wine >= 6.x, so the risk is configuration rather than
+  feasibility. Also dormant: Hugin for mosaics; RGB-align only where dispersion is measured
+  (>= ~800 mm). **UNCHECKED: whether waveSharp 3.0 / ImPPG 2.1.0 are still the state of the art for
+  lunar finishing** — recorded when they were, not re-verified since, and the planetary-stacking
+  landscape has moved.
 
 Class facts, records and the full mechanism set live in
 [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md), `docs/dead-ends.md`
-(registration/aliasing/seq-hygiene/quality entries + the acquisition
-checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
-and the builder's own docstring.
+(registration/aliasing/seq-hygiene/quality entries + the acquisition checklist's lunar block),
+`datasets/july26/` (ledgers with every verdict), and the builder's own docstring.
 
 ## `web-culled-frames` — one surface for every excluded frame
 
