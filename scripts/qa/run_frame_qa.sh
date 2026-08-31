@@ -70,7 +70,7 @@
 # and always wins. cull_report itself stays WARN-only.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
 SET=${2:?missing <set>}
 BATCH=76 Z=3.5

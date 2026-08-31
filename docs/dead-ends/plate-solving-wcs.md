@@ -192,8 +192,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   WRONG — refraction drifts the effective scale ~0.5% within a night
   (set-04 runs 17.03 → 16.94 across its own groups) — so
   `git show d374450:scripts/qa/member_solve_audit.py` flags against each set's own Theil-Sen
-  scale trend + a SIP-magnitude ratio (selftested; register row in
-  BACKLOG:`removal-conditions`). LIMITS, all measured: (1) a ~0.1–0.2%
+  scale trend + a SIP-magnitude ratio (selftested; since retired). LIMITS, all measured: (1) a ~0.1–0.2%
   TAN+SIP3 fit-variance floor remains — twins of identical pixels landed
   16.973 vs 16.944, both stable at logodds 270+, `--sip-order=4` no help —
   showing as 3–10 px mutual member disagreement at mid/outer field in EVERY

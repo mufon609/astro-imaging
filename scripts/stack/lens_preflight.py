@@ -54,8 +54,8 @@ lens@focal — deliberately not lensfun's fuzzy matcher, which stays the tool's.
 Retire the scan the day lensfun/darktable expose a headless query of the
 INSTALLED model's coefficients for a given lens@focal (Debian ships no such
 CLI today — above), or the day the chain consumes the model other than through
-the lensfun user DB. Registered in BACKLOG `removal-conditions` (condition
-authored by audit — this leg declared none; RATIFIED by the owner 2026-08-19).
+the lensfun user DB. Condition authored by audit — this leg declared none; RATIFIED by the owner
+2026-08-19.
 
 That proof catches the silent no-op. It does NOT catch lensfun fuzzy-matching a
 correct EXIF string to a wrong DB entry — that warp is non-zero, so it passes.
@@ -86,7 +86,7 @@ while _libdir != os.path.dirname(_libdir):
 import astrometrics as am  # noqa: E402  (dataset_dir: the tracked per-dataset home)
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import SIRIL, run as siril_run   # serialized invoker
 RAW_EXT = (".nef", ".dng", ".cr2", ".cr3", ".arw", ".raf", ".orf", ".rw2")
 STYLE_DIR = os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "darktable")

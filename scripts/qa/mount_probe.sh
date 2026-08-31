@@ -38,7 +38,7 @@
 # rides the RA rate (deg/hr), which is scale-free.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 SESSION=${1:?usage: mount_probe.sh <session-dir> <set>}
 SET=${2:?missing <set>}
 SESSION=$(cd "$SESSION" && pwd)

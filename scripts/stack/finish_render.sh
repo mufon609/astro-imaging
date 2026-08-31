@@ -43,7 +43,7 @@
 # calibrated stack is the chroma-blotch engine — docs/dead-ends.md).
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2

@@ -17,7 +17,7 @@ carries BACKLOG:`standard-route-output-norm`.
 | **run a dataset** to a finished stack | [`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md) §1 (staging, with a worked first run) → "Running it" below: `run_set_chain.sh … --plan`, then `--yes` |
 | **set up the rig** — tools, catalogs, styles, hooks | [`CONTRIBUTING.md`](CONTRIBUTING.md) "Set up the rig": the installers in order, each with its verify command |
 | **change the chain** or add a script | [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to work here) → [`CLAUDE.md`](CLAUDE.md) (the binding rules — the owner's file) |
-| **see what is open**, and who decides it | [`BACKLOG.md`](BACKLOG.md) — items by slug; `pending-owner` holds the owner's decisions; `removal-conditions` is the register every divergence lives in |
+| **see what is open**, and who decides it | [`BACKLOG.md`](BACKLOG.md) — items by slug; `pending-owner` holds the owner's decisions |
 | **know why X was NOT done** before proposing it | [`docs/dead-ends.md`](docs/dead-ends.md) — the dead-end registry index (`docs/dead-ends/`, one file per stage) + the acquisition checklist |
 | **pick a tool** for a stage | [`TOOLS.md`](TOOLS.md) — the toolkit, tier by tier, with cost / Linux / CPU / headless |
 | **read the research** behind a decision | [`docs/README.md`](docs/README.md) — the deep-dive index, and which document to read when |
@@ -421,13 +421,13 @@ Rig setup, in order and each step with its verify command:
 
 | file | role |
 |---|---|
-| `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure. The FITS parse is astropy's (`read_fits` → `fits.open`, `fits_pixel_scale` → `fits.getheader`), so the hand-rolled-parser removal condition has FIRED; its row is in BACKLOG:`removal-conditions` |
+| `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure. The FITS parse is astropy's (`read_fits` → `fits.open`, `fits_pixel_scale` → `fits.getheader`), so the hand-rolled-parser removal condition has FIRED |
 | `acquisition.py` | per-dataset acquisition record: EXIF-derived facts (exposure/focal/ISO/FOV+pixel-scale/cadence) + the `mount` (DERIVED from the measured drift signature when decisive, human-declared otherwise, provenance in `mount_source`); `resolve()` seeds `datasets/<session>/<set>/acquisition.json` and STOPS if `mount` is undeclared (no silent camera model), `timeline()` feeds the audit's capture-run segmentation. Reads EXIF only, never deliverable pixels |
-| `route.py` | THE ROUTE KEY — one definition, every consumer. The single source for which chain a set takes; `DRIFT_FRAC_MIN` and its floor live here (removal-conditions register) |
+| `route.py` | THE ROUTE KEY — one definition, every consumer. The single source for which chain a set takes; `DRIFT_FRAC_MIN` and its floor live here |
 | `fingerprint.py` | derives a set's CONFIG FINGERPRINT from the data — the MEASURE→MATCH input, and the reference ALLOWED router `CLAUDE.md` names: every input is a tool's (astrometry.net solve, Siril `findstar`, header facts), the in-house part is only the derived trail/drift geometry no tool reports |
 | `cullspec.py` | THE one meaning of `recipe.json`'s `stack.exclude` — trailing FILENAME digits, matched within one set, aborting loudly on an ambiguous exclude |
 | `frame_order.py` | emits a set's frames in CAPTURE ORDER rather than filename order, reading paths from STDIN so an `ARG_MAX` split cannot re-order chunks independently. Exists because the frame counter wraps at 9999 (`docs/dead-ends/stacking-compose.md`, "THE FRAME COUNTER WRAPS AT 9999 → 0001") |
-| `siril_run.sh`, `siril_run.py` | single source of truth for INVOKING Siril, flock-serialised because the flatpak's instance-dir lifecycle races (removal-conditions register); `check_siril_invoke.sh` is the guard that every caller uses it |
+| `siril_run.sh`, `siril_run.py` | single source of truth for INVOKING Siril, flock-serialised because the flatpak's instance-dir lifecycle races; `check_siril_invoke.sh` is the guard that every caller uses it |
 | `wait_for.sh` | wait for processes matching a pattern WITHOUT matching yourself — the registered `pgrep`-matches-its-own-argv deadlock, fixed at the source |
 
 **`stack/`** — build the integrated stack
@@ -455,7 +455,7 @@ Rig setup, in order and each step with its verify command:
 | `check_calibrate.sh` | the guard that every light calibration routes through that one command |
 | `check_siril_invoke.sh` | the guard that every Siril invocation routes through `lib/siril_run.{sh,py}` |
 | `build_master_dark.sh` | builds the session's MASTER DARK from raw `darks/`, driving the pinned Siril template; 32-bit, uncompressed, `setext` pinned |
-| `compose_preflight.py` | compose preflight: STOPS before a union silently regresses to star-pair registration — the gate that makes the astrometric compose provable rather than assumed (removal-conditions register) |
+| `compose_preflight.py` | compose preflight: STOPS before a union silently regresses to star-pair registration — the gate that makes the astrometric compose provable rather than assumed |
 | `stamp_headers.sh` | single source of truth for restoring the ACQUISITION FITS keywords the undistort TIFF round trip drops, and for stamping `PIPEREV` — which is why a commit landing mid-build is a second knob inside your own experiment |
 
 **`calibrate/`** — astrometric + photometric calibration
@@ -554,7 +554,6 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `diag_flat.ssf` | master-flat diagnostic (Siril) |
 | `readiness_report.py` | ONE readiness surface for a set — every ratified criterion evaluated up front, one report and one approval, so nothing undecidable surfaces three hours into a build (`CLAUDE.md`, "where the gate actually is") |
 | `run_guards.sh` | THE RUNNER for every guard — see its row under `stack/` above |
-| `check_removal_conditions.sh` | the REGISTER guard: every file declaring a `REMOVAL CONDITION` must appear in BACKLOG's divergence column. Detects declared-but-no-row only; blind to a divergence that declares nothing |
 | `check_manifest_verify.sh` | the INVENTORY guard: every `verify` command in `scripts/setup/manifest.tsv` must actually run |
 | `check_solve_records.py` | joins every plate-solve RECORD against the ARTIFACT it names — compares the record's field CENTRE against the target's own WCS at the centre pixel, never `CRVAL` |
 | `coverage_frame.py` | proposes the VERIFIED COVERAGE FRAME of a `framing=max` union — the largest all-covered rectangle over Siril `stat` boxes. Reports only; crops nothing |

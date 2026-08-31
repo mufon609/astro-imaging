@@ -120,7 +120,6 @@ findstar leg and the cache MISS-then-write path.
 
 REMOVAL CONDITION: retire when Siril's compose accepts per-member weight maps or
 a per-member region mask (a mask is the crop without the coverage cost).
-Registered in BACKLOG `removal-conditions`.
 """
 import hashlib
 import json

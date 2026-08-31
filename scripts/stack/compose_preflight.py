@@ -49,7 +49,7 @@ rejects the other, so a guard that has quietly stopped guarding is detectable.
 REMOVAL CONDITION: retires when the compose stage cannot run without per-member
 astrometric registration at all — i.e. when siril itself refuses to register a
 sequence whose members lack a usable solution, or when the chain has no
-star-pair path left to fall back to. Registered in BACKLOG `removal-conditions`.
+star-pair path left to fall back to.
 """
 import json
 import os

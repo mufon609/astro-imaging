@@ -53,7 +53,7 @@ import sys
 from astropy.io import fits
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import SIRIL, run as siril_run   # serialized invoker
 
 
 def results_dir(sdir):

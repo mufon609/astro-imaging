@@ -20,9 +20,8 @@ files with no BACKLOG section, one broken relative link in a read-order
 registry file, records citing files deleted at a session reset as if present,
 and a research document citing a retired prompt as a live path. Every one was
 found by a human reading; nothing re-checked them, and a pointer rots silently
-the first time its target moves. The guard suite verified WIRING in code and,
-until `check_removal_conditions`, nothing in `.md` at all; this opens the
-second `.md` invariant.
+the first time its target moves. The guard suite verifies WIRING in code; this is
+its one `.md` invariant.
 
 STANDARDS-FIRST. Class 3 is what markdown-link-check / lychee do; this
 implements the same test rather than installing one (no network, one file, and

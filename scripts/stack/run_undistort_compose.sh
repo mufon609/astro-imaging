@@ -125,7 +125,7 @@
 #   the relative weights. On members of different fields, do not trust it.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 source "$REPO/scripts/stack/stamp_headers.sh"   # composite provenance + registration-model stamp
 OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0 REFSRC_DECL=auto KEEPWORK=0; SUBDIRS=()
 for a in "$@"; do case "$a" in

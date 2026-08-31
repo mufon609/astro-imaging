@@ -121,8 +121,7 @@ error, which is worse than having no rescue.
 REMOVAL CONDITION (the coverage rung): retire it the day the astrometry.net
 engine itself accepts a detection-region/subarea constraint — the rung exists
 because the blind engine consumes the full xylist or nothing, so confining the
-solve to the covered region means re-deriving what is handed to it. Registered
-in BACKLOG `removal-conditions` (condition authored by audit — the rung
+solve to the covered region means re-deriving what is handed to it. Condition authored by audit — the rung
 shipped with a LIMITS block and no retirement trigger; RATIFIED by the owner
 2026-08-19).
 
@@ -421,8 +420,7 @@ def solve(stars, hint=None, scales=None, pos=None, required=True, sip_order=3):
 # changes is that its answer must now survive the hints rather than replace them.
 
 # The hint radius is the declared position uncertainty. Twice it is already
-# generous — replayed hinted solves land deep inside it (census: the
-# hint-contradiction-gate row in BACKLOG:`removal-conditions`) — while the
+# generous — replayed hinted solves land deep inside it — while the
 # measured false solve sat ~110 deg out, 7x the radius. So this separates by
 # two orders of magnitude and is not a tuned number.
 POSITION_RADIUS_FACTOR = 2.0

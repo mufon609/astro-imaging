@@ -53,7 +53,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import SIRIL, run as siril_run   # serialized invoker
 
 DIMS = re.compile(r"Reading FITS: file .*?, \d+ layer\(s\), (\d+)x(\d+) pixels")
 

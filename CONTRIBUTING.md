@@ -59,8 +59,8 @@ docs.github.com, "Setting guidelines for repository contributors".)
   `README.md` "Data integrity"; `scripts/stack/check_bitdepth.sh` enforces it.
 - A result is a WIN, a clean NULL, or needs-eyes — never "fixed / final /
   matched / close": `README.md` "The experiment discipline".
-- Every divergence from the standard workflow carries a removal condition AND a
-  row in `BACKLOG.md` `removal-conditions`; `scripts/qa/check_removal_conditions.sh`.
+- Every divergence from the standard workflow carries a removal condition, stated
+  in the declaring file's own docstring beside the code it governs.
 - Style: no session tags, no chronological narrative, no bare dates except
   register data (a ratification stamp, a last-checked stamp): `CLAUDE.md`
   "Binding rules".

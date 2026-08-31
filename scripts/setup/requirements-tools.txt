@@ -183,7 +183,7 @@ piff==1.6.0
 #                 solves a SCALAR per exposure per instrument (`src/preflist.h`
 #                 has no photometric analogue of DISTORT_DEGREES), so it cannot
 #                 satisfy the position-dependent condition in `object_tilt.py`'s
-#                 removal-conditions row. That half stands. **The "cannot be built
+#                 removal condition. That half stands. **The "cannot be built
 #                 here anyway" clause that used to close this row is DELETED — it
 #                 is false, and it contradicted two other sections of this same
 #                 file.** Its ASTROMETRIC side is a different question and is the

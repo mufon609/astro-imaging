@@ -150,7 +150,7 @@ import acquisition  # noqa: E402
 import astrometrics as am  # noqa: E402  (dataset_dir: the tracked per-dataset home)
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import SIRIL, run as siril_run   # serialized invoker
 
 
 def read_green(path):

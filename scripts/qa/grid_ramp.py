@@ -82,7 +82,6 @@ must reproduce the batched values exactly. A scrambled parse cannot survive it.
 REMOVAL CONDITION: retire the day an official tool reports, headless, the FITTED
 low-order background ramp of an image as NUMBERS — a slope or plane coefficients,
 not a subtracted image, not a background-model image, and not a star-shape tilt.
-Registered in BACKLOG.md `removal-conditions`.
 
 REPORTS, GATES NOTHING. No thresholds and no verdict: it writes the numbers, the
 geometry they were taken at, the controls, and the reader decides.

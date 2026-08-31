@@ -73,7 +73,7 @@ import sys
 from astropy.io import fits
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import SIRIL, run as siril_run   # serialized invoker
 
 STAT_RE = re.compile(r"(?:^log:\s*)?(\w+)?[:\s]*Mean: ([0-9.]+), "
                      r"Median: ([0-9.]+), Sigma: (-?nan|[0-9.]+), Min: ([0-9.]+), Max: ([0-9.]+)")

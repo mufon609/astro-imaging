@@ -32,8 +32,8 @@ and it applies to every schema this repo has ever changed. Measured twice in
 one day in unrelated places: `solve_field.py`'s hint-contradiction gate added
 its replay keys WITH the gate, so the pre-gate majority of records lacks them
 and the one false solve the gate exists for has none — the mitigation
-postdated the case it was built to make auditable (counts live in the
-removal-conditions register row, their one home); and an error-model rename
+postdated the case it was built to make auditable (the corpus census that carried those counts is retired — it no longer
+reproduces against the tree); and an error-model rename
 left every pre-rename record carrying a neutrally-named SE no reader can
 attribute to a model. **THE GENERAL MITIGATION: label BOTH sides and make the
 consumer REFUSE a mixed set** — each row declares its `error_model` and the

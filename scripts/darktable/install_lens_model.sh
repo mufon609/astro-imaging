@@ -83,8 +83,7 @@
 # Removal conditions: an upstream lensfun entry measured for THIS unit at
 # infinity focus, or a chain that consumes the model another way (Siril
 # `register -disto=` with a trustworthy source). The vignetting/tca strip retires
-# when darktable honours a style's lens op_params headless. Both are registered
-# in BACKLOG.md `removal-conditions`.
+# when darktable honours a style's lens op_params headless.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 DBDIR="$HOME/.local/share/lensfun/updates/version_1"

@@ -93,7 +93,7 @@ siril_cli() {
     # append-open: never truncates, and the fd is what carries the lock
     exec {_SIRIL_FD}>>"$SIRIL_LOCK"
     if ! flock -n "$_SIRIL_FD" 2>/dev/null; then
-      echo "[siril_cli] another Siril job holds the lock — waiting (BACKLOG:removal-conditions)" >&2
+      echo "[siril_cli] another Siril job holds the lock — waiting" >&2
       flock "$_SIRIL_FD"
     fi
     before=$(stat -c %y "$SIRIL_CONFIG_INI" 2>/dev/null || echo absent)

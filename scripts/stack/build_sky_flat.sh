@@ -137,7 +137,7 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set geometry derivation
 SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]}
 SET=${2:?missing <set>}

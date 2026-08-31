@@ -188,7 +188,7 @@ below is the environment a contributor gets by cloning and running
 and checksums is `scripts/setup/manifest.tsv`. If a fact here is not reproducible
 from tracked files, that is the bug — a machine-local value nobody can rebuild has
 already cost this repo a shipped optical model that existed in no record
-(BACKLOG `removal-conditions`, the fitted-lens row).
+(`scripts/darktable/lens_models.json` now tracks the coefficients).
 
 **The rig** (measured, 2026-08-05): **x86-64 Kali GNU/Linux Rolling**, Intel
 i7-14700K, **28 logical cores, 31 GB RAM, 1.8 TB NVMe**, **no NVIDIA GPU** — every
@@ -306,9 +306,14 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   chase (`docs/dead-ends/registration-distortion.md`, the comparison-traps
   entry, trap 3).
 - **Re-check the removal conditions — a divergence nobody re-checks never ends.**
-  Every adaptation and gap-filler carries one; the register of them all, with
-  status, is in [`BACKLOG.md`](BACKLOG.md). Re-check it when a tool version
-  changes, when the rig changes, and before working any item it gates. Writing
+  Every adaptation and gap-filler carries one, stated in the DECLARING FILE'S OWN
+  docstring beside the code it governs: a condition there cannot rot independently
+  of what it describes, and deleting the code deletes the condition. A separate
+  central REGISTER was tried and retired — it duplicated every in-file declaration,
+  carried two already-fired triggers as pending, and kept dead code alive because
+  the code existed to satisfy a row; Google's TODO convention and PEP 387 both put
+  the condition at the code site. Re-check when a tool version
+  changes, when the rig changes, and before working anything it gates. Writing
   the condition is not the work — firing it is. (`star_shape_profile.py`'s
   condition had fired and nothing noticed; it stayed long enough to produce a
   false result.) An adaptation with NO written condition is the worse case —

@@ -585,7 +585,7 @@ leaves a green gradient wherever the band sits at a different altitude than
 the reference boxes; discriminator: the band-vs-sky ratio measured at matched
 altitude, or on two nights with the band at different altitudes; (b) the
 flatless route's per-set sky flat converges to `sky × V` and the object's
-own light is in the flat (BACKLOG `removal-conditions`, the sky-flat row): a
+own light is in the flat (`build_sky_flat.sh`'s own removal condition): a
 band that is redder than the sky in the flat divides the band's red down in
 every light — a per-channel, band-shaped effect; discriminator: the master
 flat's own R/G, B/G at the band position against the field. Neither is this

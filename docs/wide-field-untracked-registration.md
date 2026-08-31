@@ -421,7 +421,7 @@ against the same one-knob harness: astrometry.net SIP → `register -disto=` —
 paraxial error writes the centre band; the entry **fitted from this unit's
 frames** — adopted (centre at the in-exposure floor, whole frame sharper,
 approved on the user's eyes). The fitted model is since PINNED as data and
-installed from the record (BACKLOG `removal-conditions`, fitted-lens row); the
+installed from the record (`scripts/darktable/lens_models.json`); the
 chain is productionised; the style's warp verified reproducible to 0.000 px.
 
 **THE GEOMETRY IS NOT THE OPEN TERM — a centred radial model already fits it.**

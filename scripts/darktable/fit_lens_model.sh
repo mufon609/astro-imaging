@@ -55,7 +55,7 @@
 # seqtilt A/B against the incumbent model), never by its own residual.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 source "$REPO/scripts/stack/calibrate_light.sh"  # the ONE light-calibrate command (check_calibrate.sh)
 SESSION=${1:?usage: fit_lens_model.sh <session-dir> <set> --dark= --flat= --hfov= [--frames=12]}
 SET=${2:?missing <set>}

@@ -36,7 +36,7 @@ about coverage; `seqapplyreg -framing=` chooses min/max/COG framings but
 reports no covered region; the repo's own `coverage_probe.sh` builds a true
 per-pixel member-count map, but through `register -2pass`, so on an
 ASTROMETRICALLY registered union its canvas is not the product's and its
-docstring already refuses that use. Register row in BACKLOG:`removal-conditions`.
+docstring already refuses that use.
 
 THE COVERAGE TEST NAMES ONE REFERENCE CHANNEL, and it must not be the low one.
 The registry rule is the SIBLING-CLASS SKY FLOOR, never mere non-zero (lanczos
@@ -68,7 +68,7 @@ from astropy.io import fits
 from astropy.wcs import WCS
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import run as siril_run   # serialized invoker
 
 # Sigma and bgnoise accept nan: Siril prints `Sigma: -nan` on a ZERO-VARIANCE
 # selection (registered), and a numeric-only class there makes the whole line

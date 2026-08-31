@@ -47,7 +47,6 @@ box (equal-area discipline, star_stations.py).
 Removal condition: retire when an official tool reports headless star-shape
 statistics for a sky-addressed region of a solved image (a scriptable
 `findstar` with a WCS-addressed subregion, or a PixInsight equivalent).
-Registered in BACKLOG `removal-conditions`.
 """
 import argparse
 import json

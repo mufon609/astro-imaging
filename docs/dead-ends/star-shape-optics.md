@@ -280,8 +280,7 @@ BACKLOG:`compose-homography-smear`).
   TWICE, BOTH TIMES IN THE FLATTERING DIRECTION.** A Gaussian PSF FIT and a
   weighted SECOND MOMENT do not measure the same quantity on a non-Gaussian
   profile, and this repo compares them freely. What IS homed is the
-  MAGNITUDE — ~0.84× a planted value (`TOOLS.md` PSFEx row; the
-  `psfex_compare.py` row in the removal-conditions register) — and a
+  MAGNITUDE — ~0.84× a planted value (`TOOLS.md` PSFEx row) — and a
   magnitude is not a direction; the literature (Bernstein 2010) likewise
   bounds the size, not the sign, for an arbitrary profile (DOCTRINE).
   **"A floor" converts an unknown-sign bias into a one-sided guarantee** —

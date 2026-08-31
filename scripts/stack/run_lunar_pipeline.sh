@@ -37,7 +37,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 source "$REPO/scripts/stack/calibrate_light.sh"  # the ONE light-calibrate command (check_calibrate.sh)
 S="${1:?usage: run_lunar_pipeline.sh <session-dir> <set> <stage> [options]}"
 SET="${2:?set name required}"

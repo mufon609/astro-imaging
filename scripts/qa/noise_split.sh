@@ -22,7 +22,7 @@
 # coverage-varying zones in the statistics.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker
 OUT= WORK=; DIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --work=*) WORK=${a#*=};;

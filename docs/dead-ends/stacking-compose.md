@@ -573,7 +573,7 @@ and answered by member selection: the decision map with every form's numbers is
 
 - **SWarp 2.41.5 ENGINE FACTS, MEASURED ON THIS RIG (P1–P7), for anyone who
   re-opens the per-member weight-map route.** The route itself is STOPPED
-  (BACKLOG:`removal-conditions`, the `swarp_compose.sh` row), so these are kept
+  (`swarp_compose.sh`, since retired), so these are kept
   as engine behaviour, not as a recommendation. **(1)** SWarp reads only the
   **FIRST PLANE of a cube** — a 3-layer FITS silently becomes its first channel.
   **(2)** It reads **CD and IGNORES PC/CDELT when CD is present**. **(3)** It

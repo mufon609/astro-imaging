@@ -102,8 +102,7 @@ REMOVAL CONDITION: retire this the day an official tool reports a headless
 position-dependent photometric solution across overlapping exposures without an
 external catalogue — SCAMP's photometric mode is the candidate and is NOT
 packaged on this distro (checked: apt has no `scamp`; `source-extractor` and
-`swarp` are), or a PixInsight equivalent. Registered in BACKLOG.md
-`removal-conditions`.
+`swarp` are), or a PixInsight equivalent.
 
 REPORTS, GATES NOTHING. No thresholds, no verdict, no PASS/FAIL: it writes the
 number, its uncertainty, its lever and its n, and the reader decides.

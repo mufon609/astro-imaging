@@ -88,8 +88,7 @@
 # real 77 (identity + determinism held), not here.
 #
 # REMOVAL CONDITION: retire when Siril's compose accepts per-member weight maps or a
-# per-member region mask (a mask is the crop without the coverage cost). Registered
-# in BACKLOG `removal-conditions`.
+# per-member region mask (a mask is the crop without the coverage cost).
 set -uo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 . "$REPO/scripts/lib/member_dirs.sh"

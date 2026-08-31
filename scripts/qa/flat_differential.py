@@ -82,8 +82,7 @@ inherited from object_tilt.py, whose photometry this reuses):
 
 REMOVAL CONDITION: retire the day an official tool reports, headless, the
 position-dependent PHOTOMETRIC RATIO FIELD between two aligned exposures — i.e.
-the subtraction and the fit, not just the two flux lists. Registered in
-BACKLOG.md `removal-conditions`.
+the subtraction and the fit, not just the two flux lists.
 
 REPORTS, GATES NOTHING. No thresholds and no verdict: it writes the number, its
 uncertainty, its lever, its n, and the reader decides.

@@ -100,8 +100,7 @@ usable — 20.6 deg radius at G<=17 against TAPVizieR, killed at 600 s with no
 output); `source-extractor` 2.28.2 `-CHECKIMAGE_TYPE BACKGROUND` writes a local
 background MAP (1.7 s on a 4907x3598 stack) but compares it to nothing;
 GraXpert 3.0.2 `-bg` writes a background MODEL image; ASTAP CLI-2026.07.16
-`-analyse`/`-extract` report HFD, star counts and per-star rows. Register row in
-BACKLOG:`removal-conditions`.
+`-analyse`/`-extract` report HFD, star counts and per-star rows.
 
 SCOPE LIMITS, stated because they bound every number this prints:
  1. The predictor is degenerate with position at low order. Galactic latitude
@@ -199,7 +198,7 @@ from astropy.io import fits
 from astropy.wcs import WCS
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+from siril_run import run as siril_run   # serialized invoker
 
 TAP = "https://gea.esac.esa.int/tap-server/tap/sync"
 CHANNELS = ("Red", "Green", "Blue")
