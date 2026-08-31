@@ -233,27 +233,31 @@ OPEN:
 **Closes when** the pair is judged, the gate is replaced by ratification or re-described, and SPCC
 order-robustness is measured on one knob.
 
-## `walking-noise` — WATCHLIST (class-gated): open gap
+## `walking-noise` — an accepted property of the fixed-tripod class; one measurement remains
 
-Faint DRIFT-ALIGNED streaks visible at native 1:1 and below whole-frame statistics: a
-sensor-fixed pattern (readout FPN + residual warm pixels) dragged into lines by
-coherent un-dithered drift. Rejection and cosmetic correction both measured NULL —
-it is sub-sigma STRUCTURED signal, not discrete outliers. First quantification
-(`noise_split.sh`): drift-phase term ≈0.34/0.48/0.42 ADU (R/G/B) per ~199-frame half,
-against ≈1.0/1.5/1.2 ADU total static structure.
+Faint DRIFT-ALIGNED streaks visible at native 1:1 and below whole-frame statistics: a sensor-fixed
+pattern (readout FPN + residual warm pixels) dragged into lines by coherent un-dithered drift.
+QUANTIFIED by `noise_split.sh`, which differences time-halves against interleaved halves so the
+excess IS the drift-phase term: ≈0.34/0.48/0.42 ADU (R/G/B) per ~199-frame half, against ≈1.0/1.5/1.2
+ADU total static structure.
 
-One measured CONTRIBUTOR is gone at the source: 16-bit master darks stored a
-sensor-fixed ±0.5 ADU pattern subtracted into every light (0.2889 ADU RMS against a
-0.4213 floor, +21%), fixed chain-wide and enforced by `check_bitdepth.sh`. **Do NOT
-count that as a measured reduction** — the stack-level A/B cannot resolve it (the
-chain's run-to-run variation is ~10× the effect). Whether the streaks shrank needs
-`noise_split.sh` on a group-built pair.
+**NOT OPEN WORK — and the reason is external, not a local verdict.** Rejection and cosmetic
+correction both measured NULL here (it is sub-sigma STRUCTURED signal, not discrete outliers), and
+the field reports the same: there is no post-processing cure, *"you can only really get rid of
+walking noise with dithering"*, and the deeper advice is to cure the field drift itself. NEITHER
+remedy exists for this class — 22 of 25 tracked sets are fixed-mount, where coherent drift IS the
+imaging mode rather than a fault to cure, and dithering requires moving the mount between subs, an
+acquisition change this repo does not recommend. The levers this item used to carry (drift-axis
+pattern removal, an AI denoiser) are therefore DELETED: they chase what the field reports does not
+work, and the item already called them a bandaid of last resort.
 
-**Gated on the class recurring** (an un-dithered untracked set; dithering is the
-acquisition-side fix and removes the driver). First-contact levers: matched
-shutter-mode darks; then drift-axis-aligned pattern removal or an AI denoiser weighed
-against preservation of the unresolved starlight — a bandaid, last resort.
+One measured CONTRIBUTOR is gone at the source: 16-bit master darks stored a sensor-fixed ±0.5 ADU
+pattern subtracted into every light (0.2889 ADU RMS against a 0.4213 floor, +21%), fixed chain-wide
+and enforced by `check_bitdepth.sh`. **Do NOT count that as a measured reduction** — the stack-level
+A/B cannot resolve it, the chain's run-to-run variation being ~10× the effect.
 
+**Closes when** `noise_split.sh` runs on a group-built pair and reports whether the drift-phase term
+moved after the 16-bit dark fix. That is the one open measurement, on an instrument that exists.
 
 ## `native-solve-and-sip` — one probe left
 
