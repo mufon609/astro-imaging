@@ -7,7 +7,7 @@
  "total_moves": 4,
  "total_bytes": 734967982,
  "verification": "every source absent and every target present; FULL sha256 and bytes identical before and after the move (asserted in the same pass that moved them)",
- "disposition": "COMPARISON COMPLETE -- nothing deleted. The rebuild is PIXEL-IDENTICAL on all three FITS (0 differing of 53,164,470 values each) and the judge PNG is BYTE-IDENTICAL, so these four copies are redundant; disposal is the owner's call. Ledger: chain_rebuild_proof_aug06_set01_verdict.",
+ "disposition": "DISPOSED \u2014 owner-directed. The four copies are deleted; their identities stay in `moves` below so anyone can still verify exactly what was removed. Nothing else was touched.",
  "moves": [
   {
    "class": "stack",
@@ -45,5 +45,22 @@
    "headtail_sha256_32": "1979ac49ae6eefc3a3715bf774358e11",
    "sha256": "1133b658c0dfdb45d3037a3c666f59a8b47466daa381b72ea28711b94b9bcc18"
   }
- ]
+ ],
+ "disposed": {
+  "when": "2026-08-31 09:48:09",
+  "head_at_disposal": "ef1b5cf",
+  "n": 4,
+  "bytes": 734967982,
+  "paths": [
+   "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full.fit",
+   "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full_wcs.fit",
+   "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full_spcc.fit",
+   "web/results/aug06/_moveaside_set01_rebuild/set-01_full_spcc-linked.png",
+   "web/results/aug06/_moveaside_set01_rebuild/ (dir, rmdir'd)"
+  ],
+  "checked_before_rm": "each file confirmed UNTRACKED (git ls-files --error-unmatch returned nothing for all four; the tree is covered by .gitignore:81 /web/results/) \u2014 the same pre-rm check d83f7a8's disposal used.",
+  "why_it_was_safe": "the live products carry the content. Re-verified immediately before the rm, not taken from the earlier run: full sha256 of each live FITS equals the sha measured post-rebuild in the P1 comparison (5242429f\u2026 / 78e9b123\u2026 / 500f7b35\u2026, each recorded PIXEL-IDENTICAL at 0 differing of 53,164,470 values), and the live judge surface set-01_full_spcc-linked.png is BYTE-IDENTICAL to the approved copy that was deleted (1133b658c0dfdb45\u2026, 96,955,822 B) \u2014 so the owner's standing approval of that surface still rests on a file that is on disk.",
+  "disk": "734,967,982 B removed (du -cb before the rm). `df -h` reads 638G before and after \u2014 that is ROUNDING at GB granularity, not a failed delete; the four paths are gone and the directory is rmdir'd.",
+  "what_this_does_not_do": "it does not re-open anything about the product's QUALITY. This unit established the product is REPRODUCIBLE, not good: it still carries REGMODEL=starpair / REGUNDIS=False, and datasets/aug06/corner_work/corner_quality.json measures set-01 at roundness 0.939 -> 0.569 across rho 0.03-0.80. Per-set attribution for that band is UNSETTLED \u2014 the record predates the union-scoped closure of BACKLOG:compose-homography-smear and nothing extends that closure to the per-set products."
+ }
 }
