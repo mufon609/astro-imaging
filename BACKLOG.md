@@ -478,35 +478,34 @@ free-astro GitLab tags all agree); 1.5 is dev master. The trigger is a version b
 **Closes when** `render_tier.sh` no longer depends on a command 1.5 removes, at which point this
 becomes an ordinary adopt-on-bump list rather than a break risk.
 
-## `final-best-percent-pass` — one target, many sessions: the FINAL pass selects by measured quality — thresholds, not a percentile
+## `final-best-percent-pass` — the CROSS-SESSION final pass; the member tier already shipped
 
-The standing multi-session practice's endgame (user-ratified): after many
-~500-frame sets accumulate on one target, a FINAL pass re-selects from ALL
-sessions' data. The owner's ruling fixes its FORM: a best-N% ladder is
-a RANK rule and on an equal-quality corpus would drop N% for nothing ("consider
-what happens if ALL the images were to be the same quality … should we have cut off
-thresholds opposed to blanket cut rules?"), so the pass selects by QUALITY
-THRESHOLDS that exclude nothing on an equal corpus. MEASURED at the MEMBER tier on
-the 77-member four-night corpus (the corpus gate has fired): a PORTION threshold
-(crop a member's entry-side columns beyond the onset where FWHM(+dx) − FWHM(−dx)
-> 0.20 px — `cropT`, owner-approved) carries the gain, band 2.97 → 2.79 px at full
-depth; a FRAME threshold (exclude a member whose interior+exit-side FWHM exceeds
-the corpus's 25th percentile by > 0.20 px) is a NULL on top of it at −16.2 % of the
-frames — reported, not gated (`docs/corner-smear-member-selection.md`). **SHIPPED
-at the MEMBER tier:** the portion threshold is the chain for the corpus combine
-(`run_corpus_combine.sh --portion-rule` → `run_member_crop.sh`; the canonical
-corpus is built under it, 0 differing pixels from the owner-approved candidate;
-guarded by `datasets/corpus/baseline.json`; the selection recorded per member in
-`datasets/corpus/member_selection/<tag>_portion.json`). Unbuilt: the per-FRAME
-cross-session quality surface (per-set `frame_metrics.json` exists; nothing ranks
-or thresholds across sessions; `cullspec` excludes are per-set) — the same surface
-BACKLOG:`intake-culling` is designing at intake, and its threshold form is this
-ruling's. Selection is
-adopted only through a measured arm with a pre-registered prediction, never as a
-default.
-**Closes when** the per-FRAME surface ships the same way — a final-pass product
-from measured THRESHOLD selection at the frame tier across at least two sessions'
-data, with its per-set selection recorded.
+The standing multi-session practice's endgame (user-ratified): once many ~500-frame sets accumulate
+on ONE target, a final pass re-selects from ALL sessions' data. That cross-session scope is this
+item's whole content — the FORM and the member-tier results are homed elsewhere and are not
+restated:
+
+- **The FORM is ruled and recorded** — every pipeline rule is a QUALITY THRESHOLD that excludes
+  nothing on an equal-quality corpus, never a rank or a percentile. The owner's reasoning, verbatim
+  and in fuller form than this item ever carried it, is `docs/corner-smear-member-selection.md`
+  (the rulings list, rank-vs-threshold).
+- **The MEMBER tier is SHIPPED**, with its full arm table — sel57, crop20, cropT, the SWarp taper,
+  cropTselT, the encoded stage and the chain — in the same document. In the tree:
+  `run_corpus_combine.sh --portion-rule` → `run_member_crop.sh`, the canonical corpus built under
+  it, guarded by `datasets/corpus/baseline.json`, per-member selection recorded in
+  `datasets/corpus/member_selection/*_portion.json`.
+
+**WHAT IS ACTUALLY OPEN, and where the boundary with BACKLOG:`intake-culling` sits.** The per-FRAME
+cross-session quality surface does not exist: per-set `frame_metrics.json` does, but nothing
+thresholds ACROSS sessions and `cullspec` excludes are per-set. The two items are one surface at two
+layers and neither should describe the other's work — **`intake-culling` builds the MEASUREMENT
+layer** (one pass, every signature, per frame, at intake, each with a positive control);
+**this item is the SELECTION layer that consumes it across sessions**. Its form is already fixed by
+the ruling above, so nothing here needs designing once that surface exists.
+
+Selection is adopted only through a measured arm with a pre-registered prediction, never as a
+default. **Closes when** a final-pass product is built from measured THRESHOLD selection at the
+FRAME tier across at least two sessions' data, with its per-set selection recorded.
 
 ## `session-level-mount` — one tripod pays for up to four probes
 
