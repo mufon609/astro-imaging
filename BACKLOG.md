@@ -535,41 +535,31 @@ one measurement instead of seeding it per set.
 
 ## `per-group-flat-at-the-combine` — WATCHLIST (owner-PAUSED pending real flats): the trade is only decidable at the combine unit
 
-**PAUSED BY THE OWNER pending real flats** — the flat-residual research line is
-on hold until real flats exist to compare actual frames against the current
-synthetic masters. This is an owner decision about sequencing, NOT a
-recommendation from this repo to acquire them: the synthetic-flat route stays
-the mission and "a real flat" remains the divergence's removal CONDITION.
-Do not pick this item up before that comparison exists.
+**PAUSED BY THE OWNER pending real flats** — the flat-residual research line is on hold until real
+flats exist to compare actual frames against the current synthetic masters. This is an owner decision
+about sequencing, NOT a recommendation from this repo to acquire them: the synthetic-flat route stays
+the mission and "a real flat" remains the divergence's removal CONDITION. Do not pick this item up
+before that comparison exists.
 
-The per-group flat measurement is CLOSED at the per-set deliverable: composed
-object tilt **+0.055% ± 0.083%, 0.7σ over 1217 stars** — indistinguishable from
-zero, because the set flat already IS the mean of the group flats, so a
-plain-mean compose cannot tell them apart (cancellation measured 75–94%, refined
-from the flat-side sensor-frame arithmetic by the drift and the `-framing=min`
-crop). What per-group flats change is the MEMBER: transfer 1:1, object tilt
-moving 0.36–2.13% in x at 4.3–21.3σ, backgrounds 28–40× more consistent
-member-to-member (recorded as the mechanism's SIZE, never as evidence of better
-calibration — that is the self-fulfilling direction), and a COST of 3.271% (x) /
-4.335% (y) member-to-member object-imprint disagreement where the shipped route
-has exactly zero.
+**The measurement is CLOSED and lives in full at `docs/dead-ends/calibration-flats.md`** — the
+composed +0.055% ± 0.083% at 0.7σ over 1217 stars, why it is zero BY CONSTRUCTION, the 75–94%
+cancellation (predicted before it was measured), the 1:1 member transfer with its planted 1.007/1.077,
+the 28–40× background consistency flagged as the self-fulfilling direction, and the 3.271%/4.335%
+member-to-member object-imprint COST against exactly zero for the per-set flat. That document states
+it more completely than this item ever did and is the reference; the record is
+`datasets/july31/set-03/pergroup_work/pergroup_flat_report.json` (its member figures are the `"10"`
+subset — recomputing across all entries gives different numbers).
 
-**Why this is not optional to resolve.** The member is the cross-night COMBINE
-unit, and MEMORY's binding rule is that every calibration/model/route change is
-evaluated against the COMBINE unit, not just per-set products — measured twice
-already, per-set models smearing cross-set unions. A per-set verdict on a
-member-level trade is therefore an incomplete verdict, and the sign of the trade
-can invert at the combine: member imprints that cancel within one set need not
-cancel across nights whose skies differ.
+**WHY THIS IS NOT OPTIONAL TO RESOLVE — the part that is only here.** The member is the cross-night
+COMBINE unit, and the binding rule is that every calibration/model/route change is evaluated against
+the COMBINE unit, not just per-set products — measured twice already, per-set models smearing
+cross-set unions. A per-set verdict on a member-level trade is therefore an incomplete verdict, and
+the SIGN of the trade can invert at the combine: member imprints that cancel within one set need not
+cancel across nights whose skies differ. No instrument here can say which member calibration is
+closer to truth, so what the data cannot settle goes to the owner under the evidence gate.
 
-**Closes when** a combine-level A/B, one knob (the flat window), members from
-both arms, is judged at the combine — the level where the disagreement either
-averages away or compounds. No instrument here can say which member calibration
-is closer to truth, so anything the data cannot settle goes to the owner under
-the evidence gate. Numbers and the full trade:
-`datasets/july31/set-03/pergroup_work/pergroup_flat_report.json`,
-`docs/dead-ends.md`.
-
+**Closes when** a combine-level A/B, one knob (the flat window), members from both arms, is judged at
+the combine — the level where the disagreement either averages away or compounds.
 
 ## `lunar-ladder` — WATCHLIST (needs the next lunar capture + a PSS venv): x86 ladder remains
 
