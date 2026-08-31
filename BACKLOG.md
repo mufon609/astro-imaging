@@ -151,12 +151,21 @@ is the LADDER around it and the harness it feeds.
   what goes INTO the combine — member selection, `docs/corner-smear-member-selection.md` (the blanket trim RAN and
   is REFUTED: `docs/dead-ends/stacking-compose.md`, the frame-width-cropping entry). Adoption still gates on preserving the frame-filling UNRESOLVED STARLIGHT
   (degree 1 only; `docs/dead-ends/terminology-dust.md`, sense 2 — it is stars, not dust).
-- **L2 denoise strength** — the proven chroma killer. Objective instrument is the `noise_split.sh` structured term,
-  never whole-frame `bgnoise`. Cosmic Clarity's chroma knob saturates above 0.85 and no record says which
-  `--denoise_mode` that was measured under — the OPEN probe, with the positive control it needs, is `TOOLS.md`'s
-  Cosmic Clarity Denoise row; not duplicated here.
-- **L3 stretch ladder** — GHS/`ght` arms against the current `mtf`, compared at a
-  MATCHED background landing so curve shape is the knob, not brightness.
+- **L2 denoise strength** — the proven chroma killer. Objective instrument is the `noise_split.sh` structured
+  term, never whole-frame `bgnoise`. The SHIPPED mode is pinned and is not in doubt: `render_tier.sh:338` runs
+  `--denoise_mode separate --denoise_strength <lum> --color_denoise_strength <chroma>`. What is unknown is
+  narrower than this item used to claim — whether the historical "chroma saturates above 0.85" observation was
+  made under `separate` or under one of the other two modes. The vendor publishes no guidance to settle it
+  (setiastro.com documents only "Choose Full or Luminance and the amount", and does not mention `separate`, the
+  chroma knob, or ordering), so the CLI is richer than its documentation and the probe is ours to run. The
+  positive control it needs is `TOOLS.md`'s Cosmic Clarity Denoise row; not duplicated here.
+- **L3 stretch ladder** — GHS/`ght` arms against the current `mtf`, compared at a MATCHED background landing
+  so curve shape is the knob, not brightness. RUNNABLE TODAY, probed on the rig: `ght -D= [-B=] [-LP=] [-SP=]
+  [-HP=] [-clipmode=] [-human|-even|-independent|-sat]`, which Siril credits to the ghsastro.co.uk team. The
+  structural difference from `mtf` is what the arm tests: GHS places the contrast (`SP`) and protects both ends
+  (`HP` linear above it, vendor-named as preventing star bloat; `LP` linear below it), where `mtf` has three
+  points and no protected regions. NOTHING NEEDS DESIGNING — and nothing published settles it either: ghsastro
+  makes no comparative claim against `mtf`, so GHS's standing is adopted practice, not measured superiority.
 - **L4 thresholded `satu`.**
 - **Riders:** seed `datasets/GENERIC.json` (still the `{"render": {}, "why": {}}`
   stub) with the six current knobs and a per-knob class-risk note; per-arm output
@@ -164,9 +173,17 @@ is the LADDER around it and the harness it feeds.
   labeled sequence, both binding requirements the tier does not yet emit;
   `judgment_package.py` re-wire (its `.metrics.json` producer — the old chain's
   renderer — no longer exists; the PNG16-only surface is already enforced).
-- **Two known limits:** a set can carry only ONE ratified `render` block (keyed by
-  name), so two kept looks are not expressible; and a mono set STOPS loudly — the
-  luminance-only variant is unbuilt.
+- **An UNRECORDED DIVERGENCE in the tier's order, and it should say so.** The one firm mainstream principle
+  — noise reduction never before deconvolution, which requires linear data that has not been noise-reduced —
+  the tier SATISFIES. But mainstream removes stars AFTER the stretch, and this tier removes them BEFORE and
+  denoises the starless while linear. That is defensible and Siril-native (`starnet -stretch` applies an
+  INVERTIBLE pre-stretch precisely so a linear stack can be separated), but it is a deviation and nothing in
+  the tree records it as one. Siril's own Workflow page publishes no definitive post-stack order, so the
+  asserted order rests on community practice rather than vendor doctrine and should not be cited as the latter.
+- **One real gap:** a mono set STOPS loudly — the luminance-only variant is unbuilt. (A set carries ONE
+  `render` block, `render_tier.sh:195` reading `rec["render"]` as a single dict, so two kept looks are not
+  expressible. That is ALIGNMENT, not a limit: the published deliverable is one final per target, and an
+  approved look pins every knob.)
 
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
