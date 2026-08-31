@@ -253,6 +253,11 @@ GAS=$STACK
 MSTEM=
 
 # ---- 3. star separation (Siril starnet -> StarNet2) ------------------------
+# The `set32bits` below governs the FITS siril SAVES, not the hand-off: siril
+# autostretches, then writes StarNet2 an UNCOMPRESSED 16-bit TIFF (StarNet2
+# rejects 32-bit float outright) and reads back its LZW copy. Not a
+# no-compression breach, and no degradation is measured — mechanism and the
+# tag-level measurement are in docs/dead-ends/siril-behaviors.md.
 if [ "$SEPARATE" = 1 ]; then
   if [ "$FRESH" = 0 ] && [ -f "$W/starless.fit" ] && [ -f "$W/starless.stamp" ] \
      && [ "$(cat "$W/starless.stamp")" = "$SRCSTAMP" ]; then

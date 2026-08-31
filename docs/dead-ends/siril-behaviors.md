@@ -315,3 +315,34 @@ The defining property of this family: the output looks healthy.
   noise" vs "image weighting from image count" (nbstack); no key carries it
   (BACKLOG:`composite-header-identity`). MEASURED on the wnoise arm
   (`datasets/corpus/smear_attribution/weight_noise_arm.json`).
+
+- **SIRIL'S `starnet` HANDS STARNET2 A 16-BIT TIFF AND READS AN LZW-COMPRESSED ONE
+  BACK — and NEITHER breaches the no-compression rule. The `.ssf` pins are correct
+  and simply do not govern this file.** MEASURED by running `render_tier.sh`'s exact
+  `.ssf` shape (`setcompress 0` + `set32bits`) over a 768×768 32-bit float FITS and
+  reading the TIFF tags off the artifacts: siril logs *"32-bit per channel … is
+  active"* and four commands later *"Saving 16-bit TIFF file"*; the file siril writes
+  carries TIFF tag 259 = 1 (`COMPRESSION_NONE`), StarNet2's two outputs carry 259 = 5
+  (LZW), and siril reads them back to a 32-bit float FITS and deletes them.
+  **Why the rule does not bite — three independent reasons.** (1) Siril's own write is
+  uncompressed BY EXPLICIT ARGUMENT: `savetif(…, 16, NULL, copyright, FALSE, TRUE,
+  FALSE)` passes `tiff_compression = FALSE`, and `TIFFSetField(tif,
+  TIFFTAG_COMPRESSION, tiff_compression ? COMPRESSION_ADOBE_DEFLATE :
+  COMPRESSION_NONE)` resolves to NONE — siril's only compressed TIFF branch is
+  ADOBE_DEFLATE, so no LZW anywhere in this chain is siril's doing. (2) `setcompress`
+  governs FITS TILE compression only — its `-type=` takes `"rice"`, `"gzip1"`,
+  `"gzip2"` — so it was never the control for a TIFF and its silence here is not a
+  gap. (3) LZW is lossless (bit-identical over a 16-bit random card), and on noisy
+  16-bit data it makes the file BIGGER, so it buys nothing either way.
+  **The 16 bits are STRUCTURAL, not a siril choice:** StarNet2's README states
+  *"Unsupported input depths, including 32-bit floating-point images, are rejected"*,
+  and the depth at siril's call site is a hardcoded literal with no branch. It lands on
+  an ALREADY-STRETCHED image — siril logs *"Applying MTF autostretch to StarNet input
+  image"* BEFORE the 16-bit save — so this is not a linear stack being quantised. NO
+  degradation is measured; do not write this up as data loss without measuring one.
+  `check_bitdepth.sh` is structurally blind to it: it greps `.ssf` emitters for
+  `set16bits` and the emitter correctly pins `set32bits`. The general shape, which is
+  the durable half: the compression and bit-depth pins are enforced at `.ssf` EMISSION,
+  so every hand-off to a third-party binary is unpinned by construction; the setup layer
+  already records the input side (`x86_bootstrap.sh`, *"StarNet2 (TIFF/PNG in, not
+  FITS)"*; `manifest.tsv`, *"TIFF/PNG only"*).
