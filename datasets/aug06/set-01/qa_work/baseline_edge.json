@@ -13,85 +13,115 @@
    "ch0": {
     "mean": 38.6,
     "median": 37.5,
-    "sigma": 10.0
+    "sigma": 10.0,
+    "min": 35.5,
+    "max": 343.5
    },
    "ch1": {
     "mean": 38.8,
     "median": 37.6,
-    "sigma": 9.4
+    "sigma": 9.4,
+    "min": 36.0,
+    "max": 311.7
    },
    "ch2": {
     "mean": 38.5,
     "median": 37.4,
-    "sigma": 9.7
+    "sigma": 9.7,
+    "min": 35.2,
+    "max": 329.7
    }
   },
   "TL": {
    "ch0": {
     "mean": 38.1,
     "median": 37.1,
-    "sigma": 8.9
+    "sigma": 8.9,
+    "min": 34.1,
+    "max": 366.8
    },
    "ch1": {
     "mean": 38.1,
     "median": 37.1,
-    "sigma": 7.5
+    "sigma": 7.5,
+    "min": 35.2,
+    "max": 301.1
    },
    "ch2": {
     "mean": 37.9,
     "median": 37.1,
-    "sigma": 6.4
+    "sigma": 6.4,
+    "min": 34.5,
+    "max": 263.5
    }
   },
   "TR": {
    "ch0": {
     "mean": 37.8,
     "median": 37.2,
-    "sigma": 3.3
+    "sigma": 3.3,
+    "min": 34.6,
+    "max": 117.6
    },
    "ch1": {
     "mean": 37.9,
     "median": 37.2,
-    "sigma": 3.3
+    "sigma": 3.3,
+    "min": 35.6,
+    "max": 114.2
    },
    "ch2": {
     "mean": 37.8,
     "median": 37.2,
-    "sigma": 3.3
+    "sigma": 3.3,
+    "min": 35.1,
+    "max": 116.4
    }
   },
   "BL": {
    "ch0": {
     "mean": 37.6,
     "median": 37.3,
-    "sigma": 1.5
+    "sigma": 1.5,
+    "min": 34.8,
+    "max": 60.0
    },
    "ch1": {
     "mean": 37.7,
     "median": 37.4,
-    "sigma": 1.2
+    "sigma": 1.2,
+    "min": 35.6,
+    "max": 58.6
    },
    "ch2": {
     "mean": 37.6,
     "median": 37.4,
-    "sigma": 1.3
+    "sigma": 1.3,
+    "min": 35.1,
+    "max": 58.0
    }
   },
   "BR": {
    "ch0": {
     "mean": 38.3,
     "median": 37.3,
-    "sigma": 6.7
+    "sigma": 6.7,
+    "min": 34.7,
+    "max": 247.1
    },
    "ch1": {
     "mean": 38.3,
     "median": 37.4,
-    "sigma": 5.9
+    "sigma": 5.9,
+    "min": 35.4,
+    "max": 211.4
    },
    "ch2": {
     "mean": 38.1,
     "median": 37.3,
-    "sigma": 4.7
+    "sigma": 4.7,
+    "min": 34.6,
+    "max": 177.1
    }
   }
  }

@@ -1,0 +1,49 @@
+{
+ "_what": "MOVE-ASIDE manifest for the chain-rebuild proof on aug06/set-01 (ledger chain_rebuild_proof_aug06_set01). run_set_chain.sh SKIPS a stage whose product exists (:290 'stack exists -> skip build', :299 'judge surface exists -> skip finish'), so a rebuild is not non-destructive by default. These four accepted products are MOVED, not deleted, so the rebuild can be compared against them and NOTHING ACCEPTED IS OVERWRITTEN. Each entry carries bytes, mtime, the head+tail sha256[:32] (baseline_guard._sha's form) and a FULL sha256 -- the full hash is what makes the pixel-identity prediction P1 exact rather than sampled.",
+ "rule": "the four products run_set_chain.sh sessions/aug06 set-01 owns for route undistort-groups: STACK=$RESULTS/stack_${SET}_full.fit (:214) with its _wcs and _spcc siblings, and the judge surface finish_render.sh writes as <name>_spcc-linked.png. Group sub-stacks and masters are NOT moved -- the owner ruled scope option 1 (preflight + compose), so run_undistort_groups.sh:317 resumes on the five existing sub-stacks.",
+ "precedent": "datasets/corpus/spcc_pin_zf/moveaside_manifest.json (44 files, identities recorded, later disposed under the manifest)",
+ "head_at_move": "c28ac76",
+ "moved_at": "2026-08-31 09:09:55",
+ "total_moves": 4,
+ "total_bytes": 734967982,
+ "verification": "every source absent and every target present; FULL sha256 and bytes identical before and after the move (asserted in the same pass that moved them)",
+ "disposition": "COMPARISON COMPLETE -- nothing deleted. The rebuild is PIXEL-IDENTICAL on all three FITS (0 differing of 53,164,470 values each) and the judge PNG is BYTE-IDENTICAL, so these four copies are redundant; disposal is the owner's call. Ledger: chain_rebuild_proof_aug06_set01_verdict.",
+ "moves": [
+  {
+   "class": "stack",
+   "from": "web/results/aug06/stack_set-01_full.fit",
+   "to": "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full.fit",
+   "bytes": 212670720,
+   "mtime": "2026-08-28 15:52:12",
+   "headtail_sha256_32": "3ddde8bdb49fee14006fda76b439aa9e",
+   "sha256": "db5a192055b2c9bfe1865cab896a4100b1e33f785ae9267ddaa0df53b26427d9"
+  },
+  {
+   "class": "stack_wcs",
+   "from": "web/results/aug06/stack_set-01_full_wcs.fit",
+   "to": "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full_wcs.fit",
+   "bytes": 212670720,
+   "mtime": "2026-08-28 15:52:14",
+   "headtail_sha256_32": "6fa867036c208b42f037ffc1b6d8c6c6",
+   "sha256": "da1d8394e2bc35819dfa4a91ab8cbbab13b5b548c3fc0d34667dae01ecc2415a"
+  },
+  {
+   "class": "stack_spcc",
+   "from": "web/results/aug06/stack_set-01_full_spcc.fit",
+   "to": "web/results/aug06/_moveaside_set01_rebuild/stack_set-01_full_spcc.fit",
+   "bytes": 212670720,
+   "mtime": "2026-08-29 10:40:36",
+   "headtail_sha256_32": "d526372469872cad88a51920fbb7c471",
+   "sha256": "180fa154b18555a1f32252fd2d4f8c116a795319b66d61c879407ca9356206c2"
+  },
+  {
+   "class": "judge_png",
+   "from": "web/results/aug06/judge/set-01_full_spcc-linked.png",
+   "to": "web/results/aug06/_moveaside_set01_rebuild/set-01_full_spcc-linked.png",
+   "bytes": 96955822,
+   "mtime": "2026-08-29 10:40:39",
+   "headtail_sha256_32": "1979ac49ae6eefc3a3715bf774358e11",
+   "sha256": "1133b658c0dfdb45d3037a3c666f59a8b47466daa381b72ea28711b94b9bcc18"
+  }
+ ]
+}

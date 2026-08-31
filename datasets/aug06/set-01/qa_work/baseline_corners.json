@@ -13,85 +13,115 @@
    "ch0": {
     "mean": 38.5,
     "median": 37.2,
-    "sigma": 18.1
+    "sigma": 18.1,
+    "min": 32.4,
+    "max": 2210.8
    },
    "ch1": {
     "mean": 38.7,
     "median": 37.3,
-    "sigma": 15.8
+    "sigma": 15.8,
+    "min": 35.4,
+    "max": 1768.4
    },
    "ch2": {
     "mean": 38.4,
     "median": 37.1,
-    "sigma": 16.4
+    "sigma": 16.4,
+    "min": 34.8,
+    "max": 1851.9
    }
   },
   "TL": {
    "ch0": {
     "mean": 38.3,
     "median": 37.2,
-    "sigma": 12.2
+    "sigma": 12.2,
+    "min": 34.4,
+    "max": 1394.4
    },
    "ch1": {
     "mean": 38.4,
     "median": 37.2,
-    "sigma": 13.5
+    "sigma": 13.5,
+    "min": 34.8,
+    "max": 1566.2
    },
    "ch2": {
     "mean": 38.5,
     "median": 37.3,
-    "sigma": 16.9
+    "sigma": 16.9,
+    "min": 34.3,
+    "max": 1970.2
    }
   },
   "TR": {
    "ch0": {
     "mean": 38.1,
     "median": 37.2,
-    "sigma": 7.4
+    "sigma": 7.4,
+    "min": 34.4,
+    "max": 658.3
    },
    "ch1": {
     "mean": 38.1,
     "median": 37.2,
-    "sigma": 7.4
+    "sigma": 7.4,
+    "min": 35.2,
+    "max": 620.4
    },
    "ch2": {
     "mean": 38.1,
     "median": 37.3,
-    "sigma": 8.0
+    "sigma": 8.0,
+    "min": 34.3,
+    "max": 696.1
    }
   },
   "BL": {
    "ch0": {
     "mean": 39.0,
     "median": 37.3,
-    "sigma": 42.9
+    "sigma": 42.9,
+    "min": 34.2,
+    "max": 5658.3
    },
    "ch1": {
     "mean": 39.0,
     "median": 37.3,
-    "sigma": 42.7
+    "sigma": 42.7,
+    "min": 35.3,
+    "max": 5679.8
    },
    "ch2": {
     "mean": 39.0,
     "median": 37.3,
-    "sigma": 46.2
+    "sigma": 46.2,
+    "min": 34.7,
+    "max": 6192.4
    }
   },
   "BR": {
    "ch0": {
     "mean": 38.9,
     "median": 37.2,
-    "sigma": 31.4
+    "sigma": 31.4,
+    "min": 34.2,
+    "max": 4271.6
    },
    "ch1": {
     "mean": 38.9,
     "median": 37.2,
-    "sigma": 29.0
+    "sigma": 29.0,
+    "min": 34.6,
+    "max": 3638.8
    },
    "ch2": {
     "mean": 38.9,
     "median": 37.3,
-    "sigma": 29.7
+    "sigma": 29.7,
+    "min": 34.3,
+    "max": 3689.8
    }
   }
  }
