@@ -425,7 +425,7 @@ installed from the record (BACKLOG `removal-conditions`, fitted-lens row); the
 chain is productionised; the style's warp verified reproducible to 0.000 px.
 
 **THE GEOMETRY IS NOT THE OPEN TERM — a centred radial model already fits it.**
-Measured against an absolute catalogue (`scripts/qa/fit_ptlens_joint.py`: sep
+Measured against an absolute catalogue (`git show d2c4591:scripts/qa/fit_ptlens_joint.py`: sep
 centroids, astrometry.net solve + catalogue, 970 matched pairs over 6 frames, 2
 nights, 6 pointings), a **centred** ptlens model with a per-frame homography
 nuisance reaches a **0.27 px median** residual. A free distortion centre lands

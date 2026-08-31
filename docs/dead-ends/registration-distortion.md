@@ -231,7 +231,7 @@ Operational forms of the darktable/lensfun and ICC contracts live in
   a projection artefact.** Do not re-derive a lens model against a plate
   solution without a projective nuisance, and do not read an even-in-x
   residual as decentring until one is in the fit. Instrument:
-  `scripts/qa/fit_ptlens_joint.py`.
+  `git show d2c4591:scripts/qa/fit_ptlens_joint.py`.
 - **lensfun's `<center>` element EXISTS and WORKS in 0.3.4 — and installing
   it on top of coefficients fitted for centre=0 is a LOSS in every
   direction.** (The decentring it was chasing is dead — entry above.) The

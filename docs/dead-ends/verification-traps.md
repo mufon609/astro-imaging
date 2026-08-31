@@ -299,7 +299,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   against an ANALYTIC value, never against each other — a shared
   discretisation error is invisible to round-tripping (the measured instance's
   mechanism notes live at the implementation,
-  `datasets/aug06/corner_work/kappa_transfer.py`).
+  `git show d2c4591:datasets/aug06/corner_work/kappa_transfer.py`).
 - **A RUNNING BASH SCRIPT IS A LIVE FILE, NOT A SNAPSHOT — never edit one that
   has an invocation in flight.** bash reads a script lazily and remembers a BYTE
   OFFSET, so inserting lines ABOVE the current execution point makes it resume

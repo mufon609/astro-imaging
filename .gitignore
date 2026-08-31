@@ -128,19 +128,19 @@ __pycache__/
 !**/psf_work/*.lst
 
 # corner_work/pa_sample_a/ — record (a)'s 18 findstar lists, REBUILT FROM GIT by
-# pa_convention.py rather than copied: 9 are still tracked under psf_work/ and
+# pa_convention.py (in git history) rather than copied: 9 are still tracked under psf_work/ and
 # all 18 are in ba9a7ff, the commit that made the claim. Tracking them here would
 # duplicate 136k lines and make a git ref look like a copy.
 datasets/aug06/corner_work/pa_sample_a/
 
 # corner_work/psf_calib_work/ — the synthetic trailed-star FIXTURES (43 MB of
 # rendered frames) and Siril's star lists over them. Regenerated in full by
-# psf_calib.py; the tracked record is psf_calib.json.
+# psf_calib.py (in git history); the tracked record is psf_calib.json.
 datasets/aug06/corner_work/psf_calib_work/
 
 # drift_work/ — the per-frame drift-bearing probe. 3.3 GB of staged raws and
 # debayered frames; the .lst star lists and the .ssf ARE the record and are kept,
-# and drift_bearing.py rebuilds everything else from sessions/.
+# and drift_bearing.py (in git history) rebuilds everything else from sessions/.
 **/drift_work/*
 !**/drift_work/*.lst
 !**/drift_work/*.ssf
@@ -268,9 +268,9 @@ datasets/aug06/corner_work/psf_calib_work/
 
 # kappa_work/ — the kappa-transfer fixture: four arms x 15 synthetic 1200x1200
 # frames plus their Siril star lists and logs, 170 MB, ALL of it regenerable by
-# re-running kappa_transfer.py (which is tracked, as is its JSON record). Ignored
+# re-running kappa_transfer.py (in git history; its JSON record is tracked). Ignored
 # WHOLLY, following psf_calib_work/: a synthetic fixture's intermediates are not
-# records, and the 4.3 MB of star lists are derived from tracked code alone.
+# records, and the 4.3 MB of star lists are derived from that code alone.
 datasets/aug06/corner_work/kappa_work/
 
 # frames_work/ — the 40-frame depth arm: hard-linked raws, 40 debayered FITS

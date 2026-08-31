@@ -73,7 +73,7 @@ BACKLOG:`compose-homography-smear`).
   THAT BOTH MEASURED CORRECTLY.** Two records read the same star shapes in
   opposite directions (radial/optical vs fixed-direction/trailing); one
   instrument over both samples' own tracked `findstar` lists
-  (`datasets/aug06/corner_work/pa_convention.py`, record
+  (`git show d2c4591:datasets/aug06/corner_work/pa_convention.py`, record
   `pa_convention.json`) shows **both terms present in both samples at once**
   — radial +0.0524 / 31.1 SE beside fixed 0.0464 / 30.4 SE on the 8074-star
   sample; fixed 0.0581 / 69.6 SE beside radial +0.0395 / 51.0 SE on the 136k
