@@ -51,10 +51,9 @@ row is DELETED when it fires — that is survivorship, not inertness.
    unbuilt. **The divergence column is that guard's JOIN KEY, so every declaring
    file must be NAMED in it** — compressing three sibling scripts to "+3 siblings"
    turned the guard RED on all three, measured while writing this table.
-2. **Date the row when it was CHECKED, not when it was written.** Move the date in
-   the same edit as the evidence. Selftest-green and condition-re-probed are
-   DIFFERENT statuses — if a sweep only confirmed `--selftest`, say so and LEAVE
-   the date.
+2. **A row records WHAT was measured, never WHEN — no dates in this file; git
+   carries the order.** Selftest-green and condition-re-probed are DIFFERENT
+   statuses — if a sweep only confirmed `--selftest`, say so.
 3. **Status is the current verdict and its evidence, not a history.** Mechanism
    narrative goes to `docs/dead-ends/`, design rationale to the script's own
    docstring, numbers to their record — cite it, do not copy it. No bright-line
@@ -92,49 +91,49 @@ disjunct is unreachable and the consumer trigger is written as the primary one.
 **BACKLOG** — rule 10. A row is not a divergence count: `prebuilt-master ingest` is
 a declared NON-divergence kept as a marker.
 
-| class | divergence | retires when | last checked | status |
-|---|---|---|---|---|
-| gap | `coverage_frame.py` maximal-covered-rectangle over Siril `stat` boxes (+ `verify_framing.py --channel=`, `--regdata-dir=`/`--tag=`) | nothing cites `*_full_coverage.json` (today `datasets/corpus/baseline.json`) | 2026-08-29 | not fired — no tool proposes a rectangle. SWarp answers the canvas half; blocked on a missing `COVSCALE` card |
-| version | optics/calibration FITS stamp (`header_provenance_lines`) | darktable gains a FITS **writer** (it reads FITS at 5.4.1), or Siril `register -disto=` lands | 2026-08-22 | not fired; the backfill clause FIRED and executed 2026-08-22. Why it exists: the lensfun user DB is global unscoped machine state |
-| version | `derive_compose_ref.py` multi-night registration reference | siril picks a sequence reference by a stated order-independent rule | 2026-08-19 | not fired — siril takes INDEX 0 (`stacking-compose.md`). DETERMINISM, not quality; multi-night only |
-| version | `compose_preflight.py` + the compose's astrometric post-assert | siril refuses to register a sequence whose members carry no usable solution | 2026-08-14 | not fired — `seqplatesolve` reports nothing when members lack SIP≥2 and ships a finished-looking product (0.458 vs 0.974 roundness) |
-| version | `solve_field.py` hint-contradiction gate (exit 9) | the astrometry engine enforces a supplied position/size hint | 2026-08-20 | not fired, and it FIRES on the one measured false solve. Thresholds budgeted from mechanism, not fitted. Census 2026-08-20: 268 records / 176 solves / 34 hinted |
-| **BACKLOG** | `route.py` `DRIFT_FRAC_MIN = 0.05` | *(not a removal condition — the trigger is an A/B this project must run)* | 2026-08-14 | SELF-GATED. No knee measured; the floor is the smallest excursion at which the term is present, and the 12 sets sit 1.66x above it |
-| gap | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | not fired — siril 1.4.4 has cold/hot PIXEL correction only. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
-| version | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | not fired — `tilt` is listed by `help` and refuses in a script (`CLAUDE.md`); Siril cannot sequence one frame |
-| gap | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | not fired — `inspector` refuses in a script; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
-| gap | `shape_at_sky.py` sky-addressed `findstar` medians (combined-product acceptance) | a tool reports headless star-shape statistics for a WCS-addressed subregion | 2026-08-10 | not fired — same gap as `star_stations.py`, at SKY positions. Box placement VERIFIED per run by the tool's own per-star RA/Dec; calibrated against the recorded union A/B |
-| data | fitted lensfun entry, PINNED per lens/focal (`lens_models.json`) | an upstream lensfun entry measured for THIS unit at infinity focus | 2026-08-09 | not fired — and RE-INSTATED: the 2026-08-08 retirement is REVOKED, the per-set method refuted at its root (`TOOLS.md` darktable row). `register -disto=` is a shared-solution facility and does not retire this |
-| version | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`, enforced by `verify_lens_card.py`) | darktable honours a style's lens `op_params` | 2026-08-11 | not fired — the card check runs EVERY set: the strip is machine-local state `lensfun-update-data` reverts, and the two cheaper checks are blind to it (4219 ADU on a 30000 ADU field). Fire-tested both ways |
-| data | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-12 | not fired — the flatless route, and it works (0.40–1.17% corner spread). `sky × V` open; `--desky` is NOT the fix; MAGNITUDE UNMEASURED — the long-quoted 3.11% / 241σ has no record |
-| data | `flat_odd_component.py` odd/even decomposition + plane fit over Siril `fdiv`/`stat` | a real flat exists for the set (with `build_sky_flat.sh`), or `sky × V` is measured absent | 2026-08-14 | not fired — the flatless route is the mission and the defect is uncorrected. Load-bearing for `calibration-evidence` and the L/R-is-SKY finding (edge dipole +0.436 → 0 → −0.385) |
-| gap | `object_tilt.py` cross-match + weighted LS of magnitude against sensor position (+ `object_tilt_control.py`, `object_tilt_null.sh`, `object_tilt_corpus.py`) | nothing cites `corpus_object_tilt.json` | 2026-08-12 | not fired — UNFILLABLE on this data: SCAMP's photometric solution is one scalar per exposure (`TOOLS.md` Tier 3b). The code survives as the record of that |
-| gap | `flat_differential.py` subtraction + line fit (+2 siblings, `--regdata=`/`--nonorm`) | a tool reports the position-dependent photometric RATIO FIELD between two aligned exposures | 2026-08-12 | not fired — no Siril command compares two images photometrically by position; `fdiv`+`stat` is adopted as the primary instrument via `flat_odd_component.py`. MEASURES only. `--regdata=` is not cosmetic: `register -2pass` re-picks the reference and the calibration changes that choice (`scripts/stack/run_undistort_pipeline.sh`) |
-| gap | `grid_ramp.py` least-squares plane over Siril `stat` box medians | a tool reports a fitted low-order background ramp as NUMBERS (not a subtracted or model image) | 2026-08-12 | not fired — probed: `bg` is one scalar, `subsky` reports no coefficients, `seqtilt` is star-shape, GraXpert `-bg` and ASTAP `-analyse` report neither. REPORTS ONLY, and the fitted slope is the candidate replacement for four-corner spread; swapping an acceptance measure stays a user ratification |
-| gap | `starlight_preservation.py` per-cell floor vs Gaia catalogue regression | a tool reports catalogue-predicted vs measured background AGREEMENT (the joint, not the halves) | 2026-08-12 | not fired. BASIS NOTE: date held deliberately — the 2026-08-14 sweep confirmed only that `--selftest` passes and did NOT re-probe. MEASURES only |
-| data | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | not fired — not adopted; no pipeline script calls it. Vignetting-only fallback |
-| gap | `baseline_guard.py` corner spread + edge dipole over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-29 | not fired. A no-regression RECORD, never a quality gate; last in `run_set_chain.sh`, a regression exits 8. Owner rules: centre-median ADVISORY on a `STACKNRM` mismatch; corner ceiling warns on a CROSSING only. Blind to `sky × V` |
-| gap | `snr_regions.py` SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | 2026-08-05 | not fired — `stat`/`bgnoise` are whole-image or selection; no regional-SNR command in 1.4.4 |
-| gap | `fingerprint.py` derived trail/drift geometry | a tool reports headless trail/drift geometry with a declared-vs-measured mount cross-check | 2026-08-05 | not fired. BASIS NOTE: date held — the 2026-08-14 sweep confirmed only `--selftest`, not the tool landscape. No solver exposes inter-epoch drift rate vs sidereal |
-| gap | `inspect_stage.py` + `cull_report.py` robust-z per-frame flagging | a tool ships headless per-frame outlier flagging over its own registration metrics | 2026-08-05 | not fired — siril has `seqstat` and `select`/`unselect`, no outlier GRADING over its regdata. Persisting the tool's regdata is not a divergence and stays regardless |
-| — | prebuilt-master ingest (`run_pipeline.sh` `<session>/calib/`) | *(not a divergence — an accepted input class; it cannot fire and must not be counted)* | 2026-08-05 | STATED LIMIT: such masters carry no exposure/gain/filter headers, so the filename token is the whole identity and the exposure match is unverifiable — printed per run |
-| **BACKLOG** | 16-bit in `coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`, `run_lunar_pipeline.sh` | *(the trigger is a design change this project must make)* | 2026-08-12 | each re-verified; exemptions enforced by name in `check_bitdepth.sh`, which reports FOUR |
-| **BACKLOG** | `run_undistort_groups.sh` group composition (one extra interpolation pass) | *(the trigger is an A/B this project must run; the combine-unit disjunct is a consumer gate on `final-best-percent-pass`)* | 2026-08-29 | SELF-GATED. Second disjunct half-satisfied toward KEEPING groups (the canonical is a 77-member four-night compose). Single-pass deletes the sub-stacks the combine composes, so disk cannot retire it. Peak: `W × H × ch × 4 × 2` |
-| version | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race | 2026-07-28 | not fired — unfixed at 1.4.4, and every builder still spawns one siril-cli per step. The lock is per-USER, so it serializes across sessions. No exemption remains in `check_siril_invoke.sh` |
-| version | `scripts/lib/siril_run.sh` bounded LAUNCH retry (`SIRIL_LAUNCH_TRIES`, default 4) | this rig completes a full-session build at `SIRIL_LAUNCH_TRIES=1` with no launch failure in any siril log | 2026-08-23 | not fired — measured here, TRIGGER UNIDENTIFIED (the concurrency hypothesis is refuted). Discriminated on Siril's config-ini mtime because both failure branches exit 1; all four branches live-tested (`scripts/lib/siril_run.sh`) |
-| version | `scripts/stack/stamp_headers.sh` capture + `update_key` restore of the keys the warp drops | darktable gains a FITS **writer**, or the distortion is consumed natively (`register -disto=`) | 2026-08-14 | not fired — the blocker is the WRITE side ALONE, and this governs the shared clause wherever it appears. LIVETIME is the one derived value (n_frames × EXPTIME) because per-frame EXPTIME was destroyed upstream |
-| **BACKLOG** | `observer_frame_diversity.py` per-group epoch derivation + corpus alt/az aggregation | *(the trigger is a builder change this project must make: stamp each group's own epoch)* | 2026-08-14 | every group sub-stack carries the SET's first `DATE-OBS` while its WCS centre drifts up to 4.9 deg of RA, so the epoch must be recovered as `t0 + dRA/15.041 deg/hr` |
-| gap | `check_solve_records.py` record-vs-artifact pointing join | a tool joins a solve record's stated solution to the WCS of the file it names | 2026-08-14 | not fired — astrometry.net validates against an IMAGE, not our records. It compares against the WCS AT THE CENTRE PIXEL, never `CRVAL` (BACKLOG:`pointing-record-names-the-wrong-frame`) |
-| consumer | `scripts/darktable/cp_coverage.py` control-point radial-coverage analysis | nothing imports it (today `fit_lens_model.sh`) | 2026-08-19 | not fired. Its CLI corner-support gate-exit has NO caller, so the exit-1 path is dead in practice and the analysis is promote-path evidence |
-| version | `scripts/calibrate/spcc_cone.py` nside=2 nested ang2pix cover | siril 1.5 ships `healpix` and its pixel list matches the zenodo chunk names, or `astropy_healpix` reaches host python3 | 2026-08-19 | not fired. Clause (b), `_tan_pix2sky`, FIRED 2026-08-19 and was executed: deleted for astropy WCS from the CD alone. Bound: chunk SELECTION only — siril names any missing chunk loudly |
-| version | `scripts/stack/lens_preflight.py` pinned-model XML scan (literal a/b/c for the exact lens@focal) | lensfun/darktable expose a headless query of the installed model's coefficients | 2026-08-19 | not fired — Debian ships no lensfun query CLI (`TOOLS.md` darktable row) |
-| version | `scripts/calibrate/solve_field.py` coverage rescue rung | the astrometry.net engine accepts a detection-region constraint | 2026-08-19 | not fired. A GENERAL SAFETY NET, not the fix for the corpus starvation; fires only on NO SOLUTION or floor-class, keeps the strictly better result |
-| **BACKLOG** | `scripts/qa/member_solve_audit.py` per-set Theil-Sen scale trend + SIP-magnitude check | *(the trigger is a `solve_field.py` change this project must make)* | 2026-08-24 | not fired — basis measured: two chains carried wrong-optimum fits, and a FIXED band is wrong because refraction drifts the scale ~0.5%/night. REPORTS ONLY. Blind to the 0.1–0.2% TAN+SIP3 fit-variance floor |
-| version | `run_undistort_compose.sh` + `run_undistort_groups.sh` + `run_undistort_pipeline.sh` stack without `-output_norm` + the normalization-anchor stamp (`ANC*`, `STACKNRM`, `REGREF*`) | Siril offers a reference-anchored (or per-channel, non-min-max) output normalization | 2026-08-28 | not fired — a deviation TOWARD the linear-photometric standard; basis `stacking-compose.md`'s `-output_norm` entry (item CLOSED, owner-accepted 2026-08-29). The post-assert greps Siril's own wording and exits 4 otherwise |
-| version | `scripts/calibrate/spcc_run.py` `spcc_list oscsensor` preload + log-order assertion + database preflight | Siril loads SPCC metadata before resolving names in `do_pcc`; re-check every version bump | 2026-08-29 | not fired — mechanism and the H0 probe: `siril-behaviors.md` (a spec-less headless run resolves to index 0 of each list). Record `spcc_h0_probe.json` |
-| data | the **Nikon Z f proxy response** (`convert_curves.py` + `fetch_sources.sh`, pinned by every canonical `recipe.json`) | a curve measured on THIS body, or an upstream "Nikon Z6 III" `OSC_SENSOR` entry; re-check on every database-clone update | 2026-08-29 | not fired — a proxy by dye family, not by die, measured by no one. Pinned on the owner's H4 approval; all 22 canonical products re-calibrated. Records: `datasets/corpus/spcc_pin_zf/pin_record.json` |
-| version | `run_member_crop.sh` + `member_profile.py` (the corpus combine's MEMBER-SELECTION stage) | Siril's compose accepts per-member weight maps or a region mask | 2026-08-29 | not fired — IN THE CHAIN; the corpus canonical is built under it. Every constant lives in `datasets/corpus/recipe.json`, never a script default. SCOPE: CORPUS-ONLY, measured (`stacking-compose.md`). Stage: `docs/corner-smear-member-selection.md` |
-| version | `scripts/qa/check_site_privacy.py` observing-site guard | an off-the-shelf secret scanner carries a rule for this site AND the `site` block schema has no numeric key | 2026-08-30 | not fired — in `run_guards` and the pre-push hook; a records guard, never a gate on a product. Limits: no local config → literal scan SKIPPED aloud; tree and index only, never history; an underived form is outside its scan (`evidence-provenance.md`) |
+| class | divergence | retires when | status |
+|---|---|---|---|
+| gap | `coverage_frame.py` maximal-covered-rectangle over Siril `stat` boxes (+ `verify_framing.py --channel=`, `--regdata-dir=`/`--tag=`) | nothing cites `*_full_coverage.json` (today `datasets/corpus/baseline.json`) | not fired — no tool proposes a rectangle. SWarp answers the canvas half; blocked on a missing `COVSCALE` card |
+| version | optics/calibration FITS stamp (`header_provenance_lines`) | darktable gains a FITS **writer** (it reads FITS at 5.4.1), or Siril `register -disto=` lands | not fired; the backfill clause FIRED and was executed. Why it exists: the lensfun user DB is global unscoped machine state |
+| version | `derive_compose_ref.py` multi-night registration reference | siril picks a sequence reference by a stated order-independent rule | not fired — siril takes INDEX 0 (`stacking-compose.md`). DETERMINISM, not quality; multi-night only |
+| version | `compose_preflight.py` + the compose's astrometric post-assert | siril refuses to register a sequence whose members carry no usable solution | not fired — `seqplatesolve` reports nothing when members lack SIP≥2 and ships a finished-looking product (0.458 vs 0.974 roundness) |
+| version | `solve_field.py` hint-contradiction gate (exit 9) | the astrometry engine enforces a supplied position/size hint | not fired, and it FIRES on the one measured false solve. Thresholds budgeted from mechanism, not fitted. Census: 268 records / 176 solves / 34 hinted |
+| **BACKLOG** | `route.py` `DRIFT_FRAC_MIN = 0.05` | *(not a removal condition — the trigger is an A/B this project must run)* | SELF-GATED. No knee measured; the floor is the smallest excursion at which the term is present, and the 12 sets sit 1.66x above it |
+| gap | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | not fired — siril 1.4.4 has cold/hot PIXEL correction only. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
+| version | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | not fired — `tilt` is listed by `help` and refuses in a script (`CLAUDE.md`); Siril cannot sequence one frame |
+| gap | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | not fired — `inspector` refuses in a script; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
+| gap | `shape_at_sky.py` sky-addressed `findstar` medians (combined-product acceptance) | a tool reports headless star-shape statistics for a WCS-addressed subregion | not fired — same gap as `star_stations.py`, at SKY positions. Box placement VERIFIED per run by the tool's own per-star RA/Dec; calibrated against the recorded union A/B |
+| data | fitted lensfun entry, PINNED per lens/focal (`lens_models.json`) | an upstream lensfun entry measured for THIS unit at infinity focus | not fired — and RE-INSTATED: the earlier retirement is REVOKED, the per-set method refuted at its root (`TOOLS.md` darktable row). `register -disto=` is a shared-solution facility and does not retire this |
+| version | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`, enforced by `verify_lens_card.py`) | darktable honours a style's lens `op_params` | not fired — the card check runs EVERY set: the strip is machine-local state `lensfun-update-data` reverts, and the two cheaper checks are blind to it (4219 ADU on a 30000 ADU field). Fire-tested both ways |
+| data | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | not fired — the flatless route, and it works (0.40–1.17% corner spread). `sky × V` open; `--desky` is NOT the fix; MAGNITUDE UNMEASURED — the long-quoted 3.11% / 241σ has no record |
+| data | `flat_odd_component.py` odd/even decomposition + plane fit over Siril `fdiv`/`stat` | a real flat exists for the set (with `build_sky_flat.sh`), or `sky × V` is measured absent | not fired — the flatless route is the mission and the defect is uncorrected. Load-bearing for `calibration-evidence` and the L/R-is-SKY finding (edge dipole +0.436 → 0 → −0.385) |
+| gap | `object_tilt.py` cross-match + weighted LS of magnitude against sensor position (+ `object_tilt_control.py`, `object_tilt_null.sh`, `object_tilt_corpus.py`) | nothing cites `corpus_object_tilt.json` | not fired — UNFILLABLE on this data: SCAMP's photometric solution is one scalar per exposure (`TOOLS.md` Tier 3b). The code survives as the record of that |
+| gap | `flat_differential.py` subtraction + line fit (+2 siblings, `--regdata=`/`--nonorm`) | a tool reports the position-dependent photometric RATIO FIELD between two aligned exposures | not fired — no Siril command compares two images photometrically by position; `fdiv`+`stat` is adopted as the primary instrument via `flat_odd_component.py`. MEASURES only. `--regdata=` is not cosmetic: `register -2pass` re-picks the reference and the calibration changes that choice (`scripts/stack/run_undistort_pipeline.sh`) |
+| gap | `grid_ramp.py` least-squares plane over Siril `stat` box medians | a tool reports a fitted low-order background ramp as NUMBERS (not a subtracted or model image) | not fired — probed: `bg` is one scalar, `subsky` reports no coefficients, `seqtilt` is star-shape, GraXpert `-bg` and ASTAP `-analyse` report neither. REPORTS ONLY, and the fitted slope is the candidate replacement for four-corner spread; swapping an acceptance measure stays a user ratification |
+| gap | `starlight_preservation.py` per-cell floor vs Gaia catalogue regression | a tool reports catalogue-predicted vs measured background AGREEMENT (the joint, not the halves) | not fired. BASIS NOTE: the last sweep confirmed only that `--selftest` passes and did NOT re-probe. MEASURES only |
+| data | GraXpert `-correction Division` synthetic flat | a matching real flat exists | not fired — not adopted; no pipeline script calls it. Vignetting-only fallback |
+| gap | `baseline_guard.py` corner spread + edge dipole over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | not fired. A no-regression RECORD, never a quality gate; last in `run_set_chain.sh`, a regression exits 8. Owner rules: centre-median ADVISORY on a `STACKNRM` mismatch; corner ceiling warns on a CROSSING only. Blind to `sky × V` |
+| gap | `snr_regions.py` SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | not fired — `stat`/`bgnoise` are whole-image or selection; no regional-SNR command in 1.4.4 |
+| gap | `fingerprint.py` derived trail/drift geometry | a tool reports headless trail/drift geometry with a declared-vs-measured mount cross-check | not fired. BASIS NOTE: the last sweep confirmed only `--selftest`, not the tool landscape. No solver exposes inter-epoch drift rate vs sidereal |
+| gap | `inspect_stage.py` + `cull_report.py` robust-z per-frame flagging | a tool ships headless per-frame outlier flagging over its own registration metrics | not fired — siril has `seqstat` and `select`/`unselect`, no outlier GRADING over its regdata. Persisting the tool's regdata is not a divergence and stays regardless |
+| — | prebuilt-master ingest (`run_pipeline.sh` `<session>/calib/`) | *(not a divergence — an accepted input class; it cannot fire and must not be counted)* | STATED LIMIT: such masters carry no exposure/gain/filter headers, so the filename token is the whole identity and the exposure match is unverifiable — printed per run |
+| **BACKLOG** | 16-bit in `coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`, `run_lunar_pipeline.sh` | *(the trigger is a design change this project must make)* | each re-verified; exemptions enforced by name in `check_bitdepth.sh`, which reports FOUR |
+| **BACKLOG** | `run_undistort_groups.sh` group composition (one extra interpolation pass) | *(the trigger is an A/B this project must run; the combine-unit disjunct is a consumer gate on `final-best-percent-pass`)* | SELF-GATED. Second disjunct half-satisfied toward KEEPING groups (the canonical is a 77-member four-night compose). Single-pass deletes the sub-stacks the combine composes, so disk cannot retire it. Peak: `W × H × ch × 4 × 2` |
+| version | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race | not fired — unfixed at 1.4.4, and every builder still spawns one siril-cli per step. The lock is per-USER, so it serializes across sessions. No exemption remains in `check_siril_invoke.sh` |
+| version | `scripts/lib/siril_run.sh` bounded LAUNCH retry (`SIRIL_LAUNCH_TRIES`, default 4) | this rig completes a full-session build at `SIRIL_LAUNCH_TRIES=1` with no launch failure in any siril log | not fired — measured here, TRIGGER UNIDENTIFIED (the concurrency hypothesis is refuted). Discriminated on Siril's config-ini mtime because both failure branches exit 1; all four branches live-tested (`scripts/lib/siril_run.sh`) |
+| version | `scripts/stack/stamp_headers.sh` capture + `update_key` restore of the keys the warp drops | darktable gains a FITS **writer**, or the distortion is consumed natively (`register -disto=`) | not fired — the blocker is the WRITE side ALONE, and this governs the shared clause wherever it appears. LIVETIME is the one derived value (n_frames × EXPTIME) because per-frame EXPTIME was destroyed upstream |
+| **BACKLOG** | `observer_frame_diversity.py` per-group epoch derivation + corpus alt/az aggregation | *(the trigger is a builder change this project must make: stamp each group's own epoch)* | every group sub-stack carries the SET's first `DATE-OBS` while its WCS centre drifts up to 4.9 deg of RA, so the epoch must be recovered as `t0 + dRA/15.041 deg/hr` |
+| gap | `check_solve_records.py` record-vs-artifact pointing join | a tool joins a solve record's stated solution to the WCS of the file it names | not fired — astrometry.net validates against an IMAGE, not our records. It compares against the WCS AT THE CENTRE PIXEL, never `CRVAL` (BACKLOG:`pointing-record-names-the-wrong-frame`) |
+| consumer | `scripts/darktable/cp_coverage.py` control-point radial-coverage analysis | nothing imports it (today `fit_lens_model.sh`) | not fired. Its CLI corner-support gate-exit has NO caller, so the exit-1 path is dead in practice and the analysis is promote-path evidence |
+| version | `scripts/calibrate/spcc_cone.py` nside=2 nested ang2pix cover | siril 1.5 ships `healpix` and its pixel list matches the zenodo chunk names, or `astropy_healpix` reaches host python3 | not fired. Clause (b), `_tan_pix2sky`, FIRED and was executed: deleted for astropy WCS from the CD alone. Bound: chunk SELECTION only — siril names any missing chunk loudly |
+| version | `scripts/stack/lens_preflight.py` pinned-model XML scan (literal a/b/c for the exact lens@focal) | lensfun/darktable expose a headless query of the installed model's coefficients | not fired — Debian ships no lensfun query CLI (`TOOLS.md` darktable row) |
+| version | `scripts/calibrate/solve_field.py` coverage rescue rung | the astrometry.net engine accepts a detection-region constraint | not fired. A GENERAL SAFETY NET, not the fix for the corpus starvation; fires only on NO SOLUTION or floor-class, keeps the strictly better result |
+| **BACKLOG** | `scripts/qa/member_solve_audit.py` per-set Theil-Sen scale trend + SIP-magnitude check | *(the trigger is a `solve_field.py` change this project must make)* | not fired — basis measured: two chains carried wrong-optimum fits, and a FIXED band is wrong because refraction drifts the scale ~0.5%/night. REPORTS ONLY. Blind to the 0.1–0.2% TAN+SIP3 fit-variance floor |
+| version | `run_undistort_compose.sh` + `run_undistort_groups.sh` + `run_undistort_pipeline.sh` stack without `-output_norm` + the normalization-anchor stamp (`ANC*`, `STACKNRM`, `REGREF*`) | Siril offers a reference-anchored (or per-channel, non-min-max) output normalization | not fired — a deviation TOWARD the linear-photometric standard; basis `stacking-compose.md`'s `-output_norm` entry (item CLOSED, owner-accepted). The post-assert greps Siril's own wording and exits 4 otherwise |
+| version | `scripts/calibrate/spcc_run.py` `spcc_list oscsensor` preload + log-order assertion + database preflight | Siril loads SPCC metadata before resolving names in `do_pcc`; re-check every version bump | not fired — mechanism and the H0 probe: `siril-behaviors.md` (a spec-less headless run resolves to index 0 of each list). Record `spcc_h0_probe.json` |
+| data | the **Nikon Z f proxy response** (`convert_curves.py` + `fetch_sources.sh`, pinned by every canonical `recipe.json`) | a curve measured on THIS body, or an upstream "Nikon Z6 III" `OSC_SENSOR` entry; re-check on every database-clone update | not fired — a proxy by dye family, not by die, measured by no one. Pinned on the owner's H4 approval; all 22 canonical products re-calibrated. Records: `datasets/corpus/spcc_pin_zf/pin_record.json` |
+| version | `run_member_crop.sh` + `member_profile.py` (the corpus combine's MEMBER-SELECTION stage) | Siril's compose accepts per-member weight maps or a region mask | not fired — IN THE CHAIN; the corpus canonical is built under it. Every constant lives in `datasets/corpus/recipe.json`, never a script default. SCOPE: CORPUS-ONLY, measured (`stacking-compose.md`). Stage: `docs/corner-smear-member-selection.md` |
+| version | `scripts/qa/check_site_privacy.py` observing-site guard | an off-the-shelf secret scanner carries a rule for this site AND the `site` block schema has no numeric key | not fired — in `run_guards` and the pre-push hook; a records guard, never a gate on a product. Limits: no local config → literal scan SKIPPED aloud; tree and index only, never history; an underived form is outside its scan (`evidence-provenance.md`) |
 
 ---
 
@@ -159,13 +158,13 @@ records why it must keep it.
 UNCHECKED, logged not discharged: *"self-picked targets outperformed assigned ones"* — no counterfactual measured,
 it flatters both parties; the competing explanation is SEQUENCING (rule adopted: assign the first unit, then release).
 
-1. **Whether `BACKLOG.md` and `docs/dead-ends.md` remain TWO files — held by the owner 2026-08-16, NOT DECIDED**
+1. **Whether `BACKLOG.md` and `docs/dead-ends.md` remain TWO files — held by the owner, NOT DECIDED**
    (removing the registry is one option under consideration). Consequence meanwhile: do not RESTRUCTURE the
    registry internally (effort that may dissolve); deleting entries whose test is solved and no longer valuable
    survives either outcome — prefer the operation robust to the ruling.
 
 Owner rulings kept here because the quote is the record:
-- **The per-member trim — RULED, RAN, REFUTED; no trim ships.** Owner 2026-08-22, verbatim: trim *"each side by
+- **The per-member trim — RULED, RAN, REFUTED; no trim ships.** Owner, verbatim: trim *"each side by
   about 5% ... so the worse part of each image never makes it into the stack"*, and the mechanism, verbatim: *"the
   stars being stacked are the worse images possible"*. Outcome, numbers and ledgers:
   `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired `--crop-lr` knob)". The
@@ -184,9 +183,9 @@ CLOSED, homed: the union's band and corners are member-borne, in the photons, ni
 `docs/dead-ends/stacking-compose.md`, "THE UNION'S LEFT-BAND / BOTTOM-CORNER SMEAR IS NOT A
 REGISTRATION OR COMPOSE DEFECT" and "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK" (the
 astrometric compose is the shipped route, owner-PASSED); the decision map
-`docs/corner-smear-member-selection.md` (cropT owner-approved 2026-08-29, §5); the attribution
+`docs/corner-smear-member-selection.md` (cropT owner-approved, §5); the attribution
 records `datasets/aug09/smear_work/{smear_remarch,rho_march,rho_march_prereg}.json`; the blanket
-trim (owner-directed 2026-08-22, RAN, REFUTED — BACKLOG:`pending-owner`;
+trim (owner-directed, RAN, REFUTED — BACKLOG:`pending-owner`;
 `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired
 `--crop-lr` knob)"). Geometry: `docs/dead-ends/registration-distortion.md`, "FITTING A LENS MODEL
 AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE" (a centred ptlens model fits to a 0.27 px median;
@@ -216,7 +215,7 @@ OPEN — each settled at the COMBINE, one knob, or withdrawn with its reason:
 USER-DIRECTED. More photons are always obtainable; a bad frame stacked is permanent. Every recurring defect has a
 signature measurable per frame at intake: measure ONCE, score by a formula whose constants are visible and
 adjustable, report per frame with its reason. **The decision FORM is a THRESHOLD, not a rank or a percentile**
-(owner-ratified 2026-08-29 — BACKLOG:`final-best-percent-pass`: a rank rule cuts N% from an equal-quality corpus
+(owner-ratified — BACKLOG:`final-best-percent-pass`: a rank rule cuts N% from an equal-quality corpus
 for nothing). The shipped auto-cull already conforms — `cull_report.py` flags on robust z vs the pooled
 median/MAD, defect side only — so this is the form to extend, not to choose.
 
@@ -256,7 +255,7 @@ action per frame with its reason, and each signature has a control that demonstr
 
 The first tier is BUILT (`scripts/stack/render_tier.sh`: separate → denoise the starless → stretch →
 screen-recombine, every pixel op and every measurement a tool's, gated by a ratified `render` block; it exits 7
-without one) — and NO block is ratified: 0 of 24 tracked `recipe.json` carry one (re-measured 2026-08-30), `datasets/GENERIC.json` is the `{"render": {}, "why": {}}`
+without one) — and NO block is ratified: 0 of 24 tracked `recipe.json` carry one (re-measured), `datasets/GENERIC.json` is the `{"render": {}, "why": {}}`
 stub, and the tier has never run on this corpus (`datasets/aug06/l1_work/owner_ratification.json`). What remains
 is the LADDER around it and the harness it feeds.
 
@@ -266,7 +265,7 @@ is the LADDER around it and the harness it feeds.
   criterion, NULL on the judge surface (`docs/dead-ends/calibration-flats.md`, "PER-FRAME DEGREE-1 SUBSKY ON
   CALIBRATED LIGHTS DOES NOT REMOVE THE COMBINE'S FULL-COVERAGE-CORNER TERM"). Render-stage: per-frame vs on-stack
   degree-1 (ledger `l1_background_level_perframe_vs_onstack`) MEASURED, and the owner RATIFIED the on-stack degree-1
-  PROCESS 2026-08-13 (`datasets/aug06/l1_work/owner_ratification.json`, the reason verbatim in substance: *"approved
+  PROCESS (`datasets/aug06/l1_work/owner_ratification.json`, the reason verbatim in substance: *"approved
   NOT because the difference is easily visible but because it is NOT. Most improvements on this project have been
   obvious to the eye; this one is not, and catching it anyway is what the honest-checks system was built for."*) —
   a process, not a render block. Framing rulings (user-ratified): the framing=max union is the deliverable (manual
@@ -433,9 +432,9 @@ global PSF cannot (no field-constant trail scale on three grids:
 `datasets/aug06/corner_work/{constancy_fit,frame_depth,cfa_control}.json`);
 `docs/dead-ends/separation-deconv-psf.md`, "NO INSTALLED TOOL DELIVERS A FIELD-VARIABLE ANISOTROPIC
 PSF CORRECTION" (per-region tiling is pixel surgery, FORBIDDEN) and "PSF HOMOGENISATION — REFUSED BY
-THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed 2026-08-22, RAN,
+THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed, RAN,
 REFUTED — BACKLOG:`pending-owner`). The FIX-class route that shipped is member SELECTION (cropT,
-owner-approved 2026-08-29; `docs/corner-smear-member-selection.md`); what it cannot remove is the
+owner-approved; `docs/corner-smear-member-selection.md`); what it cannot remove is the
 lens's SYMMETRIC radial softening, and this item is about THAT. The procurement facts:
 `TOOLS.md`, Tier 5, the anisotropic row.
 
@@ -501,7 +500,7 @@ rig (already x86).
 
 The standing multi-session practice's endgame (user-ratified): after many
 ~500-frame sets accumulate on one target, a FINAL pass re-selects from ALL
-sessions' data. The owner's ruling (2026-08-29) fixes its FORM: a best-N% ladder is
+sessions' data. The owner's ruling fixes its FORM: a best-N% ladder is
 a RANK rule and on an equal-quality corpus would drop N% for nothing ("consider
 what happens if ALL the images were to be the same quality … should we have cut off
 thresholds opposed to blanket cut rules?"), so the pass selects by QUALITY
@@ -762,7 +761,7 @@ Each lands as a measured declared delta when its gate opens.
 
 ## `spcc-sensor-curve` — the Nikon Z f proxy is pinned; the B/G residual remains
 
-SHIPPED and owner-accepted 2026-08-29: the accidental index-0 response model is
+SHIPPED and owner-accepted: the accidental index-0 response model is
 retired, "Nikon Z f" is pinned in every canonical `recipe.json`, all 22 products were
 re-calibrated as a declared delta, the 17 baselines re-seeded and the 44 `_idx0_` twins
 disposed. Every number, the four-proxy comparison and the H0–H4 outcomes:
