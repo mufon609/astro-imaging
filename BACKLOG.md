@@ -138,18 +138,25 @@ a declared NON-divergence kept as a marker.
 ---
 
 
-## `standard-route-output-norm` — WATCHLIST (no tracked-mount dataset exists): the tracked-mount route still stacks with `-output_norm`
+## `standard-route-output-norm` — WATCHLIST (gated on tracked-mount raws being staged): the tracked-mount route still stacks with `-output_norm`
 
-`run_pipeline.sh` (×3 light stacks via `$STACKPOL`) and `scripts/stack/siril/lights.ssf.tmpl:37`
-carry `-norm=addscale -output_norm`, the global min-max rescale the undistort route retired
-(mechanism + the shipped design: `docs/dead-ends/stacking-compose.md`, the `-output_norm`
-zero-point entry). The route is untested by that closure: no current dataset is tracked-mount,
-so it has no product to declare a delta on. Work, when a tracked set exists: the same shape as
-the undistort tiers — drop the flag, assert Siril's own "Output normalization ...... disabled"
-line, stamp `STACKNRM`/`ANC*`/`REGREF` (the standard route stamps nothing today —
-`docs/combine-contract.md`:179, BACKLOG:`composite-header-identity`'s open (e)), guard advisory under the
-STACKNRM change; one product, pre-registered as the undistort tiers were. Removal condition:
-the same as the undistort rows' (Siril offering a reference-anchored output normalization).
+`run_pipeline.sh:331,333,348` (×3 light stacks via `$STACKPOL`) and
+`scripts/stack/siril/lights.ssf.tmpl:37` carry `-norm=addscale -output_norm`, the global min-max
+rescale the undistort route retired (mechanism + the shipped design:
+`docs/dead-ends/stacking-compose.md`, the `-output_norm` zero-point entry). The route is LIVE —
+`run_set_chain.sh:773` dispatches it, `route.py:169` sends every tracked mount there — and it HAS
+been exercised: `datasets/colonnello-m20/lights_Red/fingerprint.json` records `"route": "standard"`
+for a tracked ASI/Takahashi set (three filter sets, 1150 mm, 0.682 ″/px, 15 frames each) whose
+composed product's records survive under `m20_rgb/`. What blocks a delta is that those raws are no
+longer staged under `sessions/`; every session that still has staged raws is fixed-mount.
+
+Work, when tracked raws are staged: the same shape as the undistort tiers — drop the flag, assert
+Siril's own "Output normalization ...... disabled" line, stamp `STACKNRM`/`ANC*`/`REGREF` (the
+standard route stamps none of the three — measured 0 occurrences against 10 in
+`run_undistort_compose.sh`; `docs/combine-contract.md`:179,
+BACKLOG:`composite-header-identity`'s open (e)), guard advisory under the STACKNRM change; one
+product, pre-registered as the undistort tiers were. Removal condition: the same as the undistort
+rows' (Siril offering a reference-anchored output normalization).
 **Closes when** the standard route ships without `-output_norm` on a measured product, or
 records why it must keep it.
 
