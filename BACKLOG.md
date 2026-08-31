@@ -259,17 +259,30 @@ A/B cannot resolve it, the chain's run-to-run variation being ~10× the effect.
 **Closes when** `noise_split.sh` runs on a group-built pair and reports whether the drift-phase term
 moved after the 16-bit dark fix. That is the one open measurement, on an instrument that exists.
 
-## `native-solve-and-sip` — one probe left
+## `native-solve-and-sip` — one probe, and a PASS RETIRES an external dependency
 
-- **`platesolve -localasnet` on the mildly-trailed class** — D: one stack, one probe, either verdict recorded. The
-  dead end was measured at roundness 0.615 (`docs/dead-ends/plate-solving-wcs.md`, "Siril's internal solver fails
-  ultra-wide TRAILED fields" — `-localasnet` still feeds Siril's own `findstar` detection); the class is on the rig
-  (set-01 roundness medians 0.786–0.852, `qa_work/frame_metrics.json`; july27/set-01 at 0.786 substitutes for the
-  departed july23's 0.80). A pass gives `solve_field.py` a native sibling for this class, the external route staying
-  for heavily-trailed data; the bracket is `docs/x86-empirical-test-plan.md`, Phase 3.
-- `register -disto=master` — UNDETERMINED: the probe is specified in `docs/dead-ends/registration-distortion.md`, "A
-  STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS WORSE THAN THE SHIPPED ROUTE". The
-  SCAMP/SWarp successor is BACKLOG:`compose-homography-smear`.
+- **Can a native solve retire `solve_field.py` on the mildly-trailed class?** This discharges a
+  hypothesis CLAUDE.md names as its own worked example of "nothing is final until it is empirically
+  tested": *"native Siril solve was mechanism-verified not to replace `solve_field.py` for trailed
+  fields — but that is provisional until the x86 empirical test runs"*. Until it runs, the repo
+  asserts that provisionally while maintaining the external venv route on its strength.
+  The test is ALREADY SPECIFIED — three arms, one stack, pass criterion "(a) is the baseline; retire
+  only if (c) matches" — at `docs/x86-empirical-test-plan.md`, Phase 3 remainder; not restated here.
+  Two things worth carrying into the run, because this item previously understated both: arm (c) is
+  `platesolve -localasnet -blindpos -blindres` WITH `setfindstar -relax=on -roundness=0.1
+  -maxR=large`, and that detection relaxation is aimed squarely at the stated blocker (`-localasnet`
+  feeds Siril's own `findstar`, which is why the dead end measured roundness 0.615 —
+  `docs/dead-ends/plate-solving-wcs.md`, "Siril's internal solver fails ultra-wide TRAILED fields");
+  and arm (b) is ASTAP, a second candidate this item omitted entirely. All three commands exist on
+  the rig — `platesolve` in 1.4.4 carries `[-localasnet [-blindpos] [-blindres]]`, probed.
+  The class is present: july27/set-01 at roundness 0.786 (`qa_work/frame_metrics.json`) substitutes
+  for the departed july23's 0.80.
+- `register -disto=master` — UNDETERMINED, and distinct from the `-disto=` TRIGGER that has already
+  landed: the option shipped in Siril 1.4.0 and 1.4.4 carries it on both `register` and `platesolve`,
+  but the SIP form was measured a LOSS here (majFWHM 4.74 → 6.02 px), and `-disto=master`
+  specifically is unprobed. The probe is specified in `docs/dead-ends/registration-distortion.md`,
+  "A STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS WORSE THAN THE SHIPPED
+  ROUTE".
 
 ## `one-sided-band` — one unattributed radial term
 
