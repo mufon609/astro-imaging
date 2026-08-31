@@ -284,32 +284,46 @@ moved after the 16-bit dark fix. That is the one open measurement, on an instrum
   "A STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS WORSE THAN THE SHIPPED
   ROUTE".
 
-## `one-sided-band` — one unattributed radial term
+## `one-sided-band` — one unattributed radial term; the STATUS HOME nine docs point at
 
 CLOSED, homed: the term is in single raws and no chain stage causes it —
 `docs/dead-ends/star-shape-optics.md`, "THE ONE-SIDED STAR-SHAPE GRADIENT IS IN THE
 OPTICS-AND-PHOTONS OF A SINGLE EXPOSURE", "THE THREE-LEVEL SEPARATOR", "ON A RECTILINEAR LENS
 THE PLATE SCALE IS NOT ONE NUMBER" (18 % to the gnomonic scale; the remainder at 5.9 SE), "AN
 ELLIPTICITY EXPONENT IS NOT A BLUR EXPONENT", and "THE ONE-SIDED RADIAL TERM'S CANDIDATE
-FAMILIES AND THEIR DISCRIMINATORS ARE DOCTRINE" (the table, the astigmatism × defocus falsifier,
-the altitude bound, the centre commensurability); the union's band → BACKLOG:`compose-homography-smear`.
-Records: `datasets/aug06/corner_work/` — `coherent_trail_bins.json` (trail ratio 0.3502, the
-predicted ZP deficit 0.570), `phot_work/zero_point.json` (the structural degeneracy),
-`cfa_control.json` (the CFA-axis arm, non-attributing by pre-declared design), `pa_convention.json`;
-ledger `corner_radial_term_family_and_centre`.
+FAMILIES AND THEIR DISCRIMINATORS ARE DOCTRINE"; the union's band →
+BACKLOG:`compose-homography-smear`. Records: `datasets/aug06/corner_work/` —
+`coherent_trail_bins.json` (trail ratio 0.3502, predicted ZP deficit 0.570),
+`phot_work/zero_point.json`, `cfa_control.json`, `pa_convention.json`; ledger
+`corner_radial_term_family_and_centre`.
 
-OPEN:
-1. The residual RADIAL term's family — N: coma-consistent, astigmatism not reached, the
-   radial↔tangential sign flip absent; no installed instrument separates them here.
-2. Unrun discriminators — D: per-Bayer-channel ellipticity (greens identified FROM THE DATA,
-   `TOOLS.md`); whether the ±2400 FWHM asymmetry (night-ordered per-set medians −0.070 … +0.472 px,
-   `datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_portion.json`) is the odd
-   ELLIPTICITY term — a per-set roundness asymmetry from `datasets/corpus/member_selection/profiles.json`
-   `top30_round`, no new run. Cross-session altitude (atmospheric / gravity) — N, the lever
-   unquantified at 63–88°.
+**THE FAMILY CANNOT BE ATTRIBUTED BY ANYTHING INSTALLED, and that is the item's real state.** Coma-
+consistent, astigmatism not reached, the radial↔tangential sign flip absent — and no installed
+instrument separates them. The wider field reports the same limit rather than a gap in this repo:
+corner stars are too scarce to constrain a rapidly-varying corner PSF. So "attributed" is not a
+condition this rig can meet on its own, and the item must not be read as scheduling that.
 
-**Closes when** the residual radial term is attributed, or a route ships that holds the corner at
-the clean band's star shape on the owner's eyes (U).
+WHAT IS ACTUALLY REACHABLE — three threads, all cheap, and this item had LOST all three while
+`docs/untracked-widefield-standards.md` §H.3/§H.5 went on citing them:
+1. **The decentring-model blocker is ANSWERED.** lensfun's `acm` (Adobe Camera Model) carries
+   Brown's decentring pair as `k4`,`k5`, but it is ABSENT from the installed 0.3.4 — MEASURED,
+   0 occurrences of ACM in `liblensfun.so` against 7 for poly3/poly5/ptlens — and appears only at
+   v0.3.95, implemented in the CORRECTING direction only, which is the direction darktable needs.
+   So it is a version wait, not a design blocker (§H.3).
+2. **Read `d,e` out of the existing `lens_fit.json` records** — FREE, it sizes the asymmetric term
+   from data already on disk before any new fit is commissioned (§H.3.2).
+3. **The `lensdist` vs `nodist` arm**, one knob, both styles pinned in-repo
+   (`scripts/darktable/{lensdist,nodist}.dtstyle`) — it separates the model from everything else.
+   Re-derive the drift rate first (§H.4); it is an input to the arm and to the discriminator, which
+   is defined in units of drift span.
+
+The unrun per-set discriminator (whether the ±2400 FWHM asymmetry is the odd ELLIPTICITY term) reads
+`top30_round` from `datasets/corpus/member_selection/profiles.json` — the data is there, 693 entries
+— but running it means WRITING A NEW IN-HOUSE ANALYSIS, the class this repo has just retired. It is
+recorded as available, not as scheduled.
+
+**Closes when** threads 1–3 are read out, or the term is registered as an accepted, characterised
+property of this lens. A REMEDY is not this item's business — that is BACKLOG:`corner-fix-landscape`.
 
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
