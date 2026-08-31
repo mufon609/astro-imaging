@@ -230,6 +230,18 @@ the constraints any such tool must satisfy):
   separate them — measured, the flat's corner/centre went 0.513–0.563 to
   **0.937–1.006**, the vignetting profile erased entirely. No degree of
   `subsky` on un-flat-fielded frames is safe.
+  **SCOPE — what this entry does NOT close.** Its verdict is a DOMAIN error, so
+  it closes the ADDITIVE form on un-flat-fielded frames and nothing wider. The
+  published treatment for this exact defect removes the gradient from each
+  flat-field FRAME before combination, a different operation in a different
+  domain, and it has never been tried here: arXiv 1407.8283, "Problems with
+  twilight/supersky flat-field for wide-field robotic telescopes and the
+  solution", reports *"various approaches to remove the varying gradients in
+  individual flat-field images"* reaching *"the negligible level"*, on a field
+  that still carries *"a gradient of 1% across ... 4.3 square degrees"* at the
+  null point. The technique is not in the abstract; read the paper before
+  acting. Gated meanwhile by the owner's flat-residual PAUSE
+  (BACKLOG:`per-group-flat-at-the-combine`).
   **WHY NO GUARD CAUGHT IT — read before adding a validation suite.** The
   shipping commit's own validation READ THE REGRESSION'S SIGNATURE AS A WIN: a
   partial sign inversion makes a whole-frame odd-plane fit cancel, so "odd

@@ -188,7 +188,7 @@ is the LADDER around it and the harness it feeds.
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
 
-## `calibration-evidence` — three live threads; the rest is closed and lives in the registry
+## `calibration-evidence` — the sky-flat defect is real and PUBLISHED; two of its three threads ride the owner's pause
 
 OPEN DEFECT, mechanism homed: a sky flat converges to `sky × V`, so the object carries the sky's spatial
 profile — `docs/dead-ends/calibration-flats.md`: "A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE
@@ -196,20 +196,39 @@ ALT-AZ FRAME"; "DEAD END — `--desky`" (a 31× regression, reverted); "THE FLAT
 DELIVERED OBJECT ESSENTIALLY 1:1" (the differential delivers the transfer function, not the LEVEL); "A
 FOUR-CORNER BOX METRIC IS NOT A GRADIENT MEASURE ON A STRUCTURED FIELD".
 
+**FENCED: threads 1 and 2 sit inside the flat-residual line the owner PAUSED pending real flats**
+(BACKLOG:`per-group-flat-at-the-combine` carries the pause and its reason). This item did not say so, and a
+session could have picked up thread 1 without ever seeing the pause. Thread 3 is SPCC ordering and is outside it.
+
+**STANDARDS-FIRST, UNAPPLIED — the defect is PUBLISHED and the repo cites none of it.** arXiv 1407.8283,
+*"Problems with twilight/supersky flat-field for wide-field robotic telescopes and the solution"*: even at the
+null point *"there is still a gradient of 1% across AST3's field-of-view of 4.3 square degrees"*; the authors
+*"tested various approaches to remove the varying gradients in individual flat-field images"* and conclude *"the
+final optimal method can reduce the spatially dependent errors caused by the gradient to the negligible level"*.
+See also Chromey & Hasselbacher 1996, "The Flat Sky" (10.1086/133817). **The technique is NOT in the abstract —
+read the paper before acting on this.**
+
+**THE `--desky` DEAD END IS NARROWER THAN IT READS, by its own mechanism.** It ran `seqsubsky` on the sky flat's
+RAW source frames, subtracting an ADDITIVE plane from a field that is `sky × V`, and the entry's own verdict is
+*"a domain error, not a tuning error"*. The published method removes the gradient from each flat-field FRAME
+before combination — a different operation in a different domain. The dead end therefore closes the ADDITIVE
+form on raw frames; it does not close gradient removal, and the standard form has never been tried here.
+
 OPEN:
-1. The with/without judgement pair on finals — U, blocked on BACKLOG:`render-ladder` (`render_tier.sh` exits 7
-   without a ratified `render` block). The difference is MEASURED at −22.5 % of object flux; which arm preserves
-   unresolved starlight is the owner's eyes. The arms' FITS were freed (`datasets/corpus/rig_cleanup_record.json`),
-   the records are `datasets/aug09/set-05/flatdiff_work/*.json`, and rebuilding the production-normalization pair
-   `arm_{An,Bn}.fit` (skyflat_set-05 vs skyflat_set-01, 125 frames each, registration pinned — the pair to judge)
-   is part of the cost.
-2. `build_sky_flat.sh`'s corner-vs-centre gate is self-fulfilling for this defect and under-claims (it records both
-   edge dipoles beside it); the candidate replacement `scripts/qa/grid_ramp.py` fits the ramp as coefficients —
-   swapping an acceptance measure is a USER RATIFICATION (U): a proposal to the owner, not a change to make.
-3. SPCC order-robustness — D: a background step ahead of SPCC moved K_G −1.20 %/−1.48 % and K_B −0.47 %/−0.80 %
-   on unchanged star counts (chain K scatter 0.006), confounded by the de-skied arm's real ~3 % object tilt
-   (`datasets/aug06/set-03/qa_work/spcc_set-03_set-01+02+03_full{,_subsky1}.json`); the clean test is the SAME
-   stack with and without an on-stack background step only.
+1. The with/without judgement pair on finals — the OWNER'S EYES, blocked twice: on BACKLOG:`render-ladder`
+   (`render_tier.sh` exits 7 without a ratified block) and on the pause above. The difference is MEASURED at
+   −22.5 % of object flux; which arm preserves unresolved starlight is not measurable here. The arms' FITS were
+   freed (`datasets/corpus/rig_cleanup_record.json`), the records are `datasets/aug09/set-05/flatdiff_work/*.json`
+   (19 of them), and rebuilding the production-normalization pair `arm_{An,Bn}.fit` (skyflat_set-05 vs
+   skyflat_set-01, 125 frames each, registration pinned) is part of the cost.
+2. `build_sky_flat.sh`'s corner-vs-centre gate is self-fulfilling for this defect and under-claims (it records
+   both edge dipoles beside it); the candidate replacement `scripts/qa/grid_ramp.py` fits the ramp as
+   coefficients. Swapping an acceptance measure is a USER RATIFICATION — a proposal to the owner, never a change
+   to make — and it rides the pause.
+3. SPCC order-robustness, NOT fenced by the pause — a background step ahead of SPCC moved K_G −1.20 %/−1.48 %
+   and K_B −0.47 %/−0.80 % on unchanged star counts (chain K scatter 0.006), confounded by the de-skied arm's
+   real ~3 % object tilt (`datasets/aug06/set-03/qa_work/spcc_set-03_set-01+02+03_full{,_subsky1}.json`); the
+   clean test is the SAME stack with and without an on-stack background step only.
 
 **Closes when** the pair is judged, the gate is replaced by ratification or re-described, and SPCC
 order-robustness is measured on one knob.
