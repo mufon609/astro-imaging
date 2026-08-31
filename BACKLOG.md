@@ -327,47 +327,47 @@ property of this lens. A REMEDY is not this item's business — that is BACKLOG:
 
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
-Two independent traps, both MEASURED, both of which have already misled a session
-each. Neither corrupts a shipped product — nothing on the build path consumes
-either quantity as a pointing — but both are silent and both invite the same
-mistake.
+Two traps, both real, neither corrupting a shipped product — nothing on the build path consumes
+either quantity as a pointing — but both silent and both inviting the same mistake. **The fuller
+statement of both already lives in `scripts/setup/site_verification.json`**, which states them
+together ("THE TREE CARRIES THREE DIFFERENT 'CENTRES' AND THEY DISAGREE BY UP TO 3.2 deg") and is
+the better record; this item is the queue entry, not the explanation.
 
-**1. `fingerprint.field_center` is the FIRST FRAME's solve, not the set's
-pointing.** MEASURED: it equals `mount_probe.json`'s `solve_a` to machine
-precision in all three sets checked, and the probe's window is the FIRST frame of
-the longest contiguous capture run. A fixed mount sweeps RA through the set, so
-the field's RA at the set MIDPOINT is higher — and the record is therefore
-systematically LOW by about half a set span:
+**1. `fingerprint.field_center` is the FIRST FRAME's solve, not the set's pointing.** MEASURED and
+still true: it equals `mount_probe.json`'s `solve_a` to every digit in all three sets checked
+(302.945 / 306.727 / 308.558), and the probe's window is the FIRST frame of the longest contiguous
+run. A fixed camera holds a fixed alt-az direction whose RA rises at ~15.041°/hr, so the first frame
+is always the LOWEST and the record is systematically low by about half a set's RA span — re-measured
+against current products, −3.733 / −3.719 / −5.311° for aug06/set-01, aug09/set-01, july31/set-01.
+The sign is forced by the geometry, not a coincidence.
+**The name is not the defect — the SCOPE is.** "Field center" is astrometry.net's own term for one
+exposure's solved centre (verbatim in `solve-field`), and the record holds exactly that; what is
+missing is that it sits in a per-SET record. So `first_frame_center` is the right rename because it
+keeps the tool's noun and supplies the scope. No external vocabulary exists for a set-level centre.
 
-| set | first (`field_center`) | midpoint | authoritative (`OBJCTRA`) | first − auth | mid − auth |
-|---|---|---|---|---|---|
-| aug06/set-01 | 302.945 | 306.054 | 306.653 | **−3.708** | −0.599 |
-| aug09/set-01 | 306.727 | 309.840 | 309.703 | **−2.977** | +0.136 |
-| july31/set-01 | 308.558 | 312.399 | 312.856 | **−4.298** | −0.457 |
+**2. `CRVAL1/2` is the WCS TANGENT POINT, and the FITS standard says so.** Greisen & Calabretta 2002
+(Paper I, astro-ph/0207407) §2.1.4: *"the reference point location need not be integer nor need it
+even occur within the image"*. So this is a DOCUMENTED property, not a local discovery — CRVAL is the
+world coordinate at the reference point and CRPIX says where that point sits, neither defined against
+the image centre. MEASURED over 84 products carrying both: CRPIX sits **21.7–1354.4 px** from the
+image centre, and the repeat is the tell — `(306.62, 42.00)` serves 12 products across aug06/aug09/
+aug14 and `(310.62, 43.24)` serves 12 across aug09/aug14/july31. A quantity repeating across
+unrelated pointings on three separate nights is not a pointing.
 
-Always negative, never positive, and about half the 6.22 / 6.23 / 7.68° RA span
-each set sweeps. The NAME is what causes the error — "field_center" reads as the
-field's centre. **Consumers: none on the build path** (grep finds only
-`fingerprint.py` itself and `verify_site.py`), so this is a naming/semantics
-defect rather than a corrupted product. It has nonetheless misled two readers in
-one session, including this manager.
+**WHAT IS AUTHORITATIVE — and the item previously got this backwards.** The standard pointing keyword
+is `RA_PNT`/`DEC_PNT` (HEASARC dictionary: *"the Right Ascension of the pointing direction"*), and it
+is ABSENT from every product here — measured. `OBJCTRA`/`OBJCTDEC` are not standard keywords at all
+and by convention name the OBJECT, so their close agreement with the field centre is EMPIRICAL, not
+definitional, and holds only while the object is centred. **The primary is therefore the full WCS
+solution evaluated at the CENTRAL PIXEL** — which is what astrometry.net itself reports as a field
+centre — with `OBJCTRA` as a cross-check, never the authority.
 
-**2. `CRVAL1/2` is the WCS TANGENT POINT and on these solves it is nowhere near
-the pointing.** MEASURED across 13 products: **CRPIX sits 40–960 px from the
-image centre**, and **CRVAL REPEATS across different sets and different nights** —
-five discrete values serve all 13 products (306.62/42.00 covers july31/set-02,
-aug06/set-03 and aug09/set-03; 310.62/43.24 covers aug06/set-02, aug09/set-01,
-aug09/set-05 and july31/set-04). A quantity that repeats across unrelated
-pointings is not a pointing. Reading it as one costs up to **3°**.
-
-**What IS authoritative: the full solution evaluated at the central pixel**, which
-is the pointing by construction — and `OBJCTRA`/`OBJCTDEC` reproduces it to
-0.000–0.031° on 7 of 9 products (0.13–0.18° on the other two). Use `OBJCTRA`, or
-evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
-
-**Closes when** `field_center` is either renamed to what it is
-(`first_frame_center`) or computed as the set's actual pointing, and the two
-`docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
+**Closes when** `field_center` is renamed to `first_frame_center` (or computed as the set's actual
+pointing). Scope, measured, because "a two-file edit" understates it: NOTHING reads the key by string
+— the only code site is the writer `fingerprint.py:312`, and `verify_site.py`'s two hits are prose —
+but 25 of 25 tracked `fingerprint.json` carry it, and they regenerate LAZILY (the writer rewrites only
+on a whole-dict change), so the tree holds a mixed population until every set re-runs, and a set never
+re-run keeps the old key. About six sites plus that migration.
 
 ## `corner-fix-landscape` — procurement or acceptance
 
