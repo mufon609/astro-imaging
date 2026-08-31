@@ -390,3 +390,17 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   entirely. This is the paste rule one level up: **before quoting a figure in a
   record, a row or a docstring, open the record and FIND it.** A figure that
   exists only in prose is a result that was not recorded.
+  **AND THE RULE HAS A BLIND SPOT AT THE MOMENT OF HOMING, WHICH IS WHEN THIS
+  REPO MOVES NUMBERS MOST.** "Open the record and find it" assumes a record
+  exists to compare against. When a fact is being HOMED — copied out of a doc
+  that is about to be deleted — the copy you are writing becomes the ONLY copy,
+  and comparison stops being available in the same instant. MEASURED, in the
+  commit that homed three facts at once: a `DATASUM` birthday bound was written
+  as "~3e-8 at 24 masters" against a true 6.4e-8, because it had been SCALED by
+  ~(24/19)² off a parent that was itself wrong ("~2e-8 at 19" against a true
+  4.0e-8) instead of evaluated from the expression the sentence itself states.
+  Both copies were wrong, so no comparison could have caught it; only
+  recomputation did, at audit. **So: evaluate a number from its own stated
+  formula in the same operation that writes it, and state the denominator
+  (rule 5) so the next reader can re-derive rather than re-compare.** A
+  derived figure that inherits its parent's error reads as freshly computed.
