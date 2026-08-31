@@ -604,16 +604,31 @@ Class facts, records and the full mechanism set live in
 (registration/aliasing/seq-hygiene/quality entries + the acquisition checklist's lunar block),
 `datasets/july26/` (ledgers with every verdict), and the builder's own docstring.
 
-## `web-culled-frames` — one surface for every excluded frame
+## `web-culled-frames` — one surface for every excluded frame; the DATA LAYER IS ALREADY DONE
 
-USER-ORDERED: the Sky Objects section becomes **Culled Frames**, the single
-examination surface for every frame the pipeline excluded, grouped by CAUSE — sky
-objects (anomaly audit) as one subset, frame-QA defect-side auto-culls as another,
-hand-ratified `recipe.json` excludes as a third. Each entry shows frame + sequence n,
-set, cause with its metrics, and the record it traces to. The existing culled rollup
-MERGES into it. Selection surfaces only — any per-frame preview is Siril-made.
-**Closes when** after a chain run with auto-culls the page lists every excluded frame
-under its cause and the separate Sky Objects entry is gone from the grouped rail.
+USER-ORDERED: the Sky Objects section becomes **Culled Frames**, the single examination surface for
+every frame the pipeline excluded, grouped by CAUSE — sky objects (anomaly audit) as one subset,
+frame-QA defect-side auto-culls as another, hand-ratified `recipe.json` excludes as a third. Each
+entry shows frame + sequence n, set, cause with its metrics, and the record it traces to. The
+existing culled rollup MERGES into it. Selection surfaces only — any per-frame preview is Siril-made.
+
+**SCOPE, MEASURED, because this reads like plumbing and is not.** All three causes are ALREADY on
+the per-set model `serve.py` hands the front end: `"anomaly"` from `audit_work/anomaly_audit.json`
+(`serve.py:431`), `"flagged"` from the frame-QA record (`:219`, and `_norm_frame_qa` already
+normalises both historical spellings — `flagged_defect_side_z3p5` from set-01 and
+`flagged_defect_side_z` from later sets — so no schema migration), and `"recipe"` → `.exclude`
+(`:426`). **NO `serve.py` CHANGE AND NO NEW RECORD ARE NEEDED.**
+
+What the existing rollup covers is ONE of the three: `index.html:174`,
+`const culledIds = s => ((s.recipe || {}).exclude) || []` — hand-ratified excludes only, and it is
+read at 8 sites in that file. The work is `web/index.html` alone: widen `culledIds` to union the
+three sources with a cause tag, merge `totals.culled`/`totals.objects` (:326), group the `#culled`
+table and give it per-cause metric columns, and delete the `sky objects` card (:414-416) with its
+`#objects` route. Known limit already recorded in place (:704): thumbnails for culled frames need
+raws re-staged, so the surface stays selection-only.
+
+**Closes when** after a chain run with auto-culls the page lists every excluded frame under its
+cause and the separate Sky Objects entry is gone from the grouped rail.
 
 ## `framing-radec` — reproduce a drawn frame after a stack rebuild
 
