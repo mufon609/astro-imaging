@@ -19,10 +19,12 @@ script in `free-astro/siril-scripts` implements it as `merge … all_sessions` �
 calibration per session, registration and integration across all of them
 (community-sourced; the vendor announcement pages are unreachable from this rig).
 **The measured constraint that forces the deviation is §0.2 below** — one sequence
-spanning nights would need ONE distortion model, and a shared model puts the same
-star 4.07 px apart across nights against a 0.14-0.19 px within-set floor. This repo
-therefore integrates per set/group and composes the sub-stacks astrometrically,
-each under its own correct model. The full stage-by-stage comparison is
+spanning nights would need ONE distortion model, and §0.2 measures a shared model
+putting the same star **4.07 px** apart across nights. The floor that 4.07 is
+against is NOT in §0.2 and is cited separately here: the member-separation ladder
+in `run_undistort_compose.sh`'s docstring reads **0.14 / 0.19 px** for "same set,
+same model, same state". This repo therefore integrates per set/group and
+composes the sub-stacks astrometrically, each under its own correct model. The full stage-by-stage comparison is
 [`stacking-vs-official-pipelines.md`](stacking-vs-official-pipelines.md) §B.
 
 ## 0. The two measured facts everything here rests on
