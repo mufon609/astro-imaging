@@ -409,26 +409,41 @@ OPEN — and both are the owner's, neither is research:
 **Closes when** BXT is trialled on a real corner or the corner is accepted as-is, and `-noclamp`'s
 ringing is measured against its known cost.
 
-## `resample-cost-and-drizzle` — the clamp is the resample cost, and it is a pinned trade
+## `resample-cost-and-drizzle` — the clamp is the resample cost and a pinned trade; drizzle is DECIDED OUT
 
-MEASURED (ledger `datasets/aug06/experiments.jsonl`: `resample_cost_arm_d_siril_pass`, `resample_cost_series_run`,
-`resample_cost_arm_d_COMPLETE` — the LAST entry of each id): the clamped Lanczos4 pass costs ~6 % of PSF width and
-the CLAMP is essentially all of it (kernel 0.45 %, nearest control exactly 0.00 %), ~12 % over the chain with the
-darktable warp — quote ~6 %/~12 %, never three figures; ONE FWHM (2.10 px) and ONE phase set were planted, so the
-fractional-phase spread and the FWHM dependence are unmeasured (`docs/dead-ends/separation-deconv-psf.md`, "PSF
-HOMOGENISATION — REFUSED BY THE OWNER", the clamp clause). The clamp is a PIN and a TRADE
-(`scripts/stack/check_registration_pins.sh`: *"clamping is the DEFAULT this repo keeps (lanczos4 rings on stars)"*;
-ringing is judged, blur is measured); `-noclamp` is BACKLOG:`corner-fix-landscape` item 2, not restated here.
+MEASURED (ledger `datasets/aug06/experiments.jsonl`: `resample_cost_arm_d_siril_pass`,
+`resample_cost_series_run`, `resample_cost_arm_d_COMPLETE` — the LAST entry of each id): the clamped
+Lanczos4 pass costs ~6 % of PSF width and the CLAMP is essentially all of it (kernel 0.45 %, nearest
+control exactly 0.00 %), ~12 % over the chain with the darktable warp — quote ~6 %/~12 %, never three
+figures; ONE FWHM (2.10 px) and ONE phase set were planted, so the fractional-phase spread and the
+FWHM dependence are unmeasured (`docs/dead-ends/separation-deconv-psf.md`, "PSF HOMOGENISATION —
+REFUSED BY THE OWNER", the clamp clause). The clamp is a PIN and a TRADE
+(`scripts/stack/check_registration_pins.sh:60`: *"clamping is the DEFAULT this repo keeps (lanczos4
+rings on stars)"*; ringing is judged, blur is measured). Whether to KEEP the pin is
+BACKLOG:`corner-fix-landscape` item 2, which needs the ringing measured — not restated here.
 
-OPEN:
-1. The planted arm across a spread of sub-pixel phases and ≥ 2 planted FWHM, reported as a range — D.
-2. Whether ~1.4–1.9 px of trail on a 2.0–2.4 px PSF disqualifies drizzle — D/N, judged by minor-axis FWHM
-   (`docs/dead-ends/stacking-compose.md`, the drizzle rule). Measured blockers: `seqapplyreg -drizzle` refuses a
-   debayered RGB sequence (ledger `two_probes_drizzle_input_and_otf_zeros`), and Bayer drizzle needs UNDEBAYERED
-   input while the undistort stage runs debayered (ledger `resample_cost_arm_d_siril_pass`); `split_cfa`'s mono
-   green plane is the one path the refusal does not name — unprobed.
+**DRIZZLE IS DECIDED OUT, on three independent grounds rather than a category judgement.** It was
+listed as an open question; it is not one.
+1. **SAMPLING.** Drizzle is the documented fix for UNDER-sampled data, and the field's own rule is
+   that on oversampled data it "makes no sense ... you will only get more noise". These stars run
+   2.0–2.4 px FWHM — at or above critical sampling, where the documented benefit has already ended.
+2. **ARCHITECTURE, and it is a hard either/or.** Bayer drizzle needs UNDEBAYERED input, while the
+   undistort route must debayer BEFORE the geometric warp because a CFA mosaic cannot be warped
+   without destroying the pattern (`run_undistort_pipeline.sh:58`, and `:277` calibrates with
+   `-cfa -debayer`). `seqapplyreg -drizzle` accordingly refuses a debayered RGB sequence (ledger
+   `two_probes_drizzle_input_and_otf_zeros`). You can have the undistort route or Bayer drizzle,
+   never both.
+3. **THE ONE "UNPROBED" PATH PRODUCES A DIFFERENT PRODUCT.** `split_cfa` exists in 1.4.4 but
+   "splits the loaded CFA image into four distinct files" — a mono green-plane route, not the colour
+   deliverable. It is not an untried option for this product; it is another product.
+Recorded honestly: this is the one place the field would say a 24–70 mm wide-field class DESERVES
+drizzle and this chain's geometry forbids it.
 
-**Closes when** 1 reports a range and 2 is decided against the measured number rather than the category.
+OPEN — one, and it is subordinate: the planted arm across a spread of sub-pixel phases and ≥ 2
+planted FWHM, reported as a RANGE rather than the current single-point ~6 %/~12 %. It only matters
+if the clamp pin is revisited, and that decision waits on the RINGING measurement in
+`corner-fix-landscape`, not on a tighter cost figure. **Closes when** that arm reports a range, or
+the pin is reaffirmed and the range is recorded as not needed.
 
 ## `star-neutral-colour` — WATCHLIST (needs a narrowband corpus): the narrowband gap
 
