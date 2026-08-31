@@ -117,18 +117,24 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   place; the class builder is `scripts/stack/run_lunar_pipeline.sh` and the
   open ladder is BACKLOG:`lunar-ladder`.
 - [stacking-vs-official-pipelines](stacking-vs-official-pipelines.md) — the
-  stacking chain audited stage-by-stage against CURRENT official doctrine
-  (Siril 1.4.4 docs/scripts/team statements; PixInsight 1.9.4 + WBPP 2.9.0 as
-  the industry reference; DSS/APP cross-checks), with the july23 4-set NAN run
-  as the live test. Verdict: doctrine-compliant at every documented Siril
-  stage; three documented adaptations (per-set sky flat — no vendor sanctions
-  a lights-built flat; external darktable undistort — mechanically PI's own
-  "external distortion model" idea; 16-bit intermediates — removal condition
-  FIRED on x86); the two standing Siril-side gaps vs WBPP (Local
-  Normalization, PSF-Signal-Weight) confirmed still open at 2.9.0; named
-  tests pre-registered (Siril-native SIP `-disto=` vs the warp, native blind
-  solve on the mildly-trailed class, `-opt` dark optimization, Bayer-drizzle
-  colour route).
+  chain audited stage-by-stage against CURRENT official doctrine (Siril 1.4.4
+  docs/FAQ/shipped scripts; PixInsight 1.9.4 + WBPP 2.9.0 as the industry
+  reference; DSS/APP cross-checks), version anchors re-verified against primary
+  sources and the option surface probed on this rig's own binary. §D's july23
+  numbers are ARCHIVED readings (`git show 3554aa3:datasets/july23/`), not a
+  live test — the section says so. Verdict: doctrine-compliant at every
+  documented Siril stage; the adaptations are the per-set sky flat (no vendor
+  sanctions a lights-built flat), the external darktable undistort
+  (mechanically PI's own "external distortion model" idea), the retired
+  `-output_norm` on the undistort route, and the per-set sub-stack COMBINE —
+  which departs from a doctrine both vendors state (Siril FAQ: calibrate each
+  session, then register and integrate ALL nights as one sequence) for a
+  measured reason, 4.07 px cross-night under a shared distortion model. The
+  two Siril-side gaps vs WBPP (Local Normalization — with the `-overlap_norm`
+  precision correction — and PSF-Signal-Weight) are still open at 2.9.0.
+  Deviations are triaged as measured-here / inherited-and-never-re-measured /
+  unexamined; six named tests pre-registered, the 16-bit one CLOSED (retired
+  and guarded).
 - [wide-field-untracked-registration](wide-field-untracked-registration.md) — why a
   global homography smears a wide UNTRACKED set, EMPIRICALLY TESTED and SOLVED:
   field rotation/gnomonic projection are NOT the cause (pure rotation is exactly a

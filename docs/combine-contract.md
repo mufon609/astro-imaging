@@ -7,6 +7,24 @@ It binds every calibration, model and route decision — **a change that improve
 per-set product and degrades cross-night combinability is a regression**, and it
 has happened twice (both measured, both in this file).
 
+**THE INDUSTRY STANDARD THIS CONTRACT DEPARTS FROM, stated first (standards-first
+rule, CLAUDE.md).** Both reference pipelines prescribe the same multi-night shape,
+and it is not this one. Siril's FAQ, "How do I process several sessions?",
+verbatim: *"The correct way to go is: Calibrate all sessions independently with the
+corresponding master files. Register all preprocessed images together."* — one
+registration and one integration over every frame of every night, the sequences
+joined by disjoint conversion indices (the community `osc-multi-night-stacking`
+script in `free-astro/siril-scripts` implements it as `merge … all_sessions` → one
+`register` → one `stack`). WBPP's grouping keywords produce the same shape:
+calibration per session, registration and integration across all of them
+(community-sourced; the vendor announcement pages are unreachable from this rig).
+**The measured constraint that forces the deviation is §0.2 below** — one sequence
+spanning nights would need ONE distortion model, and a shared model puts the same
+star 4.07 px apart across nights against a 0.14-0.19 px within-set floor. This repo
+therefore integrates per set/group and composes the sub-stacks astrometrically,
+each under its own correct model. The full stage-by-stage comparison is
+[`stacking-vs-official-pipelines.md`](stacking-vs-official-pipelines.md) §B.
+
 ## 0. The two measured facts everything here rests on
 
 1. **The chain is reproducible from raws + tracked records** — MEASURED, both

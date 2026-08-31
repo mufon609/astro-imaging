@@ -98,6 +98,12 @@ reference or for a normalization edge case.
 bias/dark `-nonorm`, flats `-norm=mul`; lights `-norm=addscale`. **Rejection by sub
 count:** ≤6 percentile (`p`), ~7–50 winsorized (`rej w 3 3`), >50 GESD (`rej g 0.3 0.05`
 — fraction+significance, NOT sigmas), large+gradients linear-fit (`rej l 3 3`).
+`stack_rejection.sh` implements the first three; **linear-fit and k-MAD (`rej a`) are
+UNEXAMINED here, not rejected** — the stacking doc's own indication for linear-fit
+("large stacks and images containing sky gradients with differing spatial
+distributions") describes an untracked drifting set, and no measurement in this repo
+has supported or attacked either. Named test:
+[`docs/stacking-vs-official-pipelines.md`](docs/stacking-vs-official-pipelines.md) E1.
 Bare `rej n n` defaults to **Winsorized** and default light normalization is
 addscale — settled by `help stack` on the rig's own 1.4.4 (was doc-UNCERTAIN).
 Weighting `-weight={wfwhm|noise|nbstars|nbstack}` (unified — the old `-weight_from_*`
@@ -111,7 +117,16 @@ frames through the stored transforms, `stack sum`) and crop the `max` compose
 to a verified coverage threshold instead. **Drizzle is a `register` option, not `stack`**
 (CFA-drizzle 1×/pixfrac 1.0 for OSC; upscale only if sampling+dither justify —
 `docs/dead-ends.md`, drizzle entry). **Two real gaps vs PixInsight WBPP:** no Local
-Normalization and no PSF-Signal-Weight equivalent (our audit layer can supply a PSFSW
+Normalization and no PSF-Signal-Weight equivalent. **Precision on the first, since
+"global addscale only" overstated it:** Siril 1.4.4 DOES ship `-overlap_norm`
+(normalization coefficients computed on the images' overlaps instead of the whole
+frame; requires `-maximize`) and `-feather=<px>` — MEASURED on this rig's binary via
+`help stack`, not read from a doc. Neither closes the gap: `-overlap_norm` changes
+only WHERE the coefficients are estimated and still produces one location+scale pair
+per image, where LocalNormalization fits a spatially-VARYING model; `-feather` is a
+border blend, not a normalization. Both are unused here and `-maximize` appears
+nowhere in this repo as a flag — named test
+[`docs/stacking-vs-official-pipelines.md`](docs/stacking-vs-official-pipelines.md) E2 (our audit layer can supply a PSFSW
 proxy — rank `(Σflux·Σmean_flux)/(σ_noise·M*)` within a dataset; it reproduces PSFSW
 to R²≈95–99% from SNR², SNR and star count — PixInsight ImageWeighting doc). Comparison re-verified 2026-07-25 against
 Siril 1.4.4 (confirmed still current stable) and PixInsight 1.9.4 / WBPP 2.9.0 — both
