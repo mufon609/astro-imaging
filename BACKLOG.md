@@ -39,38 +39,31 @@ rows' (Siril offering a reference-anchored output normalization).
 **Closes when** the standard route ships without `-output_norm` on a measured product, or
 records why it must keep it.
 
-## `compose-homography-smear` — the smear is CLOSED by member selection; the reprojection route and the model questions stay open
+## `compose-homography-smear` — CLOSED and homed; one unmeasured trade remains
 
-CLOSED, homed: the union's band and corners are member-borne, in the photons, night-ordered —
-`docs/dead-ends/stacking-compose.md`, "THE UNION'S LEFT-BAND / BOTTOM-CORNER SMEAR IS NOT A
-REGISTRATION OR COMPOSE DEFECT" and "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK" (the
-astrometric compose is the shipped route, owner-PASSED); the decision map
-`docs/corner-smear-member-selection.md` (cropT owner-approved, §5); the attribution
-records `datasets/aug09/smear_work/{smear_remarch,rho_march,rho_march_prereg}.json`; the blanket
-trim (owner-directed, RAN, REFUTED;
-`docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired
-`--crop-lr` knob)"). Geometry: `docs/dead-ends/registration-distortion.md`, "FITTING A LENS MODEL
-AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE" (a centred ptlens model fits to a 0.27 px median;
-the `<center>` entry beside it). Optics: `docs/dead-ends/star-shape-optics.md`, "THE ONE-SIDED
-STAR-SHAPE GRADIENT IS IN THE OPTICS-AND-PHOTONS OF A SINGLE EXPOSURE". The drift arithmetic:
-`docs/untracked-widefield-standards.md` §H.4. The SCAMP/SWarp facts and defaults: `TOOLS.md`, the
-SCAMP and SWarp rows. The canvas-x trap: `docs/dead-ends/measurement-discipline.md`.
+The union's band and corners are MEMBER-BORNE, in the photons, night-ordered, and answered by
+member SELECTION (cropT, owner-approved). Mechanism, refuted alternatives and every number:
+`docs/dead-ends/stacking-compose.md` ("THE UNION'S LEFT-BAND / BOTTOM-CORNER SMEAR IS NOT A
+REGISTRATION OR COMPOSE DEFECT", "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK",
+"PRE-REGISTRATION FRAME-WIDTH CROPPING"); the decision map is
+`docs/corner-smear-member-selection.md`; the attribution records are
+`datasets/aug09/smear_work/{smear_remarch,rho_march,rho_march_prereg}.json`.
 
-OPEN — each settled at the COMBINE, one knob, or withdrawn with its reason:
-1. The SCAMP/SWarp TPV reprojection as a COADD against the shipped `seqplatesolve` compose — U
-   (no defect motivates it now).
-2. Interleaved rather than consecutive groups — D (stations + the dwell-floor / rejection
-   denominators); a trade, not a free win.
-3. A corner-true shared model — N: no fit constrains past ρ 1.47–1.51 against a corner at 1.80
-   (`docs/combine-contract.md`; `docs/dead-ends/registration-distortion.md`, "CORNER CONTROL POINTS
-   CANNOT BE RECOVERED BY REORDERING OR RELAXING").
-4. Which single model — the pinned july14 fit or a fresh fit — D; the corner-supported candidate
-   a,b,c (ledger `ptlens_joint_refit_free_centre`) judged at the combine on star_stations + seqtilt,
-   then the owner's eyes (U).
-5. A state-CHANGE detector with a RELATIVE trigger — D once the member-separation quantity is
-   attributed (`docs/combine-contract.md` §5).
+OPEN — one, and it is a TRADE rather than a defect: **interleaved rather than consecutive
+GROUPS.** Interleaving moves the station coverage and the dwell-floor / rejection denominators
+together, so it is not a free win, and nothing has measured it on this corpus. **Closes when** an
+A/B at the combine reports the trade, or the consecutive form is recorded as the deliberate choice.
 
-**Closes when** 1–5 are each measured at the combine or withdrawn.
+WITHDRAWN, each with its reason, so that none is re-proposed:
+- **The SCAMP/SWarp TPV reprojection as a coadd** — no defect motivates it (the smear is member-borne,
+  not a reprojection artifact), and the scaffolding is retired.
+- **A corner-true shared model** — no fit constrains past ρ 1.47–1.51 against a corner at 1.80
+  (`docs/dead-ends/registration-distortion.md`, "CORNER CONTROL POINTS CANNOT BE RECOVERED BY
+  REORDERING OR RELAXING").
+- **A fresh single-model refit against the pinned july14 fit** — the pinned coefficients ARE the
+  durable artifact (`scripts/darktable/lens_models.json`), and the candidate's fitter is retired.
+- **A state-CHANGE detector with a relative trigger** — `docs/combine-contract.md` §5 already
+  measures model compatibility at every combine in three tiers and reports it.
 
 ## `intake-culling` — one measured intake pass, one visible formula
 
