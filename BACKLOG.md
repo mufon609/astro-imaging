@@ -369,32 +369,45 @@ but 25 of 25 tracked `fingerprint.json` carry it, and they regenerate LAZILY (th
 on a whole-dict change), so the tree holds a mixed population until every set re-runs, and a set never
 re-run keeps the old key. About six sites plus that migration.
 
-## `corner-fix-landscape` — procurement or acceptance
+## `corner-fix-landscape` — the anisotropic class IS procurable; this is now an owner decision, not research
 
 Rule: every candidate is FIX / TRADE / BANDAID before it is listed; a trade or a concealment never
-shares a list with a fix. CLOSED, homed: no route on this rig RECOVERS corner detail — a single
+shares a list with a fix. CLOSED, homed: no route ON THIS RIG recovers corner detail — a single
 global PSF cannot (no field-constant trail scale on three grids:
 `datasets/aug06/corner_work/{constancy_fit,frame_depth,cfa_control}.json`);
 `docs/dead-ends/separation-deconv-psf.md`, "NO INSTALLED TOOL DELIVERS A FIELD-VARIABLE ANISOTROPIC
 PSF CORRECTION" (per-region tiling is pixel surgery, FORBIDDEN) and "PSF HOMOGENISATION — REFUSED BY
-THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed, RAN,
-REFUTED — `docs/dead-ends/stacking-compose.md`, the frame-width-cropping entry). The FIX-class route that shipped is member SELECTION (cropT,
-owner-approved; `docs/corner-smear-member-selection.md`); what it cannot remove is the
-lens's SYMMETRIC radial softening, and this item is about THAT. The procurement facts:
-`TOOLS.md`, Tier 5, the anisotropic row.
+THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed, RAN, REFUTED —
+`docs/dead-ends/stacking-compose.md`, the frame-width-cropping entry). The FIX-class route that
+SHIPPED is member SELECTION (cropT, owner-approved; `docs/corner-smear-member-selection.md`); what it
+cannot remove is the lens's SYMMETRIC radial softening, and this item is about THAT.
 
-OPEN:
-1. Procurement — N: `torchmfbd` (three documentation checks decide it), `pyimcom` (a survey
-   OBSFILE schema and no bring-your-own-data path — weeks and a fork; `furry-parakeet`'s kernels
-   the one cheap probe); `galsim.des.DES_PSFEx` is installed for PSF evaluation — also the only route to
-   the OBJECT-detail question: a symmetric sharpener cannot de-trail an elongated PSF, classical RL is a
-   measured dead end on in-exposure trailing, and Cosmic Clarity's non-stellar sharpen is ATTENDED-only with
-   its CLI ignored (`TOOLS.md`, Tier 5).
-2. `-noclamp` — a TRADE, U after D: the cost is measured (BACKLOG:`resample-cost-and-drizzle`),
-   the ringing it prevents is not — the planted fixture with a sharp-edge target closes it.
+**THE PROCUREMENT QUESTION HAS COLLAPSED TO ONE PURCHASE, and the old list was excluding the answer
+on a false reason.** `TOOLS.md`'s anisotropic row said "BXT is PixInsight-hosted (uninstalled by
+choice)" while the BXT row five lines above it records a standalone `rc-astro` v1.0.0 CLI plus a
+Siril script, no PixInsight host, Linux supported, CPU fallback on a no-GPU rig. Both cannot be true;
+the row is corrected. And BXT is spatially varying BY THE VENDOR'S OWN ACCOUNT (BlurXTerminator
+Technical Manual): aberrations *"vary across the field of view, with stars in the corners of an image
+rarely being as sharp as stars in the center"*, and BXT *"uses stars in an image as PSF references in
+a local fashion ... apply[ing] different corrections to different parts of the image"*. That is this
+item's defect, named by the vendor. It is an OFFICIAL TOOL doing the pixel work, so the bright line
+permits it outright.
 
-**Closes when** an anisotropic treatment is procured and measured, or the owner accepts the
-corner as-is (U).
+OPEN — and both are the owner's, neither is research:
+1. **Buy a BXT licence ($99.95, perpetual, CLI free to holders and offline after activation) and
+   measure it, or accept the corner as-is.** THE CAVEAT IS PHYSICS AND MUST BE CARRIED INTO ANY
+   TRIAL: BXT estimates its local PSF FROM STARS, and this corpus's corners are star-poor by the very
+   scarcity that defeats a corner-true fit — so its correction is weakest exactly where the defect is
+   worst. Vendor capability is not evidence about THIS data; only a trial on a real corner is.
+   The multi-week alternatives are superseded and no longer worth carrying as candidates
+   (`torchmfbd`'s three documentation checks, `pyimcom`'s survey-schema fork); `galsim.des.DES_PSFEx`
+   stays installed for PSF EVALUATION only. Details: `TOOLS.md`, Tier 5.
+2. **`-noclamp`** — a TRADE, and the owner's after one measurement: the cost is measured
+   (BACKLOG:`resample-cost-and-drizzle`), the ringing it prevents is NOT. A planted fixture with a
+   sharp-edge target closes it.
+
+**Closes when** BXT is trialled on a real corner or the corner is accepted as-is, and `-noclamp`'s
+ringing is measured against its known cost.
 
 ## `resample-cost-and-drizzle` — the clamp is the resample cost, and it is a pinned trade
 
