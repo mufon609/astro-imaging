@@ -431,12 +431,12 @@ POSITION_RADIUS_FACTOR = 2.0
 # infinity focal differing from its marked value by a few %, and the TAN
 # projection's own centre-to-corner scale ratio across a 28.6 deg field
 # (1/cos^2(14.3 deg) = 1.066). Those sum to well under 10%; 20% doubles it. The
-# corpus census that VERIFIES the headroom lives in the hint-contradiction-gate
-# row (BACKLOG:`removal-conditions`); the false solve sat at 0.740 of nominal.
+# headroom is corroborated by the one measured false solve, which sat at 0.740
+# of nominal — outside this tolerance, and caught by it.
 SCALE_TOLERANCE = 0.20
 # A WARNING, never a refusal: nothing contradicts a solve that had no hint to
 # contradict, and a genuinely hard field may legitimately land below this —
-# real floor-class solves exist in the corpus (census: the register row above).
+# real floor-class solves exist in the corpus.
 # 100 is this file's own confident-match threshold (the logodds_callback stops
 # there); the measured false solve sat at 22.3 — just above astrometry.net's
 # ~20.7 default acceptance floor, which is why the engine returned it at all.
