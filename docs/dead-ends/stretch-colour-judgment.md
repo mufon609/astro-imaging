@@ -59,7 +59,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   "real intensities"/"a huge green cast" and recommend Manual Color
   Calibration for SHO — for a narrowband SHO target, SPCC is the *cause* of
   the lost sphere, not the fix. (The star-colour-neutral fix is a candidate
-  DESIGN, UNTESTED — BACKLOG:`star-neutral-colour` + `TOOLS.md` Tier 10; do
+  DESIGN, UNTESTED — `TOOLS.md` Tier 10; do
   not cite as a method.)
 - `rmgreen`/SCNR on a sky that is not green-dominant prints a global magenta
   cast.

@@ -33,7 +33,7 @@ and limits live in BACKLOG:`render-ladder`; the learned-deconvolution question i
 BACKLOG:`corner-fix-landscape` (OPEN item 1 — a procurement; nothing installed runs
 headless); the chroma budget instrument is `noise_split.sh`
 (BACKLOG:`walking-noise`); the narrowband star-neutral bracket is
-BACKLOG:`star-neutral-colour`. One doctrine row stays here because it brackets the
+`TOOLS.md` Tier 10. One doctrine row stays here because it brackets the
 ladder itself: **workflow order** — linear-first default vs the nonlinear-stage
 alternative (`TOOLS.md`, "The one process rule": the 2026 AI tools loosen
 linear-only) — one knob, gate/audit deltas, full-frame lossless finals, the

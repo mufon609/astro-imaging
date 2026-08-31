@@ -445,14 +445,6 @@ if the clamp pin is revisited, and that decision waits on the RINGING measuremen
 `corner-fix-landscape`, not on a tighter cost figure. **Closes when** that arm reports a range, or
 the pin is reaffirmed and the range is recorded as not needed.
 
-## `star-neutral-colour` — WATCHLIST (needs a narrowband corpus): the narrowband gap
-
-SPCC-narrowband equalises O3=Ha and erases the O3 sphere; Siril has no single command
-for a star-colour-neutral balance. Headless path identified and the tool half
-confirmed on 1.4.4: measure mean star colour in the examine layer → apply a diagonal
-`ccm`. UNTESTED design — do not cite as a method. Run it against a bracket (SPCC,
-Nightlight) when a narrowband corpus arrives.
-
 ## `siril-1.5` — WATCHLIST (fires on a version bump): one load-bearing migration risk
 
 1.4.4 is current stable; 1.5.0 is dev master. The trigger is a version bump, not the

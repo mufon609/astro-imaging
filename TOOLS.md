@@ -725,7 +725,7 @@ Two mechanisms, don't conflate: **star-anchored** neutral balance (ccm+measure /
 Nightlight) vs **nebula/QE-anchored** unmix (Alchemy/DBXtract, OSC dual-band).
 Star-neutral is a valid mechanism but NOT a mainstream-named technique — the
 mainstream decouples stars (remove → boost OIII starless → re-add stars).
-Design + bracket: BACKLOG:`star-neutral-colour`.
+The design, its untested status and the bracket are the `ccm` row above.
 
 ## Tier 11 — Detail / local contrast (NONLINEAR)
 

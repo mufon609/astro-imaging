@@ -348,7 +348,7 @@ the dead-end registry (`docs/dead-ends/stretch-colour-judgment.md` and
 now; the file and the harness get re-seeded by the rebuild.
 (Narrowband-palette colour is not laddered — the star-neutral colour
 balance is a GAP — `docs/dead-ends/stretch-colour-judgment.md`, the
-SPCC-narrowband entry; BACKLOG:`star-neutral-colour`.)
+SPCC-narrowband entry; the approach and its untested status are `TOOLS.md` Tier 10.)
 
 ## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
