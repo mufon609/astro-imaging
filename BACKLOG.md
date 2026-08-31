@@ -39,30 +39,6 @@ rows' (Siril offering a reference-anchored output normalization).
 **Closes when** the standard route ships without `-output_norm` on a measured product, or
 records why it must keep it.
 
-## `pending-owner` — decisions with the owner, and the input they ordered gathered
-
-UNCHECKED, logged not discharged: *"self-picked targets outperformed assigned ones"* — no counterfactual measured,
-it flatters both parties; the competing explanation is SEQUENCING (rule adopted: assign the first unit, then release).
-
-1. **Whether `BACKLOG.md` and `docs/dead-ends.md` remain TWO files — held by the owner, NOT DECIDED**
-   (removing the registry is one option under consideration). Consequence meanwhile: do not RESTRUCTURE the
-   registry internally (effort that may dissolve); deleting entries whose test is solved and no longer valuable
-   survives either outcome — prefer the operation robust to the ruling.
-
-Owner rulings kept here because the quote is the record:
-- **The per-member trim — RULED, RAN, REFUTED; no trim ships.** Owner, verbatim: trim *"each side by
-  about 5% ... so the worse part of each image never makes it into the stack"*, and the mechanism, verbatim: *"the
-  stars being stacked are the worse images possible"*. Outcome, numbers and ledgers:
-  `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired `--crop-lr` knob)". The
-  open half — properly centred frames — is acquisition-side, not a route this repo takes (MEMORY: the data is a given).
-- **Recorded elsewhere, pointers kept because nothing else carries them:** the L1 judge triple and starlight
-  preservation as a logged UNCHECKED premise that blocks nothing — `datasets/aug06/l1_work/owner_ratification.json`,
-  `datasets/aug06/l1_work/unchecked_premises.json`.
-
-**Closes when** the owner rules on the two-file question.
-
----
-
 ## `compose-homography-smear` — the smear is CLOSED by member selection; the reprojection route and the model questions stay open
 
 CLOSED, homed: the union's band and corners are member-borne, in the photons, night-ordered —
@@ -71,7 +47,7 @@ REGISTRATION OR COMPOSE DEFECT" and "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A ST
 astrometric compose is the shipped route, owner-PASSED); the decision map
 `docs/corner-smear-member-selection.md` (cropT owner-approved, §5); the attribution
 records `datasets/aug09/smear_work/{smear_remarch,rho_march,rho_march_prereg}.json`; the blanket
-trim (owner-directed, RAN, REFUTED — BACKLOG:`pending-owner`;
+trim (owner-directed, RAN, REFUTED;
 `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired
 `--crop-lr` knob)"). Geometry: `docs/dead-ends/registration-distortion.md`, "FITTING A LENS MODEL
 AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE" (a centred ptlens model fits to a 0.27 px median;
@@ -157,7 +133,7 @@ is the LADDER around it and the harness it feeds.
   a process, not a render block. Framing rulings (user-ratified): the framing=max union is the deliverable (manual
   crop later), no yield excuses; *"more worried about stacking bad sections than about not stacking enough"* governs
   what goes INTO the combine — member selection, `docs/corner-smear-member-selection.md` (the blanket trim RAN and
-  is REFUTED: BACKLOG:`pending-owner`). Adoption still gates on preserving the frame-filling UNRESOLVED STARLIGHT
+  is REFUTED: `docs/dead-ends/stacking-compose.md`, the frame-width-cropping entry). Adoption still gates on preserving the frame-filling UNRESOLVED STARLIGHT
   (degree 1 only; `docs/dead-ends/terminology-dust.md`, sense 2 — it is stars, not dust).
 - **L2 denoise strength** — the proven chroma killer. Objective instrument is the `noise_split.sh` structured term,
   never whole-frame `bgnoise`. Cosmic Clarity's chroma knob saturates above 0.85 and no record says which
@@ -319,7 +295,7 @@ global PSF cannot (no field-constant trail scale on three grids:
 `docs/dead-ends/separation-deconv-psf.md`, "NO INSTALLED TOOL DELIVERS A FIELD-VARIABLE ANISOTROPIC
 PSF CORRECTION" (per-region tiling is pixel surgery, FORBIDDEN) and "PSF HOMOGENISATION — REFUSED BY
 THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed, RAN,
-REFUTED — BACKLOG:`pending-owner`). The FIX-class route that shipped is member SELECTION (cropT,
+REFUTED — `docs/dead-ends/stacking-compose.md`, the frame-width-cropping entry). The FIX-class route that shipped is member SELECTION (cropT,
 owner-approved; `docs/corner-smear-member-selection.md`); what it cannot remove is the
 lens's SYMMETRIC radial softening, and this item is about THAT. The procurement facts:
 `TOOLS.md`, Tier 5, the anisotropic row.

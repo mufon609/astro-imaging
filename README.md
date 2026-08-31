@@ -17,7 +17,7 @@ carries BACKLOG:`standard-route-output-norm`.
 | **run a dataset** to a finished stack | [`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md) §1 (staging, with a worked first run) → "Running it" below: `run_set_chain.sh … --plan`, then `--yes` |
 | **set up the rig** — tools, catalogs, styles, hooks | [`CONTRIBUTING.md`](CONTRIBUTING.md) "Set up the rig": the installers in order, each with its verify command |
 | **change the chain** or add a script | [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to work here) → [`CLAUDE.md`](CLAUDE.md) (the binding rules — the owner's file) |
-| **see what is open**, and who decides it | [`BACKLOG.md`](BACKLOG.md) — items by slug; `pending-owner` holds the owner's decisions |
+| **see what is open**, and who decides it | [`BACKLOG.md`](BACKLOG.md) — items by slug; owner rulings are quoted in the `docs/dead-ends/` entry they govern |
 | **know why X was NOT done** before proposing it | [`docs/dead-ends.md`](docs/dead-ends.md) — the dead-end registry index (`docs/dead-ends/`, one file per stage) + the acquisition checklist |
 | **pick a tool** for a stage | [`TOOLS.md`](TOOLS.md) — the toolkit, tier by tier, with cost / Linux / CPU / headless |
 | **read the research** behind a decision | [`docs/README.md`](docs/README.md) — the deep-dive index, and which document to read when |

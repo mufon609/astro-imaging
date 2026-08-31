@@ -517,6 +517,15 @@ and answered by member selection: the decision map with every form's numbers is
   correct and probed bit-identical) is recoverable at `7775fdd`. What the
   knob DID buy: removing rim dilution exposed the latent member-solve defect
   both chains carried (`plate-solving-wcs.md`).
+  **THE OWNER DIRECTED THIS KNOB, AND THE QUOTE IS THE RECORD** — it was RULED,
+  RAN and REFUTED, and no trim ships. Verbatim: trim *"each side by about 5% ...
+  so the worse part of each image never makes it into the stack"*, on the stated
+  mechanism *"the stars being stacked are the worse images possible"*. The premise
+  is sound and the measurement above is why the remedy is not: the worse columns
+  are real, but on a framing=max union they are also the ONLY supply of rim sky.
+  The FIX-class route that ships instead is member SELECTION by threshold
+  (`docs/corner-smear-member-selection.md`). The open half — properly centred
+  frames — is acquisition-side and not a route this repo takes.
 - **THE DELIVERED ZERO POINT OF ANY `-output_norm` STACK IS (the composite's
   sky − its darkest non-zero pixel) OVER (brightest − darkest), ONE global
   (min, max) across all three channels — so the linear product's LEVEL and

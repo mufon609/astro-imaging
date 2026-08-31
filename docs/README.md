@@ -57,7 +57,7 @@ session** (the repo drives industry tools; it never processes pixels itself —
 | `../CLAUDE.md` | agents — the owner's file | every session, in full: the bright line, where the gate is, the environment, the binding rules, the parallel-session hazards |
 | `pipeline-wide-field-untracked.md` | anyone running data | before the first run and whenever a stage stops: every stage with its tool, its record and its measured why; the complete stop list |
 | `../TOOLS.md` | anyone choosing a tool | when a stage needs a tool or a setting: the audit by tier, cost / Linux / CPU / headless, what is installed and why a gap is deliberate |
-| `../BACKLOG.md` | anyone starting work | before starting any item: the open queue by slug, `pending-owner`, the removal-condition register |
+| `../BACKLOG.md` | anyone starting work | before starting any item: the open queue by slug |
 | `dead-ends.md` → `dead-ends/` | anyone proposing an experiment | before proposing ANY experiment: the registry index, its contract, the stage files |
 | this file | anyone reading the research | when a decision cites a deep-dive: the index below, newest first |
 
