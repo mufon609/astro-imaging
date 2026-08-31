@@ -507,12 +507,31 @@ Selection is adopted only through a measured arm with a pre-registered predictio
 default. **Closes when** a final-pass product is built from measured THRESHOLD selection at the
 FRAME tier across at least two sessions' data, with its per-set selection recorded.
 
-## `session-level-mount` — one tripod pays for up to four probes
+## `session-level-mount` — one tripod pays for up to FIVE probes, and the redundant part is the RATE
 
-`mount` is modelled PER SET while it is a session-level fact: one tripod on one
-night still pays for a drift probe per set. **Closes when** a decisive
-session-level measurement seeds every sibling set's record (provenance kept per
-set — a re-aimed set still cross-checks).
+`mount` is modelled PER SET while it is a session-level fact. MEASURED across the corpus: all 7
+sessions carry ONE mount value across every set — none mixes fixed and tracked — and two sessions
+(aug09, aug14) hold 5 sets each, so "up to four" understated it. 20 `mount_probe.json` records exist
+against 25 sets.
+
+**WHAT IS ACTUALLY REDUNDANT IS THE MEASURED RATE, not just the label** — which is why this is worth
+closing rather than a naming quibble. The probe plate-solves TWO time-separated frames per set
+(`mount_probe.sh`, on the build path at `run_set_chain.sh:352` and `:539`), and the route key is
+`drift_frac = (sky_sep_deg / probe_span_min) × set_span_min / fov_deg` (`route.py:31`). The first
+factor is the sky RATE, which on one tripod on one night is the sidereal rate and identical for every
+sibling set; only `set_span_min` is per-set. So a session-level rate lets each set derive its own
+`drift_frac` from its own span with no second probe — the cost being two plate solves per redundant
+set, ~36 solves across the current corpus.
+
+Two constraints on the seeding, both already known: a re-aim changes the POINTING but not the rate,
+so the rate seeds safely while provenance stays per set and a re-aimed set still cross-checks; and
+the probe's window must stay inside the longest contiguous capture run, since a naive first/last
+window mixes sky drift with a mid-run re-aim (measured: 6.9751 vs 14.8724 deg/hr on the same frames).
+Note also that the probe's plate-scale output is separately defective
+(BACKLOG:`frame-qa-order-dependent-scale`), so a single session-level probe CONTAINS that defect to
+one measurement instead of seeding it per set.
+
+**Closes when** a decisive session-level measurement seeds every sibling set's record.
 
 ## `per-group-flat-at-the-combine` — WATCHLIST (owner-PAUSED pending real flats): the trade is only decidable at the combine unit
 
