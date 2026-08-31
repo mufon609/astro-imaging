@@ -445,21 +445,38 @@ if the clamp pin is revisited, and that decision waits on the RINGING measuremen
 `corner-fix-landscape`, not on a tighter cost figure. **Closes when** that arm reports a range, or
 the pin is reaffirmed and the range is recorded as not needed.
 
-## `siril-1.5` — WATCHLIST (fires on a version bump): one load-bearing migration risk
+## `siril-1.5` — WATCHLIST (fires on a version bump), and the one risk is MIGRATABLE TODAY
 
-1.4.4 is current stable; 1.5.0 is dev master. The trigger is a version bump, not the
-rig (already x86).
+1.4.4 is current stable (no 1.5 release exists — siril.org/download, siril.org/posts and the
+free-astro GitLab tags all agree); 1.5 is dev master. The trigger is a version bump, not the rig.
+**Every claim below is verified against master's own `src/core/command_list.h`, not inferred.**
 
-- **RISK, now load-bearing: `starnet`/`seqstarnet` are REMOVED in 1.5.0-dev**,
-  consolidated behind `pyscript StarNet.py`. `render_tier.sh` calls `starnet`, so a
-  1.5 bump breaks the shipped render tier. Migrate before bumping.
-- **Adopt on 1.5:** the native `mask_*` subsystem plus `-mask` on
-  `denoise`/`rmgreen`/`epf`/`rl`/`sb`/`wiener` — the first native path to
-  region-confined ops without a hand-rolled blend.
-- **Retirement candidates:** `healpix` (lists the NESTED pixels overlapping a solved
-  image — what `spcc_cone.py` hand-rolls; needs a check that its list maps to the
-  zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
-  framing record's RA/Dec form).
+- **RISK, load-bearing and CONFIRMED: `starnet`/`seqstarnet` are GONE in master** — neither is
+  defined in `command_list.h`, while both exist in 1.4.4. `render_tier.sh` calls `starnet` (4 sites,
+  the only caller in the tree), so a 1.5 bump breaks the shipped render tier.
+  **BUT THE MIGRATION DOES NOT NEED 1.5 AND CAN BE DONE NOW, which removes the coupling entirely:**
+  `pyscript` already exists on 1.4.4 (`pyscript [-async] scriptname.py [script_argv]`, probed), and
+  `StarNetAstro/StarNet.py` is published in the `free-astro/siril-scripts` repository. That repo is
+  NOT cloned on this rig — `find / -name StarNet.py` returns nothing — so the one prerequisite is a
+  clone, the same pattern `CLAUDE.md` already documents for the SPCC database. Migrating
+  `render_tier.sh` to `pyscript` on 1.4.4 makes the bump a non-event instead of a break.
+- **Adopt on 1.5: the native `mask_*` subsystem**, confirmed present in master and richer than this
+  item claimed — `mask_autostretch`, `mask_bitpix`, `mask_blur`, `mask_feather`, `mask_fmul`,
+  `mask_from_channel`, `mask_from_color`, `mask_from_lum`, `mask_from_stars`, `mask_invert`,
+  `mask_threshold`. The first native path to region-confined ops without a hand-rolled blend. All
+  are ABSENT from 1.4.4 (zero occurrences in its help output).
+- **Retirement candidates, both confirmed in master:** `healpix` (defined as
+  `{"healpix", 0, "healpix", process_healpix, ...}`) lists the NESTED pixels overlapping a solved
+  image — what `spcc_cone.py` hand-rolls; adopting it still needs a check that its list maps to the
+  zenodo chunk names. And `eqcrop ra1 dec1 ra2 dec2` — with `-marginpx=`/`-marginasec=` options this
+  item did not mention — the natural consumer of a framing record's RA/Dec form
+  (BACKLOG:`framing-radec`).
+- **Noted for BACKLOG:`corner-fix-landscape`:** the same `siril-scripts` repo carries
+  `RC-Astro/BlurXTerminator.py`, `NoiseXTerminator.py` and `StarXTerminator.py` — the concrete
+  mechanism behind the RC-Astro-from-Siril route that item now turns on.
+
+**Closes when** `render_tier.sh` no longer depends on a command 1.5 removes, at which point this
+becomes an ordinary adopt-on-bump list rather than a break risk.
 
 ## `final-best-percent-pass` — one target, many sessions: the FINAL pass selects by measured quality — thresholds, not a percentile
 
