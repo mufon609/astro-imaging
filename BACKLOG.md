@@ -780,18 +780,40 @@ are first-class in this project permanently, so provenance should not depend on 
 Deciding whether those two routes get the tuple is the owner's; a guard naming the tuple's key set is a build.
 **Closes when** both are recorded.
 
-## `set-identity-by-sort-order` — the routing fix landed; three glob-order picks remain
+## `set-identity-by-sort-order` — the routing fix landed; ONE glob pick closes here, one remains
 
-FIXED (measured colour-neutral): `run_corpus_combine.sh` and `run_session_chain.sh` derive session/set from the
-product's OWN `REGREF` (loud exit if absent or unstaged); `finish_render.sh` refuses a `--set` outside the CALSETS
-window / reference set (fire-tested: the set-0b case stops at exit 1 before any tool runs); the two mis-filed
-records live in `datasets/corpus/`. Mechanism, the consumer list (the NAME is POLICY) and the header-only
-signature: `docs/dead-ends/stacking-compose.md`, "AUTO IS INDEX 0, NOT A RANKING".
+FIXED (measured colour-neutral): `run_corpus_combine.sh` and `run_session_chain.sh` derive session/set
+from the product's OWN `REGREF`, each with its own loud exit for the two failure modes — REGREF absent
+or unparseable (`run_session_chain.sh:129`, `run_corpus_combine.sh:142`) and REGREF naming an unstaged
+session (`:171`). `finish_render.sh:88-102` refuses a `--set` that is neither in the composite's
+`CALSETS` window nor its registration-reference set, and does so BEFORE any tool runs — that block ends
+at `:104` while `solve_field.py` is at `:191`, so the refusal is structural rather than incidental.
+Mechanism, the consumer list (the NAME is POLICY) and the header-only signature:
+`docs/dead-ends/stacking-compose.md`, "AUTO IS INDEX 0, NOT A RANKING".
 
-OPEN — three glob-order picks: the acquisition-header donor (`scripts/stack/run_undistort_pipeline.sh:286`,
-`header_capture "$(ls "$P/proc"/pp_c_*.fit | head -1)"` — `frame_order.py`'s capture-order emit fixes it but
-re-times the ACQHDR donor on wrapped sets); the starmask pick (`scripts/stack/render_tier.sh:269`); the corpus-level
-record home (BACKLOG:`cross-set-record-home`). **Closes when** each pick is order-independent or recorded harmless.
+**Standards note, recorded because it is a WEAKER deviation than it looks:** IRAF `imcombine`'s
+`IMCMBnnn` is the recognised convention for naming a coadd's CONTRIBUTORS, but nothing in the FITS or
+drizzle-family conventions standardises WHICH input is a product's registration REFERENCE — that
+question has no reserved keyword. Siril follows neither (zero `IMCMB` in its source; it writes
+`STACKCNT`, `LIVETIME` and HISTORY). So `REGREF` names a quantity the standards leave unnamed, which
+standards-first permits outright. Nothing to convert.
+
+OPEN — exactly TWO `ls … | head -1` picks exist in all of `scripts/`, and only one of them matters:
+- **The acquisition-header donor, `run_undistort_pipeline.sh:286` — NEEDS A CHANGE, not a note.**
+  `header_capture "$(ls "$P/proc"/pp_c_*.fit | head -1)"` stamps eight keys, and `DATE-OBS` varies per
+  frame BY CONSTRUCTION, so the glob choice re-times the record. "Recorded harmless" is unavailable:
+  `lens_preflight.check_uniform` asserts uniformity over only camera, lens and focal_mm, so FOCALLEN
+  and INSTRUME are guarded while `DATE-OBS`, EXPTIME, APERTURE and ISOSPEED are not. `frame_order.py`
+  is the fix and is PROVEN — it is already wired at `run_undistort_groups.sh:125` and measured against
+  the wrap corruption (aug09/set-02: 0 of 456 frames in the same position by name and by time) — but
+  it is not applied at this site.
+- **The starmask pick — CLOSED, recorded harmless, provably.** `render_tier.sh:267` does
+  `rm -f "$W"/starmask_*.fit` immediately before the separation, and the pick sits at `:274`, so the
+  glob can match at most ONE file per run. `head -1` is order-independent BY CONSTRUCTION rather than
+  by luck, and no code change is needed.
+
+The corpus-level record home is BACKLOG:`cross-set-record-home`, not a glob-order question.
+**Closes when** the acquisition-header donor is order-independent.
 
 ## `capability-gaps` — WATCHLIST (each gated on a data class we do not have): real capabilities the pipeline lacks
 
