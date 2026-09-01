@@ -846,13 +846,20 @@ OPEN:
    wrong way — fewer Gaia XP calibrators raise σ on a fit already at σ > 0.10, so a null
    could mean "underpowered" rather than "not crowding". Four variables at once, against the
    one-knob rule.
-   **THE CHEAP REPLACEMENT NEEDS NO NEW DATA: vary crowding WITHIN the existing field.**
+   **THE RIGHT-SHAPED REPLACEMENT IS TO VARY CROWDING WITHIN THE EXISTING FIELD — but it is
+   NOT cheap on the current wiring, and that is the first thing to settle.** MEASURED:
+   `spcc_run.py` never handles a star list — it passes `-catalog=` in (`:388`) and parses
+   "aperture photometry to N stars" out of the log (`:449`), so calibrator selection happens
+   INSIDE Siril's `spcc` and there is no per-star record to attach a neighbour distance to.
+   An isolation cut therefore needs a separate star-list source (a `findstar` pass, or the local
+   Gaia catalogue) AND some way to hand SPCC a filtered calibrator set — which Siril may not
+   accept at all. **That is a TOOL-CAPABILITY question, not a scripting one, and it gates the
+   whole approach.** The shape of the experiment is still right:
    Re-run the same pin on the same stars with an ISOLATION CUT (drop any calibrator with a
    neighbour inside some radius) and compare the intercept against the uncut fit — same field,
    same reddening, same population, same epoch, same optics, same night, so crowding is the
    only thing that moved. If the intercept follows the cut it is crowding; if not, the suspect
-   list narrows to the curve. UNVERIFIED and the first thing to check: whether `spcc_run.py`'s
-   star list carries neighbour distances at all. Also unquantified: the reddening confound is
+   list narrows to the curve. Also unquantified: the reddening confound is
    argued from a measured galactic latitude, not from a dust-map lookup.
    (A body-measured curve, §1.5 B1, is owner-gated and NOT implied by this item.)
 2. The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's issue #3
