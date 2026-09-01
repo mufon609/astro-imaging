@@ -815,17 +815,36 @@ OPEN — exactly TWO `ls … | head -1` picks exist in all of `scripts/`, and on
 The corpus-level record home is BACKLOG:`cross-set-record-home`, not a glob-order question.
 **Closes when** the acquisition-header donor is order-independent.
 
-## `capability-gaps` — WATCHLIST (each gated on a data class we do not have): real capabilities the pipeline lacks
+## `capability-gaps` — WATCHLIST (each gated on a data class we do not have): one gap was never real, one blocker is resolved
 
-Each lands as a measured declared delta when its gate opens.
+Each lands as a measured declared delta when its gate opens. Both gates still hold — no dual-band
+corpus and no L corpus exist — but neither open question is what this item said it was.
 
-- **Full-size dual-band** — native Ha + 2× drizzle of OIII instead of downsampling
-  OIII to Ha's half size. Gated on measured dither coverage (the per-frame
-  `dither_phase_frac` record exists).
-- **LRGB join** — `compose` REFUSES a `luminance` member, because L joins after both
-  parts are stretched and this compose-then-render flow cannot express a nonlinear
-  step. `rgbcomp -lum=` is the headless mechanism when an L corpus arrives; the CLI
-  `-lum` blend colour space is undocumented — resolve before first use.
+- **Dual-band — THE STATED GAP DOES NOT EXIST.** The item described "native Ha + 2× drizzle of OIII
+  instead of downsampling OIII to Ha's half size". Siril does not force that downsample. `help
+  extract_HaOIII` on 1.4.4, verbatim: *"The optional argument `-resample={ha|oiii}` sets whether to
+  upsample the Ha image or downsample the OIII image to have images the same size. **If this argument
+  is not provided, no resampling will be carried out and the OIII image will have twice the height
+  and width of the Ha image**"*. FULL-SIZE OIII IS ALREADY THE DEFAULT; downsampling happens only if
+  someone passes `-resample=oiii`. The real question is how two different-sized products are
+  reconciled downstream — Siril's shipped answer is `-resample=ha` (an interpolated upsample), and a
+  drizzled Ha is the alternative. Also note this is NOT blocked by the drizzle exclusion in
+  BACKLOG:`resample-cost-and-drizzle`: `extract_HaOIII` consumes the CFA image BEFORE debayer, so it
+  never meets the undistort route's debayer requirement. Different route, no conflict.
+- **LRGB join — THE BLOCKER IS RESOLVED, and the answer carries a caveat rather than a clean bill.**
+  `compose` REFUSES a `luminance` member because L joins after both parts are stretched and this
+  compose-then-render flow cannot express a nonlinear step; `rgbcomp -lum=` remains the headless
+  mechanism when an L corpus arrives. Its blend space was recorded as "undocumented — resolve before
+  first use", and it is undocumented: `help rgbcomp` describes the arguments and says nothing about
+  colour space. **From source it is HSL substitution** — the RGB triple is converted to HSL, the
+  computed lightness DISCARDED, the luminance file's value substituted wholesale, and converted back,
+  hue and saturation carried through untouched. **And Siril's "L" is not a luminance:** `rgb_to_hsl`
+  computes `*l = (m + v) / 2.0`, the midpoint of the min and max channel values — geometric HSL
+  lightness, NOT photometric luminance and NOT CIE L*, with no channel weighting and no ICC step.
+  CONSEQUENCE, worth knowing before first use rather than after: this is the crude HSL-substitution
+  form of LRGB, not the CIE L*a*b* form PixInsight's LRGBCombination uses, and substituting
+  (min+max)/2 wholesale will move apparent saturation in a way a Lab join would not — most visibly on
+  saturated pixels, where min and max are far apart.
 
 ## `spcc-sensor-curve` — the Nikon Z f proxy is pinned; the B/G residual remains
 
