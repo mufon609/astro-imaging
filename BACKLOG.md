@@ -707,26 +707,30 @@ undistort groups; below the floor → standard). Remaining:
 
 ## `cross-set-record-home` — the corpus has a record home; the FINISH stage still cannot write to it
 
-`datasets/corpus/` now IS the corpus-level home and holds the corpus records —
-`baseline.json`, `recipe.json`, `member_selection/` (the stage records + the profile
-cache), `smear_attribution/`, the first build's finish records
-(`solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json` — NOT the canonical's;
-its `_identity` block carries the numbers) and the rest
-(`datasets/corpus/README.md`). What is still wrong is the FINISH stage:
-`finish_render.sh` hard-requires `--session=` and `--set=` ("SPCC spec routing +
-record naming"), so a combine's finish records file under the REFERENCE set. The live
-wart, MEASURED — 24 files matching `*july31+aug06+aug09+aug14*` sit under
-`datasets/aug09/set-02/qa_work/` alone (plus 1 under aug14/set-05, 4 under
-`datasets/corpus/`): the promote of the member-selection canonical (e4468e1) wrote
-`solve_stack_july31+aug06+aug09+aug14_full.json` and
-`spcc_set-02_july31+aug06+aug09+aug14_full.json` under
-`datasets/aug09/set-02/qa_work/` (their `_nosel` predecessors moved aside beside them)
-— a session-level product filed as a per-set one, the same defect as the earlier
-1760-frame four-set combine's SPCC record landing under set-03. `datasets/README.md`
-reserves session-level records for exactly this case (`../render_<tag>.json` beside
-`experiments.jsonl`) and the finish stage cannot write one. **Closes when** a cross-set
-product's finish records write under `datasets/corpus/` (or the session-level home)
-without borrowing a member set's directory.
+`datasets/corpus/` IS the corpus-level home and holds the corpus records — `baseline.json`,
+`recipe.json`, `member_selection/` (stage records + the profile cache), `smear_attribution/`, the
+first build's finish records and the rest (`datasets/corpus/README.md`). What is still wrong is the
+FINISH stage: `finish_render.sh:66` hard-requires `--session=` and `--set=` ("SPCC spec routing +
+record naming"), so a combine's finish records file under the REFERENCE set instead.
+
+**THE WART, RE-MEASURED and unchanged: of 29 tracked files naming the four-night product, 24 sit
+under `datasets/aug09/set-02/qa_work/` alone**, 1 under `aug14/set-05`, and only 4 under
+`datasets/corpus/`. So a reader who goes to the corpus home for the canonical's records finds 4 of
+29, and the rest are filed under one MEMBER of the combine — a session-level product recorded as a
+per-set one. This is the second occurrence of the same defect; the earlier 1760-frame four-set
+combine's SPCC record landed under set-03 the same way. `datasets/README.md:59` already reserves the
+right destination for exactly this case (`../render_<tag>.json`, beside `experiments.jsonl`), and
+the finish stage cannot write one.
+
+**SIZE OF THE FIX, measured so nobody assumes it is a one-liner or a rewrite.** `finish_render.sh`
+uses the pair for four things: the judge output path (`:168`, `:214`), and pass-through to
+`solve_field.py` (`:191`) and `spcc_run.py` (`:221`), which takes its target positionally. So the
+change is a corpus-target path through two scripts, not one — and the input it would need already
+exists: `datasets/corpus/recipe.json` is present, so the SPCC spec has a source at the corpus tier.
+Nothing here touches pixels; this is record placement and discoverability only.
+
+**Closes when** a cross-set product's finish records write under `datasets/corpus/` (or the
+session-level home) without borrowing a member set's directory.
 
 ## `frame-qa-order-dependent-scale` — the same data measures differently by run order
 
