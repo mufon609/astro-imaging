@@ -57,7 +57,9 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   split follows set-02's flat, not set-02's sky.** It also explains union-vs-per-set
   without sky span: the union is where the most confound accumulates, not where the
   most sky is. Testing it reaches the flat-residual line the owner has PAUSED
-  pending real flats, so this is recorded to survive, not scheduled.
+  pending real flats — BACKLOG:`per-group-flat-at-the-combine` carries that pause and
+  its reason, and unpausing it is what would make this testable. Recorded to survive,
+  not scheduled.
 - **"VISIBLE RINGS" IS NOT AN EYE OBSERVATION — it is a deleted IN-HOUSE
   METRIC's verdict, and the provenance was lost in a rewrite.** The sentence
   entered as a rings-gate failure; the commit that deleted the in-house
