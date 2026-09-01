@@ -206,7 +206,10 @@ null point *"there is still a gradient of 1% across AST3's field-of-view of 4.3 
 *"tested various approaches to remove the varying gradients in individual flat-field images"* and conclude *"the
 final optimal method can reduce the spatially dependent errors caused by the gradient to the negligible level"*.
 See also Chromey & Hasselbacher 1996, "The Flat Sky" (10.1086/133817). **The technique is NOT in the abstract —
-read the paper before acting on this.**
+read the paper before acting on this.** And note WHERE it applies: it removes a gradient from each FLAT FRAME
+before those frames are combined, which is exactly what `build_sky_flat.sh` does with sky frames. It is a
+candidate INSIDE the flatless route, not an argument for acquiring real flats — the synthetic route is the
+mission and both flat methods stay available to the pipeline.
 
 **THE `--desky` DEAD END IS NARROWER THAN IT READS, by its own mechanism.** It ran `seqsubsky` on the sky flat's
 RAW source frames, subtracting an ADDITIVE plane from a field that is `sky × V`, and the entry's own verdict is
@@ -649,12 +652,15 @@ A canvas mismatch is refused, never re-derived, and `eqcrop` appears nowhere in 
 (word-boundary checked — the apparent hits are all `seqcrop`). Siril 1.5's `eqcrop ra1 dec1 ra2 dec2`
 is the natural consumer (BACKLOG:`siril-1.5`).
 
-**STANDARDS-FIRST DEVIATION, recorded per CLAUDE.md rather than acted on.** Recording a region
-against a WCS is a solved, standardised problem: the DS9/funtools REGION FILE FORMAT declares shapes
-in a sky frame (`fk5`, `galactic`, …) — e.g. `box(11:24:39.213,-59:16:53.91,42.804",23.616",19.0384)`
-— and a box declared on the sky SURVIVES A RE-STACK BY CONSTRUCTION, which is exactly the unbuilt
-half. This repo invented `framing_<product>.json` instead. **The deviation stands and conversion
-buys nothing today, for a measured reason: nothing in this chain reads DS9 regions.** Siril does not
+**STANDARDS-FIRST, and the standard covers only HALF of this.** SERIALISING a region against a WCS
+is solved: the DS9/funtools REGION FILE FORMAT declares shapes in a sky frame (`fk5`, `galactic`, …)
+— e.g. `box(11:24:39.213,-59:16:53.91,42.804",23.616",19.0384)`. **What the standard does NOT cover
+is this repo's actual requirement**, because the mainstream does not have it: PixInsight's crop is
+pixel-based and its process icons re-apply PIXEL parameters, so the accepted workflow is to RE-CROP
+after a rebuild rather than restore a framing. A repo that rebuilds products and wants the framing to
+survive is asking a question the field does not ask — so `framing_<product>.json` is an ADDITION
+where the standard is silent, not a departure from it. **Adopting the DS9 serialisation buys nothing
+today either, for a measured reason: nothing in this chain reads DS9 regions.** Siril does not
 consume them, `eqcrop` takes ra/dec ARGUMENTS rather than a region file, and astropy's `regions`
 package is not installed here (`ModuleNotFoundError`). Converting would add a dependency and change
 no behaviour. Revisit if `eqcrop` lands, at which point RA/Dec corners are the input format anyway.
