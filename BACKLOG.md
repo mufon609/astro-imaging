@@ -630,20 +630,37 @@ raws re-staged, so the surface stays selection-only.
 **Closes when** after a chain run with auto-culls the page lists every excluded frame under its
 cause and the separate Sky Objects entry is gone from the grouped rail.
 
-## `framing-radec` — reproduce a drawn frame after a stack rebuild
+## `framing-radec` — the built half is BUILT; the unbuilt half has an industry format we do not consume
 
-The capture side, the verification and the diagnostic consume side are built and
-exercised: a drawn rectangle becomes
-`datasets/<session>/framing_<product>.json` carrying BOTH coordinate conventions (the
-measured y-flip trap) plus WCS RA/Dec corners, `verify_framing.py` stamps it with
-Siril `crop`+`stat`, and `finish_render --crop-record` applies a VERIFIED record to
-the LINEAR stack before solve/SPCC/stretch, refusing unverified records and canvas
-mismatches.
+The capture, verification and diagnostic-consume sides are built and exercised. VERIFIED in the two
+tracked records (`datasets/aug06/framing_stack_set-01+02+03_full_wcs.json`,
+`datasets/aug14/framing_stack_aug06+aug14_crop5lr.json`, both `status: verified`): each carries BOTH
+coordinate conventions with the y-flip trap visible in the data — same x/w/h, different y
+(`rect_fits` [364, **546**, 6643, 3549] against `rect_siril_crop_args` [364, **495**, …]; and
+[2889, **844**, …] against [2889, **426**, …]) — plus four WCS RA/Dec corners.
+`web/verify_framing.py` stamps a record with Siril `crop`+`stat` (its docstring carries the reason:
+an unverified screen-order box once shipped a vertically mirrored, zero-coverage wedge), and
+`finish_render --crop-record` applies a VERIFIED record to the LINEAR stack before solve/SPCC/stretch
+(`finish_render.sh:163`), refusing an unverified record (`:115-117`) and a canvas mismatch
+(`:121-124`).
 
-UNBUILT: deriving the rect on a REBUILT canvas from the record's RA/Dec corners —
-today a canvas mismatch is refused, not re-derived. Siril 1.5's `eqcrop` is the
-natural consumer. **Closes when** a drawn box renders to a final matching it AND the
-record reproduces that framing after a stack rebuild.
+UNBUILT, confirmed absent: deriving the rect on a REBUILT canvas from the record's RA/Dec corners.
+A canvas mismatch is refused, never re-derived, and `eqcrop` appears nowhere in `scripts/` or `web/`
+(word-boundary checked — the apparent hits are all `seqcrop`). Siril 1.5's `eqcrop ra1 dec1 ra2 dec2`
+is the natural consumer (BACKLOG:`siril-1.5`).
+
+**STANDARDS-FIRST DEVIATION, recorded per CLAUDE.md rather than acted on.** Recording a region
+against a WCS is a solved, standardised problem: the DS9/funtools REGION FILE FORMAT declares shapes
+in a sky frame (`fk5`, `galactic`, …) — e.g. `box(11:24:39.213,-59:16:53.91,42.804",23.616",19.0384)`
+— and a box declared on the sky SURVIVES A RE-STACK BY CONSTRUCTION, which is exactly the unbuilt
+half. This repo invented `framing_<product>.json` instead. **The deviation stands and conversion
+buys nothing today, for a measured reason: nothing in this chain reads DS9 regions.** Siril does not
+consume them, `eqcrop` takes ra/dec ARGUMENTS rather than a region file, and astropy's `regions`
+package is not installed here (`ModuleNotFoundError`). Converting would add a dependency and change
+no behaviour. Revisit if `eqcrop` lands, at which point RA/Dec corners are the input format anyway.
+
+**Closes when** a drawn box renders to a final matching it AND the record reproduces that framing
+after a stack rebuild.
 
 ## `route-recommendation` — the last wiring on the distortion route
 
