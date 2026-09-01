@@ -834,11 +834,29 @@ OPEN:
    curve). Suspects, none measured: photometry in a dense 17″/px field (blended stars,
    §4's NULL branch); Gaia XP's BP/RP junction at 640–680 nm and its systematics below
    400 nm (§1.6); the blue edge of the response that no proxy measures on this body.
-   **Discriminator: the same pin on a SPARSE field** — a crowding-driven intercept
-   would fall there, a curve-driven one would not. (A body-measured curve, §1.5 B1, is
-   owner-gated and NOT implied by this item.)
+   **THE STATED DISCRIMINATOR IS CONFOUNDED — "the same pin on a SPARSE field" cannot
+   attribute the intercept, and should not be run as written.** MEASURED: the corpus sits in
+   the GALACTIC PLANE — converting the pointings gives b = +2.19° (aug06/set-01) and +0.60°
+   (the CRVAL cluster), i.e. Cygnus. A sparse field is NECESSARILY a high-|b| field, so the
+   swap moves at least three things besides crowding: INTERSTELLAR REDDENING (wavelength-
+   dependent, acts directly on a B/G ratio, large and patchy in-plane and near zero at high
+   |b| — and it biases in the SAME direction as the hypothesis under test, the worst case);
+   STELLAR POPULATION (young reddened disk against bluer metal-poor thick-disk/halo, i.e.
+   different intrinsic colours feeding the same fit); and STATISTICAL POWER, which moves the
+   wrong way — fewer Gaia XP calibrators raise σ on a fit already at σ > 0.10, so a null
+   could mean "underpowered" rather than "not crowding". Four variables at once, against the
+   one-knob rule.
+   **THE CHEAP REPLACEMENT NEEDS NO NEW DATA: vary crowding WITHIN the existing field.**
+   Re-run the same pin on the same stars with an ISOLATION CUT (drop any calibrator with a
+   neighbour inside some radius) and compare the intercept against the uncut fit — same field,
+   same reddening, same population, same epoch, same optics, same night, so crowding is the
+   only thing that moved. If the intercept follows the cut it is crowding; if not, the suspect
+   list narrows to the curve. UNVERIFIED and the first thing to check: whether `spcc_run.py`'s
+   star list carries neighbour distances at all. Also unquantified: the reddening confound is
+   argued from a measured galactic latitude, not from a dust-map lookup.
+   (A body-measured curve, §1.5 B1, is owner-gated and NOT implied by this item.)
 2. The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's issue #3
-   asks for it) — U, the owner's call. The Butcher Z6 stays local (CC BY-NC-SA).
+   asks for it) — the owner's call. The Butcher Z6 stays local (CC BY-NC-SA).
 
 **Closes when** the B/G residual has an owner — the sparse-field discriminator run, or
 the residual registered as a property of dense fields.
