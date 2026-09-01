@@ -687,12 +687,23 @@ undistort groups; below the floor → standard). Remaining:
   builds a master flat from a staged `flats*`/`calib` dir and passes it as
   `--flat=` — the builder already takes any master, so this is chain wiring,
   not a builder change.
-- **The undistort builders take camera raws only** (the route's first stage is
-  darktable's lens correction, and darktable reads raws). A FITS
-  dedicated-astrocam set now routes here on its measured drift and is refused by
-  name (`exit 9`), pointing at the standard route. Closes when a FITS path
-  around the darktable stage exists — a BUILDER change, and a real capability
-  gap rather than a routing defect.
+- **The undistort route refuses a FITS dedicated-astrocam set (`exit 9`) — the refusal is RIGHT and
+  its STATED REASON IS FALSE.** It reads "the undistort builders take camera raws (darktable's lens
+  stage reads raws)". MEASURED: `darktable-cli` 5.4.1 INGESTS FITS — a synthetic 3-plane float FITS
+  exported to TIFF at exit 0. `darktable` reading FITS at 5.4.1 is a fact this repo already held; only
+  a FITS *writer* is missing. **The real blocker is the LENS PROFILE, not the file format.** A
+  dedicated-astrocam frame carries no camera/lens/focal EXIF (`exiv2`: "unknown image type"), so
+  lensfun matches nothing and darktable applies NO CORRECTION SILENTLY — precisely the trap
+  `lens_preflight.py` exists for ("an unmatched lens gets NO correction, silently", :23). That reason
+  is also more durable: it does not evaporate if darktable's FITS support improves.
+  **It is NOT permanent, and should not be recorded as a closed door.** `fit_lens_model.sh` fits
+  a,b,c from a SET'S OWN FRAMES via Hugin star correspondences — a method indifferent to whether the
+  glass is a camera lens or a telescope — so a telescope's distortion could be fitted and pinned the
+  way the Nikkor's is. That, not a FITS reader, is what would open this route to the class.
+  **Note the guard is currently UNREACHABLE:** it fires only on `ROUTE != standard && LIGHTS_KIND =
+  fits` (`run_set_chain.sh:280`), and the only FITS sets on the rig (`colonnello-m20/lights_{R,G,B}`)
+  are TRACKED, so `route.py:169` sends them to the standard route before the check is reached. The
+  guard is correct and dormant, not firing in practice.
 
 ## `cross-set-record-home` — the corpus has a record home; the FINISH stage still cannot write to it
 
