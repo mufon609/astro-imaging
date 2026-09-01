@@ -771,8 +771,14 @@ key of the tuple equal to what was emitted (`datasets/corpus/piperev_inheritance
 WEIGHT key is stamped — Siril's HISTORY card is the only trace (`docs/dead-ends/siril-behaviors.md`, "WEIGHTED
 STACKING PRINTS NO PER-IMAGE WEIGHT"); a weight that becomes a chain choice gets a stamped key (STACKWGT).
 
-OPEN: (e) whether `compose.py` rgbcomp composites and `run_pipeline.sh` stacks get the tuple at all (today no
-stamp — absent, not false) — U; a guard naming the tuple's key set — D/build. **Closes when** both are recorded.
+**OPEN, and it is an ASYMMETRY BETWEEN THE TWO SUPPORTED WORKFLOWS rather than a loose end.** MEASURED:
+`scripts/stack/compose.py` and `scripts/stack/run_pipeline.sh` contain zero occurrences of `PIPEREV` or
+`CALSET` — the tuple is ABSENT from them, not false. `run_pipeline.sh` is the STANDARD route, which is where
+`route.py:169` sends every TRACKED mount. So today an untracked/fixed-mount product carries a full provenance
+stamp and a tracked-mount product carries none, and rgbcomp composites carry none either. Both mount classes
+are first-class in this project permanently, so provenance should not depend on which one a set took.
+Deciding whether those two routes get the tuple is the owner's; a guard naming the tuple's key set is a build.
+**Closes when** both are recorded.
 
 ## `set-identity-by-sort-order` — the routing fix landed; three glob-order picks remain
 
