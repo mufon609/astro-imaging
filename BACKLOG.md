@@ -732,22 +732,35 @@ Nothing here touches pixels; this is record placement and discoverability only.
 **Closes when** a cross-set product's finish records write under `datasets/corpus/` (or the
 session-level home) without borrowing a member set's directory.
 
-## `frame-qa-order-dependent-scale` — the same data measures differently by run order
+## `frame-qa-order-dependent-scale` — the same data measures differently by run order, and the "solved" figure is itself wrong
 
-`qa_work/frame_metrics.json` prefers the solved plate scale only if the fingerprint
-already carries one, so running frame QA BEFORE the mount probe makes the pooled
-record's px→arcsec scale keep the nominal instead of a solved one — 17.5031
-nominal vs 18.003 probe, 2.9% apart. It is self-documented via `pixel_scale_source`
-and never re-derived once written. **AMENDED (measured during the optics-state
-audit): the 18.003 "solved" figure is itself an artifact** — all nine stack
-solves across three sessions read 16.98–17.08 ″/px, so the probe pipeline's
-green-plane scale arithmetic inflates by ~5.6%; the 13 pooled records it seeded
-(july31/aug06/aug09) carry its figure, aug14's five kept the nominal (the order
-defect recurred) and per-frame arcsec columns embed the nominal throughout
-(px figures unaffected; `datasets/aug06/experiments.jsonl`,
-`solved_scale_artifact_18_vs_17`). **Closes when** the scale is re-derived from
-a direct full-frame solve (or the record refreshed against the stack solve)
-and the probe-pipeline arithmetic's error is root-caused.
+`qa_work/frame_metrics.json` prefers the solved plate scale only if the fingerprint already carries
+one, so running frame QA BEFORE the mount probe leaves the pooled record on the nominal — 17.5031
+nominal against 18.003 from the probe, 2.9% apart. It is self-documented via `pixel_scale_source`
+and never re-derived once written. **AMENDED: the 18.003 "solved" figure is ITSELF an artifact** —
+all nine stack solves across three sessions read 16.98–17.08 ″/px, so the probe pipeline's
+green-plane scale arithmetic inflates by ~5.6% (ledger `solved_scale_artifact_18_vs_17`).
+
+RE-MEASURED, and the population is exactly as described: of the pooled records, **13 carry
+`pixel_scale_source = "astrometry.net solve (mount_probe), green-plane scale halved to the full-res
+debayered grid"` and 5 carry `"header FOCALLEN/XPIXSZ (nominal)"`** — the order defect recurred on
+aug14, which kept the nominal. Per-frame arcsec columns embed the nominal throughout; px figures are
+unaffected.
+
+**THE BLAST RADIUS IS CONTAINED, and the item never said so.** The inflated figure does NOT reach
+any decision. `fov_deg` — the denominator of the route key `drift_frac` — is derived in
+`acquisition.py` from the acquisition record's own scale, and those records carry
+`pixel_scale_arcsec: 16.979`, which sits INSIDE the stack-solve range rather than at the probe's
+18.003 or the nominal 17.5031. So routing is computed on the correct scale. The auto-cull is also
+unaffected: it thresholds robust z on FWHM, background, roundness and star count — px, ADU and
+dimensionless, never arcsec. **What is wrong is 13 records' arcsec columns, which are reported and
+not consumed.**
+
+A session-level probe would CONTAIN the defect to one measurement instead of seeding it per set
+(BACKLOG:`session-level-mount`), so the two items pull the same way.
+
+**Closes when** the scale is re-derived from a direct full-frame solve (or the record refreshed
+against the stack solve) and the probe-pipeline arithmetic's error is root-caused.
 
 ## `l1-set02-nonreplication` — WATCHLIST (rides the flat pause): two powered surfaces, same night, opposite answers
 
