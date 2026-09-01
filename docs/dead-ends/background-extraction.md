@@ -40,6 +40,24 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   floor is starlight. Clean structural check from the same run: after
   residualising both arms by a quadratic, the degree-2 arm retains
   1.000/1.010/1.018 — `subsky` moves ONLY its own polynomial subspace.
+- **THE L1 PER-FRAME-vs-ON-STACK RESULT DOES NOT REPLICATE ACROSS TWO SETS OF THE
+  SAME NIGHT, and the obvious explanation is REFUTED.** Both surfaces are POWERED
+  by the pre-committed criterion with comparable errors, and they disagree: set-01
+  separates at 2.59/2.09/1.47 SE, set-02 does not at 0.85/0.03/0.48. The verdict
+  reported the split rather than majority-voting it, by rule, because no mechanism
+  was in hand. **"The effect grows with sky span" cannot explain it** — the two
+  sets' inter-frame excursions are `sky_sep_arcsec` 16497.76 and 16549.39, i.e.
+  4.5827° against 4.5971°, **0.31% apart**. **The successor hypothesis, stated so
+  it can be tested rather than re-derived:** the union's paired deltas say the
+  on-stack arm REVEALS the starlight relation (+6.34/+12.93/+6.37 at 2.22–2.96 SE)
+  while the per-frame arm leaves it unmoved (−1.39/−0.83/−0.72 at 0.31–0.66 SE). If
+  what an on-stack plane reveals is the anti-correlated `sky × V` residual above,
+  the size of the arm difference should track the MAGNITUDE OF THAT CONFOUND on
+  each surface — a property of the FLAT, not of the geometry. Prediction: **the
+  split follows set-02's flat, not set-02's sky.** It also explains union-vs-per-set
+  without sky span: the union is where the most confound accumulates, not where the
+  most sky is. Testing it reaches the flat-residual line the owner has PAUSED
+  pending real flats, so this is recorded to survive, not scheduled.
 - **"VISIBLE RINGS" IS NOT AN EYE OBSERVATION — it is a deleted IN-HOUSE
   METRIC's verdict, and the provenance was lost in a rewrite.** The sentence
   entered as a rings-gate failure; the commit that deleted the in-house
